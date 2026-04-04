@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
+    <title>ROV Draft Tool - Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="text-gray-800 overflow-x-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    
+    <!-- Header -->
+    <header class="liquid-glass-strong sticky top-0 z-50 px-6 py-4 mb-6 gpu-accelerated border-b border-white/40">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i data-lucide="swords" class="w-7 h-7 text-blue-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                        ROV DRAFT
+                    </h1>
+                    <p class="text-xs text-gray-500 font-medium tracking-wide uppercase">Competitive Mode</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button id="resetBtn" class="group px-4 py-2.5 rounded-xl liquid-glass hover:bg-white/60 transition-all flex items-center gap-2 text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
+                    <span class="hidden sm:inline">รีเซ็ต</span>
+                </button>
+                <div class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 animate-pulse"></i>
+                    <span id="timer" class="font-mono text-lg">30</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="max-w-7xl mx-auto px-4 pb-8 space-y-6">
+        
+        <!-- Phase Indicator - ปรับให้เด่นขึ้น -->
+        <div class="relative overflow-hidden rounded-2xl p-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20">
+            <div class="liquid-glass rounded-xl p-4 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer-slow"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-sm font-bold text-gray-700 uppercase tracking-widest" id="phase-text">Ban Phase</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-4">
+                        <span id="currentTeamIndicator" class="flex items-center gap-2 font-bold text-lg">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                <i data-lucide="shield" class="w-5 h-5 text-blue-600"></i>
+                            </div>
+                            <span class="text-blue-600" id="teamText">Blue Turn</span>
+                        </span>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-600 font-medium" id="actionHint">เลือกตัวละครเพื่อแบน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Blue Team - ปรับให้ดู Premium -->
+            <div class="lg:col-span-3 space-y-4">
+                <div id="blue-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-400/30 shadow-xl shadow-blue-500/10 gpu-accelerated" data-team="blue">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-blue-200/30">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-400/30">
+                                <i data-lucide="shield" class="w-5 h-5 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-blue-900">BLUE TEAM</h2>
+                                <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wider">Bans: <span id="blue-ban-count">0</span>/3 | Picks: <span id="blue-pick-count">0</span>/5</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bans -->
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-blue-800/70 uppercase tracking-wider flex items-center gap-1">
+                            <i data-lucide="ban" class="w-3 h-3"></i> Banned
+                        </p>
+                        <div class="grid grid-cols-3 gap-2" id="blue-bans"></div>
+                    </div>
+                    
+                    <!-- Picks -->
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-blue-800/70 uppercase tracking-wider flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i> Picked
+                        </p>
+                        <div class="grid grid-cols-2 gap-2" id="blue-picks"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center - ปรับให้โฟกัสที่ Hero Grid -->
+            <div class="lg:col-span-6 space-y-4">
+                <!-- Controls -->
+                <div class="liquid-glass-strong rounded-2xl p-5 shadow-xl">
+                    <div class="relative mb-4 group">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+                        <input type="text" id="searchHero" placeholder="ค้นหาตัวละคร..." class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/60 border-2 border-transparent focus:border-blue-400/50 focus:bg-white/80 focus:outline-none text-sm font-medium shadow-inner transition-all placeholder:text-gray-400" autocomplete="off">
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 justify-center mb-5" id="role-filters"></div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btn-ban" class="group relative overflow-hidden py-3.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-sm shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:-translate-y-0.5 active:translate-y-0 transition-all border-2 border-transparent">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                            <span class="relative flex items-center justify-center gap-2">
+                                <i data-lucide="ban" class="w-4 h-4"></i> โหมดแบน
+                            </span>
+                        </button>
+                        <button id="btn-pick" class="group relative overflow-hidden py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 transition-all border-2 border-transparent">
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                            <span class="relative flex items-center justify-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i> โหมดเลือก
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Hero Grid - ปรับให้ดูดีขึ้น -->
+                <div class="liquid-glass-strong rounded-3xl p-6 shadow-2xl border border-white/50">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 rounded-lg bg-indigo-500/10">
+                                <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800">Hero Pool</h3>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-white/50 text-xs font-bold text-gray-600 border border-white/60" id="hero-count">0 ตัว</span>
+                    </div>
+                    <div class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-3 max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar" id="hero-grid"></div>
+                </div>
+            </div>
+            
+            <!-- Red Team -->
+            <div class="lg:col-span-3 space-y-4">
+                <div id="red-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-400/30 shadow-xl shadow-red-500/10 gpu-accelerated" data-team="red">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 to-orange-400"></div>
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-red-200/30">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center border border-red-400/30">
+                                <i data-lucide="flame" class="w-5 h-5 text-red-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-red-900">RED TEAM</h2>
+                                <p class="text-[10px] text-red-600 font-semibold uppercase tracking-wider">Bans: <span id="red-ban-count">0</span>/3 | Picks: <span id="red-pick-count">0</span>/5</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-red-800/70 uppercase tracking-wider flex items-center gap-1">
+                            <i data-lucide="ban" class="w-3 h-3"></i> Banned
+                        </p>
+                        <div class="grid grid-cols-3 gap-2" id="red-bans"></div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold text-red-800/70 uppercase tracking-wider flex items-center gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i> Picked
+                        </p>
+                        <div class="grid grid-cols-2 gap-2" id="red-picks"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
