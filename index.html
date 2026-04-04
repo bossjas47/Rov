@@ -11,7 +11,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        #saveFirebaseBtn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        #saveFirebaseBtn:hover {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+    </style>
 </head>
 
 <body class="text-gray-800 overflow-x-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 min-h-screen">
@@ -190,7 +205,7 @@
         </div>
     </main>
     
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 
 </html>
