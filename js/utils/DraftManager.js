@@ -119,24 +119,4 @@ export class DraftManager {
         this.state.currentMode = 'ban';
         this.onUpdate();
     }
-
-    async saveDraft(saveDraftToFirebase) {
-        if (this.state.blue.picks.length === 0 && this.state.red.picks.length === 0) {
-            this.toast?.show('ยังไม่มีการเลือกตัวละคร!', 'error');
-            return;
-        }
-        
-        try {
-            const draftData = {
-                blue: this.state.blue,
-                red: this.state.red,
-                timestamp: new Date().toISOString()
-            };
-            await saveDraftToFirebase(draftData);
-            this.toast?.show('บันทึกการดราฟท์ลง Firebase เรียบร้อย!', 'success');
-        } catch (error) {
-            this.toast?.show('เกิดข้อผิดพลาดในการบันทึก!', 'error');
-        }
-    }
 }
-

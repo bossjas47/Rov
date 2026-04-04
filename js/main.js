@@ -3,7 +3,6 @@ import { HeroGrid } from './components/HeroGrid.js';
 import { TeamPanel } from './components/TeamPanel.js';
 import { ToastManager } from './components/Toast.js';
 import { roleLabels, heroes } from './data/heroes.js';
-import { saveDraftToFirebase } from './services/firebase-service.js';
 
 class DraftApp {
     constructor() {
@@ -57,20 +56,6 @@ class DraftApp {
                 this.toast.show('รีเซ็ตการดราฟท์เรียบร้อย', 'info');
             }
         });
-
-        // Add Save to Firebase button listener
-        const headerActions = document.querySelector('header .flex.items-center.gap-3');
-        if (headerActions) {
-            const saveBtn = document.createElement('button');
-            saveBtn.id = 'saveFirebaseBtn';
-            saveBtn.className = 'group px-4 py-2.5 rounded-xl liquid-glass hover:bg-white/60 transition-all flex items-center gap-2 text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 ml-2';
-            saveBtn.innerHTML = '<i data-lucide="cloud-upload" class="w-4 h-4"></i><span class="hidden sm:inline">บันทึก</span>';
-            headerActions.prepend(saveBtn);
-            
-            saveBtn.addEventListener('click', () => {
-                this.draftManager.saveDraft(saveDraftToFirebase);
-            });
-        }
     }
 
     setRole(role) {
