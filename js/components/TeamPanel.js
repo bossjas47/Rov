@@ -55,7 +55,7 @@ export class TeamPanel {
                     slot.classList.add('filled');
                     slot.innerHTML = `
                         <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="">
-                        <div class="hero-name">${Security.escapeHtml(hero.thaiName)}</div>
+	                        <div class="hero-name">${Security.escapeHtml(hero.name)}</div>
                         <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'picks', ${idx})">×</div>
                     `;
                 }

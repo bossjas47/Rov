@@ -35,7 +35,7 @@ export class HeroGrid {
             const matchesRole = this.currentRole === 'all' || hero.role === this.currentRole;
             const matchesSearch = 
                 hero.name.toLowerCase().includes(this.searchQuery) || 
-                hero.thaiName.includes(this.searchQuery);
+                hero.thaiName.includes(this.searchQuery); // ยังคงค้นหาด้วยภาษาไทยได้ แต่แสดงผลเป็นอังกฤษ
             return matchesRole && matchesSearch;
         });
     }
@@ -74,7 +74,7 @@ export class HeroGrid {
         return `
             <div class="hero-card liquid-glass rounded-lg overflow-hidden relative gpu-accelerated ${extraClass}" 
                  data-hero-id="${hero.id}"
-                 title="${Security.escapeHtml(hero.thaiName)}">
+	                 title="${Security.escapeHtml(hero.name)}">
                 <div class="aspect-square relative bg-gradient-to-br from-gray-100 to-gray-200">
                     <img src="rovhero/${hero.imageFile}" 
                          alt="${Security.escapeHtml(hero.name)}"
@@ -84,7 +84,7 @@ export class HeroGrid {
                     ${statusBadge}
                 </div>
                 <div class="p-1.5 bg-white/30">
-                    <p class="text-[10px] font-bold text-gray-800 truncate">${Security.escapeHtml(hero.thaiName)}</p>
+	                    <p class="text-[10px] font-bold text-gray-800 truncate">${Security.escapeHtml(hero.name)}</p>
                 </div>
             </div>
         `;

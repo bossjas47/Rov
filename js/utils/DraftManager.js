@@ -46,7 +46,7 @@ export class DraftManager {
                 return false;
             }
             this.state[team].bans.push(heroId);
-            this.toast?.ban(hero.thaiName, team);
+            this.toast?.ban(hero.name, team);
         } else {
             if (this.state[team].picks.length >= 5) {
                 this.toast?.show('เลือกครบ 5 ตัวแล้ว!', 'info');
@@ -58,7 +58,7 @@ export class DraftManager {
                 return false;
             }
             this.state[team].picks.push(heroId);
-            this.toast?.pick(hero.thaiName, team);
+            this.toast?.pick(hero.name, team);
         }
         
         this.switchTurn();
@@ -81,7 +81,7 @@ export class DraftManager {
         const hero = this.heroes.find(h => h.id === heroId);
         
         this.state[team][type].splice(index, 1);
-        this.toast?.show(`ยกเลิก${type === 'ban' ? 'การแบน' : 'การเลือก'} ${hero?.thaiName || ''}`, 'info');
+        this.toast?.show(`ยกเลิก${type === 'ban' ? 'การแบน' : 'การเลือก'} ${hero?.name || ''}`, 'info');
         this.onUpdate();
     }
 
