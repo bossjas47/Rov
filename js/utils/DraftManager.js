@@ -61,7 +61,9 @@ export class DraftManager {
             this.toast?.pick(hero.name, team);
         }
         
-        this.switchTurn();
+        // Handle turn and mode switching logic
+        this.handleNextTurn();
+        
         this.onUpdate();
         
         setTimeout(() => {
@@ -69,6 +71,37 @@ export class DraftManager {
         }, 100);
         
         return true;
+    }
+
+    handleNextTurn() {
+        const blueBans = this.state.blue.bans.length;
+        const redBans = this.state.red.bans.length;
+        const bluePicks = this.state.blue.picks.length;
+        const redPicks = this.state.red.picks.length;
+
+        // Ban Phase Logic (4 Bans each)
+        if (this.state.currentMode === 'ban') {
+            if (blueBans + redBans < 8) {
+                // Alternate bans: Blue -> Red -> Blue -> Red ...
+                this.state.currentTeam = this.state.currentTeam === 'blue' ? 'red' : 'blue';
+            } else {
+                // All bans completed, switch to Pick Phase
+                this.state.currentMode = 'pick';
+                this.state.currentTeam = 'blue'; // Blue starts picking
+                this.toast?.show('เข้าสู่ช่วงการเลือกตัวละคร (Pick Phase)', 'info');
+            }
+        } 
+        // Pick Phase Logic (5 Picks each)
+        else {
+            if (bluePicks + redPicks < 10) {
+                // Standard pick order can be complex, but for simplicity: Alternate Blue -> Red
+                // (In pro play it's 1-2-2-2-2-1, but we'll stick to simple alternate for now unless requested)
+                this.state.currentTeam = this.state.currentTeam === 'blue' ? 'red' : 'blue';
+            } else {
+                // All picks completed
+                this.toast?.show('การดราฟท์เสร็จสิ้น!', 'success');
+            }
+        }
     }
 
     removeHero(team, type, index) {
