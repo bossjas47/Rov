@@ -26,14 +26,21 @@ export class HeroGrid {
     initEventListeners() {
         let clicking = false;
         this.container.addEventListener('click', (e) => {
-            const card = e.target.closest('.hero-card:not(.disabled)');
-            if (!card || clicking) return;
+            // Find the closest hero-card that is NOT disabled
+            const card = e.target.closest('.hero-card');
+            
+            // If no card found or card is disabled or already clicking, ignore
+            if (!card || card.classList.contains('disabled') || clicking) return;
             
             clicking = true;
             const heroId = card.dataset.heroId;
-            this.draftManager.selectHero(heroId);
             
-            setTimeout(() => clicking = false, 300);
+            if (heroId) {
+                this.draftManager.selectHero(heroId);
+            }
+            
+            // Reset clicking flag after a short delay to prevent double clicks
+            setTimeout(() => clicking = false, 200);
         });
     }
 
@@ -75,6 +82,8 @@ export class HeroGrid {
         const cards = this.container.querySelectorAll('.hero-card');
         cards.forEach(card => {
             const heroId = card.dataset.heroId;
+            if (!heroId) return;
+
             const isBanned = this.draftManager.isHeroBanned(heroId);
             const isPicked = this.draftManager.isHeroPicked(heroId);
             const picker = this.draftManager.getHeroPicker(heroId);
@@ -92,7 +101,8 @@ export class HeroGrid {
                 badge.className = 'status-badge status-ban';
                 badge.title = 'Banned';
                 badge.textContent = 'B';
-                card.querySelector('.aspect-square').appendChild(badge);
+                const imgContainer = card.querySelector('.aspect-square');
+                if (imgContainer) imgContainer.appendChild(badge);
             } else if (isPicked) {
                 const isBlue = picker === 'blue';
                 card.classList.add(`selected-pick-${picker}`, 'disabled');
@@ -100,7 +110,8 @@ export class HeroGrid {
                 badge.className = `status-badge ${isBlue ? 'status-pick-blue' : 'status-pick-red'}`;
                 badge.title = `Picked by ${picker}`;
                 badge.textContent = isBlue ? 'B' : 'R';
-                card.querySelector('.aspect-square').appendChild(badge);
+                const imgContainer = card.querySelector('.aspect-square');
+                if (imgContainer) imgContainer.appendChild(badge);
             }
         });
     }
