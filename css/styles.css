@@ -3,27 +3,29 @@
 body {
     font-family: 'Inter', 'Noto Sans Thai', sans-serif;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    text-rendering: optimizeSpeed; /* Changed from optimizeLegibility for speed */
+    overflow-x: hidden;
 }
 
+/* Optimized GPU Acceleration */
 .gpu-accelerated {
+    will-change: transform, opacity;
     transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform;
 }
 
+/* Optimized Glassmorphism - Reduced blur for performance */
 .liquid-glass {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.7); /* More opaque, less blur needed */
     border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* Only apply backdrop-filter to static elements, not scrolling ones */
+header.liquid-glass-strong, 
 .liquid-glass-strong {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
 }
@@ -66,54 +68,49 @@ body {
     animation: shimmer-slow 3s infinite;
 }
 
-/* Hero Cards - Premium Style */
+/* Hero Grid Optimization */
+#hero-grid {
+    content-visibility: auto; /* Critical for scrolling performance with many items */
+    contain-intrinsic-size: 1000px;
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* Hero Cards - Optimized for Scrolling */
 .hero-card {
     position: relative;
     overflow: hidden;
-    transform: translateZ(0);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    contain: layout style;
+    transition: transform 0.2s ease-out; /* Simpler transition */
+    contain: content; /* Better isolation */
     cursor: pointer;
     border: 2px solid transparent;
+    background: #fff; /* Solid background for grid items */
+    border-radius: 8px;
 }
 
-.hero-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.hero-card:hover:not(.disabled)::before {
-    opacity: 1;
-}
-
+/* Remove heavy filters and shadows on grid items during scroll */
 .hero-card:hover:not(.disabled) {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 20px 40px rgba(31, 38, 135, 0.2);
-    z-index: 20;
-    border-color: rgba(255,255,255,0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 10;
+    border-color: #3b82f6;
 }
 
 .hero-card.disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
-    filter: grayscale(100%) brightness(0.7);
+    filter: grayscale(100%); /* Simpler filter */
     pointer-events: none;
 }
 
 .hero-card.selected-pick-blue {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 10px 30px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
 .hero-card.selected-pick-red {
     border-color: #ef4444;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3), 0 10px 30px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
 }
 
 .hero-card.selected-ban {
@@ -124,10 +121,10 @@ body {
 /* Status Badges */
 .status-badge {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 22px;
-    height: 22px;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -135,30 +132,29 @@ body {
     font-size: 10px;
     font-weight: bold;
     color: white;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    border: 2px solid white;
+    z-index: 5;
+    border: 1px solid white;
 }
 
-.status-ban { background: linear-gradient(135deg, #6b7280, #374151); }
-.status-pick-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.status-pick-red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+.status-ban { background: #6b7280; }
+.status-pick-blue { background: #3b82f6; }
+.status-pick-red { background: #ef4444; }
 
-/* Draft Slots - Modern Style */
+/* Draft Slots */
 .draft-slot {
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
     border: 2px dashed rgba(156, 163, 175, 0.3);
     border-radius: 12px;
+    contain: content;
 }
 
 .draft-slot.filled {
-    background: rgba(255, 255, 255, 0.9);
+    background: #fff;
     border-style: solid;
-    border-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #eee;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .draft-slot .remove-btn {
@@ -175,16 +171,13 @@ body {
     justify-content: center;
     cursor: pointer;
     opacity: 0;
-    transition: all 0.2s;
+    transition: opacity 0.2s;
     font-size: 14px;
-    line-height: 1;
-    z-index: 20;
-    border: 1px solid rgba(255,255,255,0.3);
+    z-index: 10;
 }
 
 .draft-slot:hover .remove-btn {
     opacity: 1;
-    transform: scale(1.1);
 }
 
 .draft-slot .hero-name {
@@ -192,10 +185,10 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    background: rgba(0,0,0,0.7);
     color: white;
     font-size: 9px;
-    padding: 6px 4px 4px;
+    padding: 4px 2px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -203,25 +196,15 @@ body {
     font-weight: 600;
 }
 
-/* Team Active Animations */
+/* Team Active Animations - Simplified */
 .team-active {
-    animation: pulse-blue 2s infinite;
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
 }
 
 .team-active-red {
-    animation: pulse-red 2s infinite;
-    box-shadow: 0 0 30px rgba(239, 68, 68, 0.3);
-}
-
-@keyframes pulse-blue {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.2); }
-    50% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0), 0 0 40px rgba(59, 130, 246, 0.4); }
-}
-
-@keyframes pulse-red {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4), 0 0 30px rgba(239, 68, 68, 0.2); }
-    50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0), 0 0 40px rgba(239, 68, 68, 0.4); }
+    border: 2px solid #ef4444;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
 }
 
 /* Custom Scrollbar */
@@ -230,8 +213,7 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.03);
-    border-radius: 10px;
+    background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -239,38 +221,19 @@ body {
     border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.5);
-}
-
 /* Role Buttons */
 .role-btn {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
-}
-
-.role-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: background 0.2s, color 0.2s;
 }
 
 .role-btn.active {
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    background: #3b82f6;
     color: white;
-    border-color: rgba(255,255,255,0.5);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-
-/* Empty Slot Number */
-.draft-slot:not(.filled) {
-    font-weight: 700;
-    color: rgba(156, 163, 175, 0.5);
-    font-size: 14px;
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .hero-card:hover:not(.disabled) {
-        transform: scale(1.02);
+    #hero-grid {
+        gap: 0.5rem;
     }
 }

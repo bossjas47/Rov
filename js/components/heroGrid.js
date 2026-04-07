@@ -128,19 +128,20 @@ export class HeroGrid {
         }
 
         return `
-            <div class="hero-card liquid-glass rounded-lg overflow-hidden relative gpu-accelerated ${extraClass}" 
+            <div class="hero-card rounded-lg overflow-hidden relative gpu-accelerated ${extraClass}" 
                  data-hero-id="${hero.id}"
                  title="${Security.escapeHtml(hero.name)}">
-                <div class="aspect-square relative bg-gradient-to-br from-gray-100 to-gray-200">
+                <div class="aspect-square relative bg-gray-100" style="aspect-ratio: 1/1;">
                     <img src="rovhero/${hero.imageFile}" 
                          alt="${Security.escapeHtml(hero.name)}"
                          class="w-full h-full object-cover"
                          loading="lazy"
+                         width="80" height="80"
                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23e2e8f0%22 width=%2260%22 height=%2260%22/%3E%3Ctext x=%2230%22 y=%2235%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2364748b%22%3E${hero.name.charAt(0)}%3C/text%3E%3C/svg%3E'">
                     ${statusBadge}
                 </div>
-                <div class="p-1.5 bg-white/30">
-                    <p class="text-[10px] font-bold text-gray-800 truncate">${Security.escapeHtml(hero.name)}</p>
+                <div class="p-1 bg-white">
+                    <p class="text-[9px] font-bold text-gray-800 truncate text-center">${Security.escapeHtml(hero.name)}</p>
                 </div>
             </div>
         `;
