@@ -73,50 +73,58 @@ class DraftApp {
 
     removeHero(team, type, index) {
         this.draftManager.removeHero(team, type, index);
-        this.heroGrid.render();
+        // Use updateStatus instead of full render for better performance
+        this.heroGrid.updateStatus();
     }
 
     update() {
         const state = this.draftManager.getState();
         
-        this.bluePanel.update(state);
-        this.redPanel.update(state);
-        
-        // Update counters
-        document.getElementById('blue-ban-count').textContent = state.blue.bans.length;
-        document.getElementById('blue-pick-count').textContent = state.blue.picks.length;
-        document.getElementById('red-ban-count').textContent = state.red.bans.length;
-        document.getElementById('red-pick-count').textContent = state.red.picks.length;
-        
-        const isBlue = state.currentTeam === 'blue';
-        const isBan = state.currentMode === 'ban';
-        
-        document.getElementById('teamText').textContent = isBlue ? 'Blue Turn' : 'Red Turn';
-        document.getElementById('currentTeamIndicator').className = `flex items-center gap-3 font-bold text-lg ${isBlue ? 'text-blue-600' : 'text-red-600'}`;
-        document.getElementById('phase-text').textContent = isBan ? 'Ban Phase' : 'Pick Phase';
-        document.getElementById('actionHint').textContent = isBan ? 'เลือกตัวละครเพื่อแบน' : 'เลือกตัวละครที่ต้องการ';
-        
-        // Team panel animations
-        const bluePanel = document.getElementById('blue-team-panel');
-        const redPanel = document.getElementById('red-team-panel');
-        
-        bluePanel.classList.toggle('team-active', isBlue);
-        bluePanel.classList.remove('team-active-red');
-        redPanel.classList.toggle('team-active-red', !isBlue);
-        
-        // Button states
-        const btnBan = document.getElementById('btn-ban');
-        const btnPick = document.getElementById('btn-pick');
-        
-        if (isBan) {
-            btnBan.classList.add('ring-4', 'ring-red-500/30', 'scale-105');
-            btnPick.classList.remove('ring-4', 'ring-blue-500/30', 'scale-105');
-        } else {
-            btnBan.classList.remove('ring-4', 'ring-red-500/30', 'scale-105');
-            btnPick.classList.add('ring-4', 'ring-blue-500/30', 'scale-105');
-        }
-        
-        if (window.lucide) lucide.createIcons();
+        // Use requestAnimationFrame for smooth UI updates
+        requestAnimationFrame(() => {
+            this.bluePanel.update(state);
+            this.redPanel.update(state);
+            
+            // Update status of hero grid without full re-render
+            this.heroGrid.updateStatus();
+            
+            // Update counters
+            document.getElementById('blue-ban-count').textContent = state.blue.bans.length;
+            document.getElementById('blue-pick-count').textContent = state.blue.picks.length;
+            document.getElementById('red-ban-count').textContent = state.red.bans.length;
+            document.getElementById('red-pick-count').textContent = state.red.picks.length;
+            
+            const isBlue = state.currentTeam === 'blue';
+            const isBan = state.currentMode === 'ban';
+            
+            document.getElementById('teamText').textContent = isBlue ? 'Blue Turn' : 'Red Turn';
+            document.getElementById('currentTeamIndicator').className = `flex items-center gap-3 font-bold text-lg ${isBlue ? 'text-blue-600' : 'text-red-600'}`;
+            document.getElementById('phase-text').textContent = isBan ? 'Ban Phase' : 'Pick Phase';
+            document.getElementById('actionHint').textContent = isBan ? 'เลือกตัวละครเพื่อแบน' : 'เลือกตัวละครที่ต้องการ';
+            
+            // Team panel animations
+            const bluePanel = document.getElementById('blue-team-panel');
+            const redPanel = document.getElementById('red-team-panel');
+            
+            bluePanel.classList.toggle('team-active', isBlue);
+            bluePanel.classList.remove('team-active-red');
+            redPanel.classList.toggle('team-active-red', !isBlue);
+            
+            // Button states
+            const btnBan = document.getElementById('btn-ban');
+            const btnPick = document.getElementById('btn-pick');
+            
+            if (isBan) {
+                btnBan.classList.add('ring-4', 'ring-red-500/30', 'scale-105');
+                btnPick.classList.remove('ring-4', 'ring-blue-500/30', 'scale-105');
+            } else {
+                btnBan.classList.remove('ring-4', 'ring-red-500/30', 'scale-105');
+                btnPick.classList.add('ring-4', 'ring-blue-500/30', 'scale-105');
+            }
+            
+            // Only call lucide if icons are present in the header/panels
+            if (window.lucide) lucide.createIcons();
+        });
     }
 
     startTimer() {

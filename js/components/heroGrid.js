@@ -10,6 +10,9 @@ export class HeroGrid {
         
         // Debounced render for search
         this.debouncedRender = this.debounce(() => this.render(), 50);
+        
+        // Use Event Delegation: Attach listener once to the container
+        this.initEventListeners();
     }
 
     debounce(fn, ms) {
@@ -20,13 +23,30 @@ export class HeroGrid {
         };
     }
 
+    initEventListeners() {
+        let clicking = false;
+        this.container.addEventListener('click', (e) => {
+            const card = e.target.closest('.hero-card:not(.disabled)');
+            if (!card || clicking) return;
+            
+            clicking = true;
+            const heroId = card.dataset.heroId;
+            this.draftManager.selectHero(heroId);
+            
+            setTimeout(() => clicking = false, 300);
+        });
+    }
+
     setRole(role) {
+        if (this.currentRole === role) return;
         this.currentRole = role;
         this.render();
     }
 
     setSearch(query) {
-        this.searchQuery = Security.sanitizeInput(query).toLowerCase();
+        const sanitized = Security.sanitizeInput(query).toLowerCase();
+        if (this.searchQuery === sanitized) return;
+        this.searchQuery = sanitized;
         this.debouncedRender();
     }
 
@@ -35,22 +55,58 @@ export class HeroGrid {
             const matchesRole = this.currentRole === 'all' || hero.role === this.currentRole;
             const matchesSearch = 
                 hero.name.toLowerCase().includes(this.searchQuery) || 
-                hero.thaiName.includes(this.searchQuery); // ยังคงค้นหาด้วยภาษาไทยได้ แต่แสดงผลเป็นอังกฤษ
+                hero.thaiName.includes(this.searchQuery);
             return matchesRole && matchesSearch;
         });
     }
 
     render() {
-        // Use requestAnimationFrame for smooth rendering
-        requestAnimationFrame(() => {
-            const filtered = this.getFilteredHeroes();
-            const html = filtered.map(hero => this.createHeroCard(hero)).join('');
-            this.container.innerHTML = html;
+        // Use DocumentFragment for better performance when rendering many elements
+        const filtered = this.getFilteredHeroes();
+        const html = filtered.map(hero => this.createHeroCard(hero)).join('');
+        
+        // Only update innerHTML when necessary (e.g., filtering/searching)
+        this.container.innerHTML = html;
+        document.getElementById('hero-count').textContent = `${filtered.length} ตัว`;
+        
+        // Only call lucide if icons are present in the grid (usually not for hero cards)
+        // if (window.lucide) lucide.createIcons();
+    }
+
+    /**
+     * Optimized update: Only update the status of cards without re-rendering the whole grid
+     */
+    updateStatus() {
+        const cards = this.container.querySelectorAll('.hero-card');
+        cards.forEach(card => {
+            const heroId = card.dataset.heroId;
+            const isBanned = this.draftManager.isHeroBanned(heroId);
+            const isPicked = this.draftManager.isHeroPicked(heroId);
+            const picker = this.draftManager.getHeroPicker(heroId);
             
-            document.getElementById('hero-count').textContent = `${filtered.length} ตัว`;
-            this.attachListeners();
+            // Remove existing status classes
+            card.classList.remove('selected-ban', 'selected-pick-blue', 'selected-pick-red', 'disabled');
             
-            if (window.lucide) lucide.createIcons();
+            // Remove existing status badge
+            const oldBadge = card.querySelector('.status-badge');
+            if (oldBadge) oldBadge.remove();
+
+            if (isBanned) {
+                card.classList.add('selected-ban', 'disabled');
+                const badge = document.createElement('div');
+                badge.className = 'status-badge status-ban';
+                badge.title = 'Banned';
+                badge.textContent = 'B';
+                card.querySelector('.aspect-square').appendChild(badge);
+            } else if (isPicked) {
+                const isBlue = picker === 'blue';
+                card.classList.add(`selected-pick-${picker}`, 'disabled');
+                const badge = document.createElement('div');
+                badge.className = `status-badge ${isBlue ? 'status-pick-blue' : 'status-pick-red'}`;
+                badge.title = `Picked by ${picker}`;
+                badge.textContent = isBlue ? 'B' : 'R';
+                card.querySelector('.aspect-square').appendChild(badge);
+            }
         });
     }
 
@@ -74,7 +130,7 @@ export class HeroGrid {
         return `
             <div class="hero-card liquid-glass rounded-lg overflow-hidden relative gpu-accelerated ${extraClass}" 
                  data-hero-id="${hero.id}"
-	                 title="${Security.escapeHtml(hero.name)}">
+                 title="${Security.escapeHtml(hero.name)}">
                 <div class="aspect-square relative bg-gradient-to-br from-gray-100 to-gray-200">
                     <img src="rovhero/${hero.imageFile}" 
                          alt="${Security.escapeHtml(hero.name)}"
@@ -84,26 +140,9 @@ export class HeroGrid {
                     ${statusBadge}
                 </div>
                 <div class="p-1.5 bg-white/30">
-	                    <p class="text-[10px] font-bold text-gray-800 truncate">${Security.escapeHtml(hero.name)}</p>
+                    <p class="text-[10px] font-bold text-gray-800 truncate">${Security.escapeHtml(hero.name)}</p>
                 </div>
             </div>
         `;
-    }
-
-    attachListeners() {
-        const cards = this.container.querySelectorAll('.hero-card:not(.disabled)');
-        cards.forEach(card => {
-            // Throttle clicks to prevent double selection
-            let clicking = false;
-            card.addEventListener('click', () => {
-                if (clicking) return;
-                clicking = true;
-                
-                const heroId = card.dataset.heroId;
-                this.draftManager.selectHero(heroId);
-                
-                setTimeout(() => clicking = false, 300);
-            });
-        });
     }
 }

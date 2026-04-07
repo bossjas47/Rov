@@ -31,17 +31,27 @@ export class TeamPanel {
         // Update bans
         const banSlots = this.bansContainer.querySelectorAll('.draft-slot');
         banSlots.forEach((slot, idx) => {
-            if (teamState.bans[idx]) {
-                const hero = heroes.find(h => h.id === teamState.bans[idx]);
-                if (hero) {
-                    slot.classList.add('filled');
-                    slot.innerHTML = `
-                        <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md opacity-60 grayscale" alt="">
-                        <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'bans', ${idx})">×</div>
-                    `;
+            const currentHeroId = teamState.bans[idx];
+            const isFilled = slot.classList.contains('filled');
+            const slotHeroId = slot.dataset.heroId;
+
+            if (currentHeroId) {
+                // Only update if the hero in this slot has changed
+                if (!isFilled || slotHeroId !== currentHeroId) {
+                    const hero = heroes.find(h => h.id === currentHeroId);
+                    if (hero) {
+                        slot.classList.add('filled');
+                        slot.dataset.heroId = currentHeroId;
+                        slot.innerHTML = `
+                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md opacity-60 grayscale" alt="">
+                            <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'bans', ${idx})">×</div>
+                        `;
+                    }
                 }
-            } else {
+            } else if (isFilled) {
+                // Clear slot if it was filled but now is empty
                 slot.classList.remove('filled');
+                delete slot.dataset.heroId;
                 slot.innerHTML = `${idx + 1}`;
             }
         });
@@ -49,18 +59,28 @@ export class TeamPanel {
         // Update picks
         const pickSlots = this.picksContainer.querySelectorAll('.draft-slot');
         pickSlots.forEach((slot, idx) => {
-            if (teamState.picks[idx]) {
-                const hero = heroes.find(h => h.id === teamState.picks[idx]);
-                if (hero) {
-                    slot.classList.add('filled');
-                    slot.innerHTML = `
-                        <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="">
-	                        <div class="hero-name">${Security.escapeHtml(hero.name)}</div>
-                        <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'picks', ${idx})">×</div>
-                    `;
+            const currentHeroId = teamState.picks[idx];
+            const isFilled = slot.classList.contains('filled');
+            const slotHeroId = slot.dataset.heroId;
+
+            if (currentHeroId) {
+                // Only update if the hero in this slot has changed
+                if (!isFilled || slotHeroId !== currentHeroId) {
+                    const hero = heroes.find(h => h.id === currentHeroId);
+                    if (hero) {
+                        slot.classList.add('filled');
+                        slot.dataset.heroId = currentHeroId;
+                        slot.innerHTML = `
+                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="">
+                            <div class="hero-name">${Security.escapeHtml(hero.name)}</div>
+                            <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'picks', ${idx})">×</div>
+                        `;
+                    }
                 }
-            } else {
+            } else if (isFilled) {
+                // Clear slot if it was filled but now is empty
                 slot.classList.remove('filled');
+                delete slot.dataset.heroId;
                 slot.innerHTML = `<span class="text-gray-400 text-xs font-bold">${idx + 1}</span>`;
             }
         });
