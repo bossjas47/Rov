@@ -11,6 +11,8 @@ class DraftApp {
         this.heroGrid = new HeroGrid('hero-grid', this.draftManager);
         this.bluePanel = new TeamPanel('blue', 'blue-team-panel');
         this.redPanel = new TeamPanel('red', 'red-team-panel');
+        this.timerInterval = null;
+        this.timeLeft = 30;
         
         this.init();
     }
@@ -53,6 +55,7 @@ class DraftApp {
             if (confirm('ต้องการรีเซ็ตการดราฟท์ทั้งหมด?')) {
                 this.draftManager.reset();
                 this.heroGrid.render();
+                this.resetTimer();
                 this.toast.show('รีเซ็ตการดราฟท์เรียบร้อย', 'info');
             }
         });
@@ -73,22 +76,20 @@ class DraftApp {
 
     removeHero(team, type, index) {
         this.draftManager.removeHero(team, type, index);
-        // Use updateStatus instead of full render for better performance
         this.heroGrid.updateStatus();
     }
 
     update() {
         const state = this.draftManager.getState();
         
-        // Use requestAnimationFrame for smooth UI updates
         requestAnimationFrame(() => {
             this.bluePanel.update(state);
             this.redPanel.update(state);
-            
-            // Update status of hero grid without full re-render
             this.heroGrid.updateStatus();
             
-            // Update counters
+            // Reset timer on every turn change
+            this.resetTimer();
+            
             document.getElementById('blue-ban-count').textContent = state.blue.bans.length;
             document.getElementById('blue-pick-count').textContent = state.blue.picks.length;
             document.getElementById('red-ban-count').textContent = state.red.bans.length;
@@ -102,7 +103,6 @@ class DraftApp {
             document.getElementById('phase-text').textContent = isBan ? 'Ban Phase' : 'Pick Phase';
             document.getElementById('actionHint').textContent = isBan ? 'เลือกตัวละครเพื่อแบน' : 'เลือกตัวละครที่ต้องการ';
             
-            // Team panel animations
             const bluePanel = document.getElementById('blue-team-panel');
             const redPanel = document.getElementById('red-team-panel');
             
@@ -110,7 +110,6 @@ class DraftApp {
             bluePanel.classList.remove('team-active-red');
             redPanel.classList.toggle('team-active-red', !isBlue);
             
-            // Button states
             const btnBan = document.getElementById('btn-ban');
             const btnPick = document.getElementById('btn-pick');
             
@@ -122,30 +121,38 @@ class DraftApp {
                 btnPick.classList.add('ring-4', 'ring-blue-500/30', 'scale-105');
             }
             
-            // Only call lucide if icons are present in the header/panels
             if (window.lucide) lucide.createIcons();
         });
     }
 
-    startTimer() {
-        let timeLeft = 60;
+    resetTimer() {
+        this.timeLeft = 30;
         const timerEl = document.getElementById('timer');
-        const timer = setInterval(() => {
-            timeLeft--;
-            if (timeLeft < 0) {
-                timeLeft = 60;
-                // Auto switch hint
-                this.toast.show('หมดเวลา! สลับเทิร์น', 'info', 2000);
-            }
-            timerEl.textContent = timeLeft;
+        if (timerEl) timerEl.textContent = this.timeLeft;
+    }
+
+    startTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        
+        const timerEl = document.getElementById('timer');
+        this.timerInterval = setInterval(() => {
+            this.timeLeft--;
             
-            // Warning color
-            if (timeLeft <= 5) {
-                timerEl.parentElement.classList.add('animate-pulse', 'bg-red-500');
-                timerEl.parentElement.classList.remove('from-blue-500', 'to-indigo-600');
+            if (this.timeLeft < 0) {
+                this.toast.show('หมดเวลา! สลับเทิร์นอัตโนมัติ', 'info', 2000);
+                this.draftManager.switchTurn();
+                this.update();
+                return;
+            }
+            
+            if (timerEl) timerEl.textContent = this.timeLeft;
+            
+            if (this.timeLeft <= 5) {
+                timerEl?.parentElement.classList.add('animate-pulse', 'bg-red-500');
+                timerEl?.parentElement.classList.remove('from-blue-500', 'to-indigo-600');
             } else {
-                timerEl.parentElement.classList.remove('animate-pulse', 'bg-red-500');
-                timerEl.parentElement.classList.add('from-blue-500', 'to-indigo-600');
+                timerEl?.parentElement.classList.remove('animate-pulse', 'bg-red-500');
+                timerEl?.parentElement.classList.add('from-blue-500', 'to-indigo-600');
             }
         }, 1000);
     }

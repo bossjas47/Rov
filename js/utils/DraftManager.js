@@ -29,15 +29,15 @@ export class DraftManager {
         if (this.state.processing) return false;
         if (!Security.isValidHeroId(heroId, this.heroes)) return false;
         
-        const hero = this.heroes.find(h => h.id === heroId);
+        const hero = this.heroes.find(h => h.id.toString() === heroId.toString());
         if (!hero) return false;
         
         this.state.processing = true;
         const team = this.state.currentTeam;
         
         if (this.state.currentMode === 'ban') {
-            if (this.state[team].bans.length >= 3) {
-                this.toast?.show('แบนครบ 3 ตัวแล้ว!', 'info');
+            if (this.state[team].bans.length >= 4) {
+                this.toast?.show('แบนครบ 4 ตัวแล้ว!', 'info');
                 this.state.processing = false;
                 return false;
             }
@@ -78,7 +78,7 @@ export class DraftManager {
         if (index < 0 || index >= this.state[team][type].length) return;
         
         const heroId = this.state[team][type][index];
-        const hero = this.heroes.find(h => h.id === heroId);
+        const hero = this.heroes.find(h => h.id.toString() === heroId.toString());
         
         this.state[team][type].splice(index, 1);
         this.toast?.show(`ยกเลิก${type === 'ban' ? 'การแบน' : 'การเลือก'} ${hero?.name || ''}`, 'info');
@@ -86,25 +86,31 @@ export class DraftManager {
     }
 
     isHeroDrafted(heroId) {
+        const id = heroId.toString();
         return (
-            this.state.blue.bans.includes(heroId) ||
-            this.state.red.bans.includes(heroId) ||
-            this.state.blue.picks.includes(heroId) ||
-            this.state.red.picks.includes(heroId)
+            this.state.blue.bans.some(b => b.toString() === id) ||
+            this.state.red.bans.some(b => b.toString() === id) ||
+            this.state.blue.picks.some(p => p.toString() === id) ||
+            this.state.red.picks.some(p => p.toString() === id)
         );
     }
 
     isHeroBanned(heroId) {
-        return this.state.blue.bans.includes(heroId) || this.state.red.bans.includes(heroId);
+        const id = heroId.toString();
+        return this.state.blue.bans.some(b => b.toString() === id) || 
+               this.state.red.bans.some(b => b.toString() === id);
     }
 
     isHeroPicked(heroId) {
-        return this.state.blue.picks.includes(heroId) || this.state.red.picks.includes(heroId);
+        const id = heroId.toString();
+        return this.state.blue.picks.some(p => p.toString() === id) || 
+               this.state.red.picks.some(p => p.toString() === id);
     }
 
     getHeroPicker(heroId) {
-        if (this.state.blue.picks.includes(heroId)) return 'blue';
-        if (this.state.red.picks.includes(heroId)) return 'red';
+        const id = heroId.toString();
+        if (this.state.blue.picks.some(p => p.toString() === id)) return 'blue';
+        if (this.state.red.picks.some(p => p.toString() === id)) return 'red';
         return null;
     }
 
