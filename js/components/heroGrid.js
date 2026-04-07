@@ -61,16 +61,11 @@ export class HeroGrid {
     }
 
     render() {
-        // Use DocumentFragment for better performance when rendering many elements
         const filtered = this.getFilteredHeroes();
         const html = filtered.map(hero => this.createHeroCard(hero)).join('');
         
-        // Only update innerHTML when necessary (e.g., filtering/searching)
         this.container.innerHTML = html;
         document.getElementById('hero-count').textContent = `${filtered.length} ตัว`;
-        
-        // Only call lucide if icons are present in the grid (usually not for hero cards)
-        // if (window.lucide) lucide.createIcons();
     }
 
     /**

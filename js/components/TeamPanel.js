@@ -11,7 +11,7 @@ export class TeamPanel {
     }
 
     renderEmpty() {
-        // Create empty slots - Updated to 4 slots for bans
+        // Create empty slots - 4 slots for bans
         this.bansContainer.innerHTML = Array(4).fill(0).map((_, i) => `
             <div class="draft-slot liquid-glass rounded-lg aspect-square flex items-center justify-center text-gray-400 text-xs font-bold" data-index="${i}">
                 ${i + 1}
@@ -35,15 +35,15 @@ export class TeamPanel {
             const isFilled = slot.classList.contains('filled');
             const slotHeroId = slot.dataset.heroId;
 
-            if (currentHeroId) {
-                // Only update if the hero in this slot has changed (using toString for safe comparison)
+            if (currentHeroId !== undefined && currentHeroId !== null) {
+                // Only update if the hero in this slot has changed
                 if (!isFilled || slotHeroId?.toString() !== currentHeroId.toString()) {
                     const hero = heroes.find(h => h.id.toString() === currentHeroId.toString());
                     if (hero) {
                         slot.classList.add('filled');
                         slot.dataset.heroId = currentHeroId;
                         slot.innerHTML = `
-                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md opacity-60 grayscale" alt="">
+                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md opacity-60 grayscale" alt="${hero.name}">
                             <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'bans', ${idx})">×</div>
                         `;
                     }
@@ -63,15 +63,15 @@ export class TeamPanel {
             const isFilled = slot.classList.contains('filled');
             const slotHeroId = slot.dataset.heroId;
 
-            if (currentHeroId) {
-                // Only update if the hero in this slot has changed (using toString for safe comparison)
+            if (currentHeroId !== undefined && currentHeroId !== null) {
+                // Only update if the hero in this slot has changed
                 if (!isFilled || slotHeroId?.toString() !== currentHeroId.toString()) {
                     const hero = heroes.find(h => h.id.toString() === currentHeroId.toString());
                     if (hero) {
                         slot.classList.add('filled');
                         slot.dataset.heroId = currentHeroId;
                         slot.innerHTML = `
-                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="">
+                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="${hero.name}">
                             <div class="hero-name">${Security.escapeHtml(hero.name)}</div>
                             <div class="remove-btn" onclick="window.app.removeHero('${this.team}', 'picks', ${idx})">×</div>
                         `;
