@@ -133,7 +133,11 @@ const heroesData = [
 
 const heroes = heroesData;
 
+// META Heroes from RPL Summer 2026 (Top 30 by Pick Rate from Liquipedia)
+const metaHeroIds = [17, 62, 76, 103, 67, 86, 82, 116, 102, 112, 119, 99, 94, 122, 36, 58, 93, 77, 7, 13, 53, 79, 57, 89, 97, 10, 23, 1, 117, 47];
+
 const roleColors = {
+    meta: '#f59e0b',
     tank: '#3b82f6',
     fighter: '#f97316',
     assassin: '#a855f7',
@@ -143,6 +147,7 @@ const roleColors = {
 };
 
 const roleLabels = {
+    meta: 'META',
     all: 'ทั้งหมด',
     tank: 'แทงค์',
     fighter: 'ไฟเตอร์',
@@ -157,7 +162,9 @@ function getHeroById(id) {
 }
 
 function getHeroesByRole(role) {
-    return role === 'all' ? heroesData : heroesData.filter(h => h.role === role);
+    if (role === 'all') return heroesData;
+    if (role === 'meta') return heroesData.filter(h => metaHeroIds.includes(h.id));
+    return heroesData.filter(h => h.role === role);
 }
 
 function searchHeroes(query) {
@@ -210,6 +217,7 @@ class HeroGrid {
         
         this.container.innerHTML = filtered.map(hero => {
             const state = this.draftManager.getHeroState(hero.id);
+            const isSelected = this.draftManager.selectedHeroId === hero.id;
             let statusClass = '';
             let statusBadge = '';
             
@@ -223,6 +231,11 @@ class HeroGrid {
                 }
             }
             
+            // Highlight selected hero
+            if (isSelected) {
+                statusClass += ' ring-4 ring-yellow-400';
+            }
+            
             const isGlobal = this.draftManager.isGlobalBanned(hero.id);
             const globalClass = isGlobal ? 'global-banned' : '';
             const tooltip = isGlobal ? ' - ถูกใช้ในเกมก่อน' : '';
@@ -233,7 +246,7 @@ class HeroGrid {
                 <div class="hero-card ${statusClass} ${globalClass}" 
                      data-hero-id="${hero.id}"
                      title="${hero.thaiName}${tooltip}"
-                     onclick="if(!this.classList.contains('disabled')) draftApp.selectHero(${hero.id})">
+                     onclick="draftApp.onHeroClick(${hero.id})">
                     <div class="relative w-full aspect-square">
                         <img src="${imgSrc}" 
                              alt="${hero.name}" 
@@ -245,6 +258,7 @@ class HeroGrid {
                         </div>
                     </div>
                     ${statusBadge}
+                    ${isSelected ? '<div class="absolute top-1 right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-black">★</div>' : ''}
                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
                         <p class="text-[10px] text-white font-medium truncate text-center">${hero.thaiName}</p>
                     </div>
@@ -338,15 +352,18 @@ class TeamPanel {
 }
 
 // ============== DRAFT MANAGER ==============
+// ลำดับดราฟมาตรฐาน ROV: 4 Bans + 10 Picks (5 ต่อทีม)
 const DRAFT_SEQUENCE = [
-    { type: 'ban', team: 'blue', count: 1 }, { type: 'ban', team: 'red', count: 1 },
-    { type: 'ban', team: 'blue', count: 1 }, { type: 'ban', team: 'red', count: 1 },
-    { type: 'pick', team: 'blue', count: 1 }, { type: 'pick', team: 'red', count: 2 },
-    { type: 'pick', team: 'blue', count: 2 }, { type: 'pick', team: 'red', count: 1 },
-    { type: 'ban', team: 'red', count: 1 }, { type: 'ban', team: 'blue', count: 1 },
-    { type: 'ban', team: 'red', count: 1 }, { type: 'ban', team: 'blue', count: 1 },
-    { type: 'pick', team: 'red', count: 1 }, { type: 'pick', team: 'blue', count: 2 },
-    { type: 'pick', team: 'red', count: 2 }, { type: 'pick', team: 'blue', count: 1 },
+    { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
+    { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
+    { type: 'pick', team: 'blue' }, { type: 'pick', team: 'red' },
+    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
+    { type: 'pick', team: 'blue' }, { type: 'pick', team: 'red' },
+    { type: 'ban', team: 'red' }, { type: 'ban', team: 'blue' },
+    { type: 'ban', team: 'red' }, { type: 'ban', team: 'blue' },
+    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
+    { type: 'pick', team: 'blue' }, { type: 'pick', team: 'red' },
+    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
 ];
 
 class DraftManager {
@@ -360,6 +377,7 @@ class DraftManager {
         this.globalBannedHeroes = new Set();
         this.state = { blue: { bans: [], picks: [] }, red: { bans: [], picks: [] }, currentStep: 0, isComplete: false };
         this.games = [];
+        this.selectedHeroId = null; // สำหรับระบบยืนยัน
     }
     
     initMatch(bo) {
@@ -368,11 +386,13 @@ class DraftManager {
         this.matchId = 'match_' + Date.now();
         this.globalBannedHeroes.clear();
         this.games = [];
+        this.selectedHeroId = null;
         this.resetGame();
     }
     
     resetGame() {
         this.state = { blue: { bans: [], picks: [] }, red: { bans: [], picks: [] }, currentStep: 0, isComplete: false };
+        this.selectedHeroId = null;
         this.onUpdate();
     }
     
@@ -382,10 +402,14 @@ class DraftManager {
         this.matchId = null;
         this.globalBannedHeroes.clear();
         this.games = [];
+        this.selectedHeroId = null;
         this.resetGame();
     }
     
-    getCurrentStep() { return this.state.currentStep < DRAFT_SEQUENCE.length ? DRAFT_SEQUENCE[this.state.currentStep] : null; }
+    getCurrentStep() { 
+        if (this.state.isComplete) return null;
+        return this.state.currentStep < DRAFT_SEQUENCE.length ? DRAFT_SEQUENCE[this.state.currentStep] : null; 
+    }
     getCurrentTeam() { const step = this.getCurrentStep(); return step ? step.team : null; }
     getCurrentMode() { const step = this.getCurrentStep(); return step ? step.type : null; }
     getState() { return { ...this.state, bo: this.bo, currentGame: this.currentGame, matchId: this.matchId, isMatchComplete: this.isMatchComplete() }; }
@@ -409,22 +433,49 @@ class DraftManager {
         return null;
     }
     
-    selectHero(heroId) {
+    // เลือกตัวละคร (แค่ highlight ยังไม่ยืนยัน)
+    selectHeroForConfirm(heroId) {
         const step = this.getCurrentStep();
         if (!step) return { success: false, error: 'Draft completed' };
         if (this.isGlobalBanned(heroId)) return { success: false, error: 'ตัวละครนี้ถูกใช้ในเกมก่อนหน้าแล้ว' };
         if (this.isHeroDrafted(heroId)) return { success: false, error: 'ตัวละครนี้ถูกเลือกไปแล้ว' };
         
-        const hero = this.heroes.find(h => h.id.toString() === heroId.toString());
+        this.selectedHeroId = heroId;
+        return { success: true };
+    }
+    
+    // ยืนยันการดราฟ
+    confirmSelection() {
+        if (!this.selectedHeroId) return { success: false, error: 'กรุณาเลือกตัวละครก่อน' };
+        
+        const step = this.getCurrentStep();
+        if (!step) return { success: false, error: 'Draft completed' };
+        
+        const hero = this.heroes.find(h => h.id.toString() === this.selectedHeroId.toString());
         const team = step.team;
         const type = step.type;
         
-        this.state[team][type === 'ban' ? 'bans' : 'picks'].push(heroId);
+        // ตรวจสอบจำนวนก่อนเพิ่ม
+        const currentCount = this.state[team][type === 'ban' ? 'bans' : 'picks'].length;
+        const maxCount = type === 'ban' ? 4 : 5;
+        
+        if (currentCount >= maxCount) {
+            return { success: false, error: `ทีม ${team} มี${type === 'ban' ? 'การแบน' : 'การเลือก'}ครบแล้ว` };
+        }
+        
+        this.state[team][type === 'ban' ? 'bans' : 'picks'].push(this.selectedHeroId);
         
         if (type === 'ban') this.toast?.ban(hero?.thaiName || hero?.name || 'Hero', team);
         else this.toast?.pick(hero?.thaiName || hero?.name || 'Hero', team);
         
+        this.selectedHeroId = null;
         this.nextStep();
+        return { success: true };
+    }
+    
+    // ยกเลิกการเลือก
+    cancelSelection() {
+        this.selectedHeroId = null;
         return { success: true };
     }
     
@@ -458,20 +509,30 @@ class DraftManager {
             list.splice(index, 1);
             this.state.currentStep = Math.max(0, this.state.currentStep - 1);
             this.state.isComplete = false;
+            this.selectedHeroId = null;
             this.onUpdate();
         }
     }
     
     getPhaseText() {
-        if (!this.getCurrentStep()) return 'ดราฟเสร็จสิ้น';
+        if (this.state.isComplete) return 'ดราฟเสร็จสิ้น';
         const step = this.state.currentStep;
         if (step < 4) return 'Ban Phase 1';
-        if (step < 8) return 'Pick Phase 1';
-        if (step < 12) return 'Ban Phase 2';
+        if (step < 10) return 'Pick Phase 1';
+        if (step < 14) return 'Ban Phase 2';
         return 'Pick Phase 2';
     }
     
-    getActionHint() { const step = this.getCurrentStep(); return step ? `${step.type === 'ban' ? 'แบน' : 'เลือก'} ${step.count} ตัว` : 'ดราฟเสร็จสิ้น'; }
+    getActionHint() { 
+        const step = this.getCurrentStep(); 
+        if (!step) return 'ดราฟเสร็จสิ้น'; 
+        if (this.selectedHeroId) {
+            const hero = getHeroById(this.selectedHeroId);
+            return `กด "ยืนยัน" เพื่อ${step.type === 'ban' ? 'แบน' : 'เลือก'} ${hero?.thaiName || ''}`;
+        }
+        return `${step.type === 'ban' ? 'แบน' : 'เลือก'}ตัวละคร (คลิกเพื่อเลือก แล้วกดยืนยัน)`; 
+    }
+    
     getTeamText() { const step = this.getCurrentStep(); return step ? (step.team === 'blue' ? 'First Pick' : 'Second Pick') : '-'; }
     
     getDraftData() {
@@ -566,11 +627,23 @@ class FirebaseService {
     async saveDraft(draftData) {
         if (!this.currentUser) return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนบันทึก' };
         try {
-            const draft = { userId: this.currentUser.uid, userEmail: this.currentUser.email, userName: this.userData?.username || 'Unknown', ...draftData, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            console.log('Saving draft:', draftData);
+            const draft = { 
+                userId: this.currentUser.uid, 
+                userEmail: this.currentUser.email, 
+                userName: this.userData?.username || 'Unknown', 
+                ...draftData, 
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            };
             const ref = await this.db.collection('drafts').add(draft);
+            console.log('Draft saved with ID:', ref.id);
             await this.updateStats(draftData.result);
             return { success: true, draftId: ref.id };
-        } catch (e) { return { success: false, error: e.message }; }
+        } catch (e) { 
+            console.error('Save draft error:', e);
+            return { success: false, error: e.message }; 
+        }
     }
     async updateStats(result) {
         if (!this.currentUser) return;
@@ -682,7 +755,7 @@ class DraftApp {
         this.renderRoleFilters();
         this.setupEventListeners();
         this.update();
-        setTimeout(() => this.showBOModal(), 500);
+        // ไม่แสดง BO Modal อัตโนมัติ ต้อง login ก่อน
         window.draftApp = this;
         window.app = this;
     }
@@ -690,8 +763,8 @@ class DraftApp {
     renderRoleFilters() {
         const container = document.getElementById('role-filters');
         if (!container) return;
-        container.innerHTML = ['all', 'fighter', 'tank', 'mage', 'assassin', 'marksman', 'support'].map(role => 
-            `<button onclick="draftApp.setRole('${role}')" class="role-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide ${role === 'all' ? 'active' : 'bg-white/40 text-gray-600 hover:bg-white/60'}" data-role="${role}">${roleLabels[role]}</button>`
+        container.innerHTML = ['meta', 'all', 'fighter', 'tank', 'mage', 'assassin', 'marksman', 'support'].map(role => 
+            `<button onclick="draftApp.setRole('${role}')" class="role-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide ${role === 'meta' ? 'active' : 'bg-white/40 text-gray-600 hover:bg-white/60'}" data-role="${role}">${roleLabels[role]}</button>`
         ).join('');
     }
 
@@ -706,11 +779,14 @@ class DraftApp {
                 this.draftManager.reset(); 
                 this.boSelected = false; 
                 this.stopTimer();
-                this.showBOModal(); 
                 this.toast.show('รีเซ็ตการดราฟท์เรียบร้อย', 'info'); 
             } 
         });
         document.getElementById('saveDraftForm')?.addEventListener('submit', (e) => this.handleSaveDraft(e));
+        
+        // ปุ่มยืนยันและยกเลิก
+        document.getElementById('confirmBtn')?.addEventListener('click', () => this.confirmSelection());
+        document.getElementById('cancelBtn')?.addEventListener('click', () => this.cancelSelection());
     }
 
     toggleSidebar() {
@@ -730,6 +806,13 @@ class DraftApp {
     }
 
     setBO(bo) {
+        // บังคับ login ก่อนเริ่มดราฟ
+        if (!authManager.isLoggedIn()) {
+            this.toast.show('กรุณาเข้าสู่ระบบก่อนเริ่มดราฟ', 'warning');
+            authManager.showLoginModal();
+            return;
+        }
+        
         this.draftManager.initMatch(bo);
         this.boSelected = true;
         this.closeBOModal();
@@ -747,6 +830,12 @@ class DraftApp {
     }
 
     showBOModal() {
+        // บังคับ login ก่อนแสดง BO Modal
+        if (!authManager.isLoggedIn()) {
+            this.toast.show('กรุณาเข้าสู่ระบบก่อนเริ่มดราฟ', 'warning');
+            authManager.showLoginModal();
+            return;
+        }
         const modal = document.getElementById('boModal');
         if (modal) modal.classList.remove('hidden');
     }
@@ -771,14 +860,64 @@ class DraftApp {
         }
     }
 
-    selectHero(heroId) {
+    // เมื่อคลิกที่ตัวละคร
+    onHeroClick(heroId) {
         if (!this.boSelected) { 
             this.toast.show('กรุณาเลือกรูปแบบการแข่งขันก่อน', 'warning'); 
             this.showBOModal(); 
             return; 
         }
-        const result = this.draftManager.selectHero(heroId);
-        if (!result.success) this.toast.show(result.error, 'error');
+        
+        const step = this.draftManager.getCurrentStep();
+        if (!step) {
+            this.toast.show('ดราฟเสร็จสิ้นแล้ว', 'info');
+            return;
+        }
+        
+        // ตรวจสอบว่าครบ 5 ตัวหรือยัง
+        const currentCount = this.draftManager.state[step.team][step.type === 'ban' ? 'bans' : 'picks'].length;
+        const maxCount = step.type === 'ban' ? 4 : 5;
+        if (currentCount >= maxCount) {
+            this.toast.show(`ทีม ${step.team} มี${step.type === 'ban' ? 'การแบน' : 'การเลือก'}ครบแล้ว`, 'warning');
+            return;
+        }
+        
+        const result = this.draftManager.selectHeroForConfirm(heroId);
+        if (!result.success) {
+            this.toast.show(result.error, 'error');
+            return;
+        }
+        
+        this.update();
+        this.showConfirmButtons();
+    }
+
+    // แสดงปุ่มยืนยัน/ยกเลิก
+    showConfirmButtons() {
+        const confirmPanel = document.getElementById('confirmPanel');
+        if (confirmPanel) confirmPanel.classList.remove('hidden');
+    }
+
+    hideConfirmButtons() {
+        const confirmPanel = document.getElementById('confirmPanel');
+        if (confirmPanel) confirmPanel.classList.add('hidden');
+    }
+
+    // ยืนยันการเลือก
+    confirmSelection() {
+        const result = this.draftManager.confirmSelection();
+        if (!result.success) {
+            this.toast.show(result.error, 'error');
+            return;
+        }
+        this.hideConfirmButtons();
+        this.update();
+    }
+
+    // ยกเลิกการเลือก
+    cancelSelection() {
+        this.draftManager.cancelSelection();
+        this.hideConfirmButtons();
         this.update();
     }
 
@@ -801,27 +940,32 @@ class DraftApp {
             this.redPanel.update(state);
             this.heroGrid.updateStatus();
             this.resetTimer();
+            
             const phaseText = document.getElementById('phase-text');
             const teamText = document.getElementById('teamText');
             const actionHint = document.getElementById('actionHint');
             if (phaseText) phaseText.textContent = this.draftManager.getPhaseText();
             if (teamText) teamText.textContent = this.draftManager.getTeamText();
             if (actionHint) actionHint.textContent = this.draftManager.getActionHint();
+            
             const currentTeam = this.draftManager.getCurrentTeam();
             const indicator = document.getElementById('currentTeamIndicator');
             if (indicator && currentTeam) indicator.className = `flex items-center gap-3 font-bold text-lg ${currentTeam === 'blue' ? 'text-blue-600' : 'text-red-600'}`;
+            
             const bluePanel = document.getElementById('blue-team-panel');
             const redPanel = document.getElementById('red-team-panel');
             if (bluePanel && redPanel && currentTeam) {
                 bluePanel.classList.toggle('team-active', currentTeam === 'blue');
                 redPanel.classList.toggle('team-active-red', currentTeam === 'red');
             }
+            
             if (state.isComplete) this.onDraftComplete();
             if (window.lucide) lucide.createIcons();
         });
     }
 
     onDraftComplete() {
+        this.hideConfirmButtons();
         if (this.draftManager.currentGame < this.draftManager.bo) {
             const nextBtn = document.getElementById('nextGameBtn');
             if (nextBtn) nextBtn.classList.remove('hidden');
@@ -847,21 +991,39 @@ class DraftApp {
 
     async handleSaveDraft(e) {
         e.preventDefault();
+        
+        if (!authManager.isLoggedIn()) {
+            this.toast.show('กรุณาเข้าสู่ระบบก่อนบันทึก', 'warning');
+            authManager.showLoginModal();
+            return;
+        }
+        
         const matchName = document.getElementById('draftMatchName')?.value;
         const myTeam = document.getElementById('draftMyTeam')?.value;
         const opponentTeam = document.getElementById('draftOpponentTeam')?.value;
         const result = document.getElementById('draftResult')?.value;
         const notes = document.getElementById('draftNotes')?.value;
+        
+        if (!matchName) {
+            this.toast.show('กรุณาใส่ชื่อ Match', 'warning');
+            return;
+        }
+        
         const draftData = { 
             ...this.draftManager.getDraftData(), 
             matchName, myTeam, opponentTeam, result, notes 
         };
+        
+        console.log('Saving draft data:', draftData);
         const saveResult = await firebaseService.saveDraft(draftData);
+        
         if (saveResult.success) { 
-            this.toast.show('บันทึกการดราฟสำเร็จ!', 'success'); 
+            this.toast.show(`บันทึกการดราฟสำเร็จ! (ID: ${saveResult.draftId})`, 'success'); 
             this.closeSaveDraftModal(); 
             e.target.reset(); 
-        } else this.toast.show(saveResult.error || 'เกิดข้อผิดพลาด', 'error');
+        } else {
+            this.toast.show(saveResult.error || 'เกิดข้อผิดพลาด', 'error');
+        }
     }
 
     resetTimer() {

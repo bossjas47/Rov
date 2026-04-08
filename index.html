@@ -24,6 +24,7 @@
         .hero-card.selected-ban { border-color: #6b7280; opacity: 0.5; }
         .hero-card.global-banned { border-color: #f59e0b; opacity: 0.6; }
         .hero-card.global-banned::after { content: '🔒'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; z-index: 5; }
+.hero-card.ring-4 { box-shadow: 0 0 0 4px #facc15, 0 10px 20px rgba(0,0,0,0.1) !important; }
         .status-badge { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; z-index: 5; border: 1px solid white; }
         .status-ban { background: #6b7280; }
         .status-pick-blue { background: #3b82f6; }
@@ -36,6 +37,9 @@
         .team-active { border: 2px solid #3b82f6 !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important; }
         .team-active-red { border: 2px solid #ef4444 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2) !important; }
         .role-btn.active { background: #3b82f6 !important; color: white !important; }
+        .role-btn[data-role="meta"] { background: linear-gradient(135deg, #f59e0b, #f97316) !important; color: white !important; border: none; }
+        .role-btn[data-role="meta"]:hover { background: linear-gradient(135deg, #f97316, #ea580c) !important; transform: translateY(-1px); }
+        .role-btn[data-role="meta"].active { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
@@ -280,6 +284,29 @@
                             <span class="px-3 py-1 rounded-full bg-gray-100 text-xs font-bold text-gray-600" id="hero-count">0 ตัว</span>
                         </div>
                         <div class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-3 max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar" id="hero-grid"></div>
+                    </div>
+                    
+                    <!-- Confirm Panel -->
+                    <div id="confirmPanel" class="hidden bg-white/90 backdrop-blur rounded-2xl p-4 shadow-xl border border-yellow-400/50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center">
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">ยืนยันการเลือก</p>
+                                    <p class="text-sm text-gray-500">ตรวจสอบตัวละครก่อนกดยืนยัน</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="cancelBtn" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all flex items-center gap-2">
+                                    <i data-lucide="x" class="w-4 h-4"></i>ยกเลิก
+                                </button>
+                                <button id="confirmBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-green-500/50 transition-all flex items-center gap-2">
+                                    <i data-lucide="check" class="w-4 h-4"></i>ยืนยัน
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
