@@ -8,84 +8,61 @@ export class HeroGrid {
         this.searchQuery = '';
         this.render();
     }
-
+    
     render() {
         if (!this.container) return;
-
-        let filteredHeroes = this.searchQuery 
-            ? searchHeroes(this.searchQuery)
-            : getHeroesByRole(this.currentRole);
-
-        // Update hero count
+        let filtered = this.searchQuery ? searchHeroes(this.searchQuery) : getHeroesByRole(this.currentRole);
         const countEl = document.getElementById('hero-count');
-        if (countEl) {
-            countEl.textContent = `${filteredHeroes.length} ตัว`;
-        }
-
-        this.container.innerHTML = filteredHeroes.map(hero => {
+        if (countEl) countEl.textContent = `${filtered.length} ตัว`;
+        
+        this.container.innerHTML = filtered.map(hero => {
             const state = this.draftManager.getHeroState(hero.id);
-            const statusClass = this.getStatusClass(state);
-            const statusBadge = this.getStatusBadge(state);
-            const isGlobalBanned = this.draftManager.isGlobalBanned(hero.id);
-            const globalBanClass = isGlobalBanned ? 'global-banned' : '';
-            const globalBanTooltip = isGlobalBanned ? 'ตัวละครนี้ถูกใช้ในเกมก่อนหน้า' : '';
-
+            let statusClass = '';
+            let statusBadge = '';
+            
+            if (state) {
+                if (state.type === 'ban') {
+                    statusClass = 'selected-ban disabled';
+                    statusBadge = '<div class="status-badge status-ban">✕</div>';
+                } else if (state.type === 'pick') {
+                    statusClass = state.team === 'blue' ? 'selected-pick-blue disabled' : 'selected-pick-red disabled';
+                    statusBadge = `<div class="status-badge ${state.team === 'blue' ? 'status-pick-blue' : 'status-pick-red'}">✓</div>`;
+                }
+            }
+            
+            const isGlobal = this.draftManager.isGlobalBanned(hero.id);
+            const globalClass = isGlobal ? 'global-banned' : '';
+            const tooltip = isGlobal ? ' - ถูกใช้ในเกมก่อน' : '';
+            
+            // ใช้ placeholder ถ้าไม่มีรูป
+            const imgSrc = `rovhero/${hero.imageFile}`;
+            
             return `
-                <div class="hero-card ${statusClass} ${globalBanClass} relative group" 
+                <div class="hero-card ${statusClass} ${globalClass}" 
                      data-hero-id="${hero.id}"
-                     title="${hero.thaiName}${globalBanTooltip ? ' - ' + globalBanTooltip : ''}"
-                     onclick="draftApp.selectHero(${hero.id})">
-                    <img src="rovhero/${hero.imageFile}" 
-                         alt="${hero.name}" 
-                         class="w-full aspect-square object-cover rounded-md"
-                         loading="lazy">
+                     title="${hero.thaiName}${tooltip}"
+                     onclick="if(!this.classList.contains('disabled')) draftApp.selectHero(${hero.id})">
+                    <div class="relative w-full aspect-square">
+                        <img src="${imgSrc}" 
+                             alt="${hero.name}" 
+                             class="w-full h-full object-cover rounded-md"
+                             loading="lazy"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-md flex items-center justify-center text-white font-bold text-lg" style="display:none;">
+                            ${hero.name.charAt(0)}
+                        </div>
+                    </div>
                     ${statusBadge}
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p class="text-[10px] text-white font-medium truncate">${hero.thaiName}</p>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+                        <p class="text-[10px] text-white font-medium truncate text-center">${hero.thaiName}</p>
                     </div>
                     <div class="absolute top-1 left-1 w-2 h-2 rounded-full" style="background-color: ${roleColors[hero.role]}"></div>
                 </div>
             `;
         }).join('');
     }
-
-    getStatusClass(state) {
-        if (!state) return '';
-        if (state.type === 'ban') return 'selected-ban disabled';
-        if (state.type === 'pick') {
-            return state.team === 'blue' ? 'selected-pick-blue disabled' : 'selected-pick-red disabled';
-        }
-        return '';
-    }
-
-    getStatusBadge(state) {
-        if (!state) return '';
-        
-        let badgeClass = '';
-        let icon = '';
-        
-        if (state.type === 'ban') {
-            badgeClass = 'status-ban';
-            icon = '✕';
-        } else if (state.type === 'pick') {
-            badgeClass = state.team === 'blue' ? 'status-pick-blue' : 'status-pick-red';
-            icon = '✓';
-        }
-        
-        return `<div class="status-badge ${badgeClass}">${icon}</div>`;
-    }
-
-    updateStatus() {
-        this.render();
-    }
-
-    setRole(role) {
-        this.currentRole = role;
-        this.render();
-    }
-
-    setSearch(query) {
-        this.searchQuery = query;
-        this.render();
-    }
+    
+    updateStatus() { this.render(); }
+    setRole(role) { this.currentRole = role; this.render(); }
+    setSearch(query) { this.searchQuery = query; this.render(); }
 }

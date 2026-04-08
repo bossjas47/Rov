@@ -1,7 +1,5 @@
-// ===== ROV HEROES DATA (127 Heroes) =====
-
-export const heroes = [
-    // ตัวละครเริ่มต้นและเก่า
+// ROV Heroes Data - 127 Heroes
+const heroesData = [
     { id: 1, heroId: "valhein", name: "Valhein", thaiName: "วัลเฮน", role: "marksman", imageFile: "valhein.png" },
     { id: 2, heroId: "zanis", name: "Zanis", thaiName: "ซานิส", role: "fighter", imageFile: "zanis.png" },
     { id: 3, heroId: "yorn", name: "Yorn", thaiName: "ยอร์น", role: "marksman", imageFile: "yorn.png" },
@@ -19,8 +17,6 @@ export const heroes = [
     { id: 15, heroId: "azzen_ka", name: "Azzen'Ka", thaiName: "อัสเซนก้า", role: "mage", imageFile: "azzen_ka.png" },
     { id: 16, heroId: "mina", name: "Mina", thaiName: "มีน่า", role: "tank", imageFile: "mina.png" },
     { id: 17, heroId: "toro", name: "Toro", thaiName: "โทโร่", role: "tank", imageFile: "toro.png" },
-    
-    // ตัวละครกลาง
     { id: 18, heroId: "violet", name: "Violet", thaiName: "ไวโอเลต", role: "marksman", imageFile: "violet.png" },
     { id: 19, heroId: "chaugnar", name: "Chaugnar", thaiName: "ชอว์นาร์", role: "support", imageFile: "chaugnar.png" },
     { id: 20, heroId: "kriknak", name: "Kriknak", thaiName: "คริกแน็ก", role: "assassin", imageFile: "kriknak.png" },
@@ -43,8 +39,6 @@ export const heroes = [
     { id: 37, heroId: "grakk", name: "Grakk", thaiName: "แกร็ก", role: "support", imageFile: "grakk.png" },
     { id: 38, heroId: "nakroth", name: "Nakroth", thaiName: "นาครอธ", role: "assassin", imageFile: "nakroth.png" },
     { id: 39, heroId: "diao_chan", name: "Diao Chan", thaiName: "เตียวเสี้ยน", role: "mage", imageFile: "diao_chan.png" },
-    
-    // ตัวละครใหม่กว่า
     { id: 40, heroId: "lauriel", name: "Lauriel", thaiName: "ลอริเอล", role: "mage", imageFile: "lauriel.png" },
     { id: 41, heroId: "zill", name: "Zill", thaiName: "ซิล", role: "assassin", imageFile: "zill.png" },
     { id: 42, heroId: "murad", name: "Murad", thaiName: "มูราด", role: "assassin", imageFile: "murad.png" },
@@ -76,8 +70,6 @@ export const heroes = [
     { id: 68, heroId: "elsu", name: "Elsu", thaiName: "เอลซู", role: "marksman", imageFile: "elsu.png" },
     { id: 69, heroId: "riktor", name: "Riktor", thaiName: "ริคเตอร์", role: "fighter", imageFile: "riktor.png" },
     { id: 70, heroId: "wiro", name: "Wiro", thaiName: "วิโร่", role: "tank", imageFile: "wiro.png" },
-    
-    // ตัวละครใหม่
     { id: 71, heroId: "quillen", name: "Quillen", thaiName: "ควิลเลน", role: "assassin", imageFile: "quillen.png" },
     { id: 72, heroId: "florentino", name: "Florentino", thaiName: "ฟลอเรนติโน่", role: "fighter", imageFile: "florentino.png" },
     { id: 73, heroId: "sephera", name: "Sephera", thaiName: "เซเฟอร่า", role: "support", imageFile: "sephera.png" },
@@ -137,8 +129,7 @@ export const heroes = [
     { id: 127, heroId: "flowborn", name: "Flowborn", thaiName: "โฟลว์บอร์น", role: "marksman", imageFile: "flowborn.png" }
 ];
 
-// Role colors for UI
-export const roleColors = {
+const roleColors = {
     tank: '#3b82f6',
     fighter: '#f97316',
     assassin: '#a855f7',
@@ -147,7 +138,7 @@ export const roleColors = {
     support: '#22c55e'
 };
 
-export const roleLabels = {
+const roleLabels = {
     all: 'ทั้งหมด',
     tank: 'แทงค์',
     fighter: 'ไฟเตอร์',
@@ -157,31 +148,24 @@ export const roleLabels = {
     support: 'ซัพพอร์ต'
 };
 
-export const positionLabels = {
-    dsl: 'Dark Slayer Lane',
-    jg: 'Jungle',
-    mid: 'Mid Lane',
-    roam: 'Roaming',
-    adl: 'Abyssal Dragon Lane'
-};
-
-// Get hero by ID
-export function getHeroById(id) {
-    return heroes.find(h => h.id.toString() === id.toString());
+function getHeroById(id) {
+    return heroesData.find(h => h.id.toString() === id.toString());
 }
 
-// Get heroes by role
-export function getHeroesByRole(role) {
-    if (role === 'all') return heroes;
-    return heroes.filter(h => h.role === role);
+function getHeroesByRole(role) {
+    return role === 'all' ? heroesData : heroesData.filter(h => h.role === role);
 }
 
-// Search heroes
-export function searchHeroes(query) {
-    const lowerQuery = query.toLowerCase();
-    return heroes.filter(h => 
-        h.name.toLowerCase().includes(lowerQuery) || 
+function searchHeroes(query) {
+    const q = query.toLowerCase();
+    return heroesData.filter(h => 
+        h.name.toLowerCase().includes(q) || 
         h.thaiName.includes(query) ||
-        h.heroId.toLowerCase().includes(lowerQuery)
+        h.heroId.toLowerCase().includes(q)
     );
+}
+
+// Export for modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { heroes: heroesData, roleColors, roleLabels, getHeroById, getHeroesByRole, searchHeroes };
 }

@@ -5,64 +5,53 @@
 ## ฟีเจอร์หลัก
 
 ### 1. ระบบดราฟแบบแข่งขันจริง
-- รองรับรูปแบบการแข่งขัน BO1, BO3, BO5, BO7
-- ระบบ Global Banpick - ตัวละครที่เลือกในเกมก่อนหน้าจะถูกล็อกในเกมถัดไป
-- ลำดับการดราฟตามมาตรฐานการแข่งขัน:
-  - Ban Phase 1: First Pick แบน 1 → Second Pick แบน 1 → First Pick แบน 1 → Second Pick แบน 1
-  - Pick Phase 1: First Pick เลือก 1 → Second Pick เลือก 2 → First Pick เลือก 2 → Second Pick เลือก 1
-  - Ban Phase 2: Second Pick แบน 1 → First Pick แบน 1 → Second Pick แบน 1 → First Pick แบน 1
-  - Pick Phase 2: Second Pick เลือก 1 → First Pick เลือก 2 → Second Pick เลือก 2 → First Pick เลือก 1
+- รองรับ BO1, BO3, BO5, BO7
+- Global Banpick - ตัวละครที่เลือกในเกมก่อนหน้าจะถูกล็อกในเกมถัดไป
+- ลำดับการดราฟตามมาตรฐานการแข่งขัน
 - นับถอยหลัง 60 วินาทีต่อรอบ
 
 ### 2. ระบบ Login/Register
-- สมัครสมาชิกด้วย Email/Password
-- เข้าสู่ระบบด้วย Google
-- จัดการโปรไฟล์ผู้ใช้
+- Email/Password
+- Google Sign-in
 
-### 3. ระบบบันทึกข้อมูลการดราฟ
-- บันทึกการดราฟลง Firebase Firestore
+### 3. ระบบบันทึกข้อมูลการดราฟ (Firebase)
+- บันทึกลง Firestore
 - เก็บข้อมูลการเลือกและแบนของทุกเกม
-- บันทึกผลการแข่งขัน (ชนะ/แพ้/เสมอ/ฝึกซ้อม)
+- บันทึกผลการแข่งขัน
 
-### 4. โปรไฟล์ผู้ใช้
-- ตั้งค่าโปรไฟล์สาธารณะ/ส่วนตัว
-- แสดงสถิติการดราฟ
-- ดูประวัติการดราฟ
-
-### 5. ระบบวิเคราะห์ (Analytics)
-- อัตราชนะรวม
-- สถิติตามรูปแบบการแข่งขัน (BO)
-- ตัวละครที่เลือกบ่อยที่สุด
-- ตัวละครที่แบนบ่อยที่สุด
-- อัตราชนะตามตัวละคร
-
-### 6. Hamburger Menu Navigation
+### 4. Hamburger Menu
 - Draft (หน้าหลัก)
-- Profile (โปรไฟล์)
-- Analyst (วิเคราะห์)
+- Profile (โปรไฟล์สาธารณะ/ส่วนตัว)
+- Analyst (วิเคราะห์สถิติ)
 - History (ประวัติการดราฟ)
-- Meta Tournament (เร็วๆ นี้)
+
+### 5. ระบบ Analyst
+- อัตราชนะรวม
+- สถิติตาม BO
+- ตัวละครที่เลือก/แบนบ่อยที่สุด
+- อัตราชนะตามตัวละคร
 
 ## โครงสร้างโปรเจค
 
 ```
 Rov-New/
 ├── index.html              # หน้าดราฟหลัก
+├── README.md               # ไฟล์นี้
 ├── css/
 │   └── styles.css          # สไตล์ทั้งหมด
 ├── js/
-│   ├── main.js             # ไฟล์หลักสำหรับหน้า index
+│   ├── main.js             # โค้ดหลัก
 │   ├── data/
 │   │   └── heroes.js       # ข้อมูลตัวละคร 127 ตัว
 │   ├── components/
-│   │   ├── HeroGrid.js     # คอมโพเนนต์แสดงตารางตัวละคร
-│   │   ├── TeamPanel.js    # คอมโพเนนต์แสดงข้อมูลทีม
-│   │   └── Toast.js        # คอมโพเนนต์แจ้งเตือน
+│   │   ├── HeroGrid.js     # ตารางตัวละคร
+│   │   ├── TeamPanel.js    # แสดงทีม
+│   │   └── Toast.js        # แจ้งเตือน
 │   ├── utils/
-│   │   └── DraftManager.js # จัดการระบบดราฟ
+│   │   └── DraftManager.js # จัดการดราฟ
 │   ├── services/
-│   │   ├── FirebaseService.js  # จัดการ Firebase
-│   │   └── AuthManager.js      # จัดการ Authentication
+│   │   ├── FirebaseService.js  # Firebase
+│   │   └── AuthManager.js      # Authentication
 │   └── pages/
 │       ├── profile.js      # หน้าโปรไฟล์
 │       ├── analyst.js      # หน้าวิเคราะห์
@@ -71,44 +60,35 @@ Rov-New/
 │   ├── profile.html        # หน้าโปรไฟล์
 │   ├── analyst.html        # หน้าวิเคราะห์
 │   └── history.html        # หน้าประวัติ
-└── rovhero/                # โฟลเดอร์รูปภาพตัวละคร
+└── rovhero/                # โฟลเดอร์รูปภาพตัวละคร (ว่าง)
 ```
 
 ## การติดตั้ง
 
-1. Clone repository:
+1. แตกไฟล์ ZIP
+2. ใส่รูปภาพตัวละครในโฟลเดอร์ `rovhero/`
+3. เปิด `index.html` ในเบราว์เซอร์
+
+## การ Push ขึ้น GitHub
+
 ```bash
-git clone https://github.com/bossjas47/Rov.git
+cd Rov-New
+git init
+git add .
+git commit -m "ROV Draft Pro v2.0"
+git branch -M main
+git remote add origin https://github.com/bossjas47/Rov.git
+git push -u origin main --force
 ```
 
-2. เปิดไฟล์ `index.html` ในเบราว์เซอร์
+## Firebase Config
 
-3. สำหรับการพัฒนา แนะนำให้ใช้ Live Server
-
-## Firebase Configuration
-
-โปรเจคนี้ใช้ Firebase สำหรับ:
-- Authentication (Email/Password, Google)
-- Firestore Database (บันทึกข้อมูลการดราฟ)
-
-การตั้งค่า Firebase อยู่ในไฟล์ `js/services/FirebaseService.js`
+อยู่ใน `js/services/FirebaseService.js`
 
 ## ข้อมูลตัวละคร
 
-ระบบรองรับตัวละคร RoV ทั้งหมด 127 ตัว พร้อมข้อมูล:
-- ชื่อภาษาอังกฤษ
-- ชื่อภาษาไทย
-- บทบาท (Tank, Fighter, Assassin, Mage, Marksman, Support)
-- รูปภาพ
-
-## การใช้งาน
-
-1. เข้าสู่ระบบหรือสมัครสมาชิก
-2. เลือกรูปแบบการแข่งขัน (BO1-BO7)
-3. เริ่มดราฟตามลำดับที่กำหนด
-4. เมื่อจบการดราฟ บันทึกข้อมูลลงระบบ
-5. ดูสถิติและวิเคราะห์ผลการดราฟได้ที่หน้า Analyst
+127 ตัว - ดูชื่อไฟล์ใน `js/data/heroes.js`
 
 ## License
 
-MIT License
+MIT
