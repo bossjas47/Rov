@@ -165,8 +165,23 @@ export const positionLabels = {
     adl: 'Abyssal Dragon Lane'
 };
 
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { heroesData, roleColors, roleLabels, positionLabels };
+// Get hero by ID
+export function getHeroById(id) {
+    return heroes.find(h => h.id.toString() === id.toString());
 }
-    
+
+// Get heroes by role
+export function getHeroesByRole(role) {
+    if (role === 'all') return heroes;
+    return heroes.filter(h => h.role === role);
+}
+
+// Search heroes
+export function searchHeroes(query) {
+    const lowerQuery = query.toLowerCase();
+    return heroes.filter(h => 
+        h.name.toLowerCase().includes(lowerQuery) || 
+        h.thaiName.includes(query) ||
+        h.heroId.toLowerCase().includes(lowerQuery)
+    );
+}

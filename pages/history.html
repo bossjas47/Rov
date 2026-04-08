@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติการดราฟ - ROV Draft Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="text-gray-800 overflow-x-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    
+    <!-- Navigation Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-[90] w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="swords" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">ROV Draft Pro</h1>
+                    <p class="text-xs text-gray-500">Competitive System</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="../index.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="swords" class="w-5 h-5"></i>
+                <span>Draft</span>
+            </a>
+            <a href="profile.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span>โปรไฟล์</span>
+            </a>
+            <a href="analyst.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span>วิเคราะห์</span>
+            </a>
+            <a href="history.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 font-medium">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span>ประวัติการดราฟ</span>
+                <span class="ml-auto text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">หลัก</span>
+            </a>
+            <a href="#" onclick="alert('ฟีเจอร์นี้จะเปิดใช้งานเร็วๆ นี้')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 cursor-not-allowed">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+                <span>Meta Tournament</span>
+                <span class="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">เร็วๆ นี้</span>
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+            <div id="sidebarUserInfo" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p>
+                    <p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[80] hidden" onclick="app.toggleSidebar()"></div>
+    
+    <!-- Header -->
+    <header class="liquid-glass-strong sticky top-0 z-50 px-4 sm:px-6 py-4 mb-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="app.toggleSidebar()" class="p-2 rounded-xl hover:bg-white/50 transition-all">
+                    <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <i data-lucide="history" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                            ประวัติการดราฟ
+                        </h1>
+                        <p class="text-xs text-gray-500 font-medium tracking-wide uppercase">Draft History</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Login Required -->
+    <div id="loginRequired" class="max-w-7xl mx-auto px-4 mb-6 hidden">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-8 text-white shadow-lg shadow-orange-500/20 text-center">
+            <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="lock" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">กรุณาเข้าสู่ระบบ</h2>
+            <p class="text-white/80 mb-6">เข้าสู่ระบบเพื่อดูประวัติการดราฟของคุณ</p>
+            <button onclick="authManager.showLoginModal()" class="px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-white/90 transition-all">
+                เข้าสู่ระบบ
+            </button>
+        </div>
+    </div>
+    
+    <!-- History Content -->
+    <main id="historyContent" class="max-w-7xl mx-auto px-4 pb-8 space-y-6 hidden">
+        <!-- Filter Bar -->
+        <div class="liquid-glass-strong rounded-2xl p-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="filter" class="w-5 h-5 text-gray-500"></i>
+                    <span class="font-medium text-gray-700">กรอง:</span>
+                </div>
+                <select id="filterResult" onchange="historyApp.filterDrafts()" class="px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="win">ชนะ</option>
+                    <option value="lose">แพ้</option>
+                    <option value="draw">เสมอ</option>
+                    <option value="practice">ฝึกซ้อม</option>
+                </select>
+                <select id="filterBO" onchange="historyApp.filterDrafts()" class="px-4 py-2 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm">
+                    <option value="all">ทุก BO</option>
+                    <option value="1">BO1</option>
+                    <option value="3">BO3</option>
+                    <option value="5">BO5</option>
+                    <option value="7">BO7</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Drafts List -->
+        <div id="draftsList" class="space-y-4">
+            <!-- Generated by JS -->
+        </div>
+        
+        <!-- Load More -->
+        <div class="text-center">
+            <button id="loadMoreBtn" onclick="historyApp.loadMore()" class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all">
+                โหลดเพิ่ม
+            </button>
+        </div>
+    </main>
+    
+    <!-- Draft Detail Modal -->
+    <div id="draftDetailModal" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="historyApp.closeDetailModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
+            <div class="bg-white rounded-2xl shadow-2xl p-6">
+                <div id="draftDetailContent">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="../js/pages/history.js"></script>
+</body>
+</html>

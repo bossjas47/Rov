@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์ - ROV Draft Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="text-gray-800 overflow-x-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    
+    <!-- Navigation Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-[90] w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="swords" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">ROV Draft Pro</h1>
+                    <p class="text-xs text-gray-500">Competitive System</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="../index.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="swords" class="w-5 h-5"></i>
+                <span>Draft</span>
+            </a>
+            <a href="profile.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span>โปรไฟล์</span>
+            </a>
+            <a href="analyst.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 font-medium">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span>วิเคราะห์</span>
+                <span class="ml-auto text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">หลัก</span>
+            </a>
+            <a href="history.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span>ประวัติการดราฟ</span>
+            </a>
+            <a href="#" onclick="alert('ฟีเจอร์นี้จะเปิดใช้งานเร็วๆ นี้')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 cursor-not-allowed">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+                <span>Meta Tournament</span>
+                <span class="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">เร็วๆ นี้</span>
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+            <div id="sidebarUserInfo" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p>
+                    <p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[80] hidden" onclick="app.toggleSidebar()"></div>
+    
+    <!-- Header -->
+    <header class="liquid-glass-strong sticky top-0 z-50 px-4 sm:px-6 py-4 mb-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="app.toggleSidebar()" class="p-2 rounded-xl hover:bg-white/50 transition-all">
+                    <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <i data-lucide="bar-chart-2" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                            วิเคราะห์
+                        </h1>
+                        <p class="text-xs text-gray-500 font-medium tracking-wide uppercase">Analytics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Login Required -->
+    <div id="loginRequired" class="max-w-7xl mx-auto px-4 mb-6 hidden">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-8 text-white shadow-lg shadow-orange-500/20 text-center">
+            <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="lock" class="w-10 h-10 text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">กรุณาเข้าสู่ระบบ</h2>
+            <p class="text-white/80 mb-6">เข้าสู่ระบบเพื่อดูสถิติและวิเคราะห์การดราฟของคุณ</p>
+            <button onclick="authManager.showLoginModal()" class="px-6 py-3 bg-white text-orange-600 rounded-xl font-semibold hover:bg-white/90 transition-all">
+                เข้าสู่ระบบ
+            </button>
+        </div>
+    </div>
+    
+    <!-- Analytics Content -->
+    <main id="analyticsContent" class="max-w-7xl mx-auto px-4 pb-8 space-y-6 hidden">
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="stat-card text-center">
+                <p id="totalDrafts" class="stat-value">0</p>
+                <p class="text-sm text-gray-500">การดราฟทั้งหมด</p>
+            </div>
+            <div class="stat-card text-center">
+                <p id="winRate" class="stat-value text-green-500">0%</p>
+                <p class="text-sm text-gray-500">อัตราชนะ</p>
+            </div>
+            <div class="stat-card text-center">
+                <p id="totalWins" class="stat-value text-blue-500">0</p>
+                <p class="text-sm text-gray-500">ชนะ</p>
+            </div>
+            <div class="stat-card text-center">
+                <p id="totalLosses" class="stat-value text-red-500">0</p>
+                <p class="text-sm text-gray-500">แพ้</p>
+            </div>
+        </div>
+        
+        <!-- BO Stats -->
+        <div class="stat-card">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 rounded-lg bg-purple-100">
+                    <i data-lucide="trophy" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">สถิติตามรูปแบบการแข่งขัน (BO)</h3>
+            </div>
+            <div id="boStatsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Generated by JS -->
+            </div>
+        </div>
+        
+        <!-- Most Picked Heroes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="stat-card">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-lg bg-blue-100">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">ตัวละครที่เลือกบ่อยที่สุด</h3>
+                </div>
+                <div id="mostPickedContainer" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">ไม่มีข้อมูล</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-lg bg-red-100">
+                        <i data-lucide="ban" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800">ตัวละครที่แบนบ่อยที่สุด</h3>
+                </div>
+                <div id="mostBannedContainer" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">ไม่มีข้อมูล</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hero Win Rates -->
+        <div class="stat-card">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 rounded-lg bg-green-100">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">อัตราชนะตามตัวละคร</h3>
+            </div>
+            <div id="heroWinRatesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <p class="text-gray-500 text-center py-8 col-span-full">ไม่มีข้อมูล</p>
+            </div>
+        </div>
+    </main>
+    
+    <script type="module" src="../js/pages/analyst.js"></script>
+</body>
+</html>

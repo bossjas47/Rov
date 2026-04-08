@@ -3,25 +3,23 @@
 body {
     font-family: 'Inter', 'Noto Sans Thai', sans-serif;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeSpeed; /* Changed from optimizeLegibility for speed */
+    text-rendering: optimizeSpeed;
     overflow-x: hidden;
 }
 
-/* Optimized GPU Acceleration */
+/* GPU Acceleration */
 .gpu-accelerated {
     will-change: transform, opacity;
     transform: translateZ(0);
 }
 
-/* Optimized Glassmorphism - Reduced blur for performance */
+/* Glassmorphism */
 .liquid-glass {
-    background: rgba(255, 255, 255, 0.7); /* More opaque, less blur needed */
+    background: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Only apply backdrop-filter to static elements, not scrolling ones */
-header.liquid-glass-strong, 
 .liquid-glass-strong {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
@@ -68,27 +66,26 @@ header.liquid-glass-strong,
     animation: shimmer-slow 3s infinite;
 }
 
-/* Hero Grid Optimization */
+/* Hero Grid */
 #hero-grid {
-    content-visibility: auto; /* Critical for scrolling performance with many items */
+    content-visibility: auto;
     contain-intrinsic-size: 1000px;
     display: grid;
     gap: 0.75rem;
 }
 
-/* Hero Cards - Optimized for Scrolling */
+/* Hero Cards */
 .hero-card {
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s ease-out; /* Simpler transition */
-    contain: content; /* Better isolation */
+    transition: transform 0.2s ease-out;
+    contain: content;
     cursor: pointer;
     border: 2px solid transparent;
-    background: #fff; /* Solid background for grid items */
+    background: #fff;
     border-radius: 8px;
 }
 
-/* Remove heavy filters and shadows on grid items during scroll */
 .hero-card:hover:not(.disabled) {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
@@ -99,7 +96,7 @@ header.liquid-glass-strong,
 .hero-card.disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    filter: grayscale(100%); /* Simpler filter */
+    filter: grayscale(100%);
     pointer-events: none;
 }
 
@@ -116,6 +113,22 @@ header.liquid-glass-strong,
 .hero-card.selected-ban {
     border-color: #6b7280;
     opacity: 0.5;
+}
+
+.hero-card.global-banned {
+    border-color: #f59e0b;
+    opacity: 0.6;
+    position: relative;
+}
+
+.hero-card.global-banned::after {
+    content: '🔒';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    z-index: 5;
 }
 
 /* Status Badges */
@@ -139,6 +152,7 @@ header.liquid-glass-strong,
 .status-ban { background: #6b7280; }
 .status-pick-blue { background: #3b82f6; }
 .status-pick-red { background: #ef4444; }
+.status-global-ban { background: #f59e0b; }
 
 /* Draft Slots */
 .draft-slot {
@@ -196,7 +210,7 @@ header.liquid-glass-strong,
     font-weight: 600;
 }
 
-/* Team Active Animations - Simplified */
+/* Team Active Animations */
 .team-active {
     border: 2px solid #3b82f6;
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
@@ -205,6 +219,46 @@ header.liquid-glass-strong,
 .team-active-red {
     border: 2px solid #ef4444;
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+/* Sequence Indicator */
+.sequence-item {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.sequence-item.active {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px currentColor;
+}
+
+.sequence-item.completed {
+    opacity: 0.5;
+}
+
+.sequence-ban {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 2px solid #dc2626;
+}
+
+.sequence-pick-blue {
+    background: #dbeafe;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+}
+
+.sequence-pick-red {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 2px solid #dc2626;
 }
 
 /* Custom Scrollbar */
@@ -231,9 +285,132 @@ header.liquid-glass-strong,
     color: white;
 }
 
+/* Sidebar */
+#sidebar {
+    transition: transform 0.3s ease;
+}
+
+#sidebar.open {
+    transform: translateX(0);
+}
+
+/* Modal Animations */
+.modal-enter {
+    animation: modalIn 0.3s ease forwards;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Stats Cards */
+.stat-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Profile Section */
+.profile-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    border-radius: 24px;
+    padding: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Draft History Item */
+.draft-history-item {
+    background: rgba(255,255,255,0.8);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.draft-history-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Win/Lose Badges */
+.badge-win {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.badge-lose {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.badge-draw {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.badge-practice {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     #hero-grid {
         gap: 0.5rem;
+    }
+    
+    .sequence-item {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 640px) {
+    .sequence-item {
+        width: 24px;
+        height: 24px;
+        font-size: 9px;
     }
 }

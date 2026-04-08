@@ -1,55 +1,361 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';">
-    <title>ROV Draft Tool - Premium</title>
+    <title>ROV Draft Pro - Competitive Draft System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body class="text-gray-800 overflow-x-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 min-h-screen">
     
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
     
-    <!-- Header -->
-    <header class="liquid-glass-strong sticky top-0 z-50 px-6 py-4 mb-6 gpu-accelerated border-b border-white/40">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i data-lucide="swords" class="w-7 h-7 text-blue-600"></i>
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="authManager.closeLoginModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="swords" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
+                    <p class="text-gray-500 text-sm mt-1">เข้าสู่ระบบเพื่อบันทึกการดราฟของคุณ</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="email" id="loginEmail" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="your@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                        <input type="password" id="loginPassword" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="••••••••">
+                    </div>
+                    <button type="submit" 
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all">
+                        เข้าสู่ระบบ
+                    </button>
+                </form>
+                
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">หรือ</span>
+                    </div>
+                </div>
+                
+                <button onclick="authManager.signInWithGoogle()" 
+                    class="w-full py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    เข้าสู่ระบบด้วย Google
+                </button>
+                
+                <p class="text-center text-sm text-gray-500 mt-6">
+                    ยังไม่มีบัญชี? 
+                    <button onclick="authManager.showRegisterModal()" class="text-blue-600 font-semibold hover:underline">สมัครสมาชิก</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 z-[200] hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="authManager.closeRegisterModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="user-plus" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">สมัครสมาชิก</h2>
+                    <p class="text-gray-500 text-sm mt-1">สร้างบัญชีเพื่อเริ่มใช้งาน</p>
+                </div>
+                
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                        <input type="text" id="registerUsername" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="ชื่อที่แสดงในโปรไฟล์">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                        <input type="email" id="registerEmail" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="your@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                        <input type="password" id="registerPassword" required minlength="6"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="อย่างน้อย 6 ตัวอักษร">
+                    </div>
+                    <button type="submit" 
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:-translate-y-0.5 transition-all">
+                        สมัครสมาชิก
+                    </button>
+                </form>
+                
+                <p class="text-center text-sm text-gray-500 mt-6">
+                    มีบัญชีอยู่แล้ว? 
+                    <button onclick="authManager.showLoginModal()" class="text-blue-600 font-semibold hover:underline">เข้าสู่ระบบ</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BO Selection Modal -->
+    <div id="boModal" class="fixed inset-0 z-[150] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg p-6">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="trophy" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">เลือกรูปแบบการแข่งขัน</h2>
+                    <p class="text-gray-500 text-sm mt-1">เลือกจำนวนเกมที่ต้องการดราฟ (Best of)</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <button onclick="draftApp.setBO(1)" class="bo-btn group p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center">
+                        <div class="text-3xl font-bold text-gray-700 group-hover:text-blue-600 mb-1">BO1</div>
+                        <div class="text-sm text-gray-500">1 เกม</div>
+                    </button>
+                    <button onclick="draftApp.setBO(3)" class="bo-btn group p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center">
+                        <div class="text-3xl font-bold text-gray-700 group-hover:text-blue-600 mb-1">BO3</div>
+                        <div class="text-sm text-gray-500">2 จาก 3 เกม</div>
+                    </button>
+                    <button onclick="draftApp.setBO(5)" class="bo-btn group p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center">
+                        <div class="text-3xl font-bold text-gray-700 group-hover:text-blue-600 mb-1">BO5</div>
+                        <div class="text-sm text-gray-500">3 จาก 5 เกม</div>
+                    </button>
+                    <button onclick="draftApp.setBO(7)" class="bo-btn group p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center">
+                        <div class="text-3xl font-bold text-gray-700 group-hover:text-blue-600 mb-1">BO7</div>
+                        <div class="text-sm text-gray-500">4 จาก 7 เกม</div>
+                    </button>
+                </div>
+                
+                <div class="bg-blue-50 rounded-xl p-4 mb-6">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                        <div class="text-sm text-blue-800">
+                            <p class="font-semibold mb-1">ระบบ Global Banpick</p>
+                            <p>ตัวละครที่ถูกเลือกในแต่ละเกมจะไม่สามารถใช้ซ้ำในเกมถัดไปของ Match เดียวกัน</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="draftApp.closeBOModal()" class="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-all">
+                    ยกเลิก
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save Draft Modal -->
+    <div id="saveDraftModal" class="fixed inset-0 z-[150] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="draftApp.closeSaveDraftModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="save" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">บันทึกการดราฟ</h2>
+                    <p class="text-gray-500 text-sm mt-1">บันทึกผลการดราฟลงระบบ</p>
+                </div>
+                
+                <form id="saveDraftForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ Match</label>
+                        <input type="text" id="draftMatchName" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="เช่น รอบชิงชนะเลิศ">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ทีมของคุณ</label>
+                        <input type="text" id="draftMyTeam" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="ชื่อทีมของคุณ">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ทีมคู่แข่ง</label>
+                        <input type="text" id="draftOpponentTeam" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                            placeholder="ชื่อทีมคู่แข่ง">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผลการแข่งขัน</label>
+                        <select id="draftResult" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                            <option value="win">ชนะ</option>
+                            <option value="lose">แพ้</option>
+                            <option value="draw">เสมอ</option>
+                            <option value="practice">ฝึกซ้อม</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                        <textarea id="draftNotes" rows="3"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all resize-none"
+                            placeholder="บันทึกเพิ่มเติม..."></textarea>
+                    </div>
+                    <button type="submit" 
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:-translate-y-0.5 transition-all">
+                        บันทึกการดราฟ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Sidebar (Hamburger Menu) -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-[90] w-72 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="swords" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
-                        ROV DRAFT
-                    </h1>
-                    <p class="text-xs text-gray-500 font-medium tracking-wide uppercase">Competitive Mode</p>
+                    <h1 class="text-xl font-bold text-gray-800">ROV Draft Pro</h1>
+                    <p class="text-xs text-gray-500">Competitive System</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="index.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 font-medium">
+                <i data-lucide="swords" class="w-5 h-5"></i>
+                <span>Draft</span>
+                <span class="ml-auto text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">หลัก</span>
+            </a>
+            <a href="pages/profile.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span>โปรไฟล์</span>
+            </a>
+            <a href="pages/analyst.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span>วิเคราะห์</span>
+            </a>
+            <a href="pages/history.html" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all">
+                <i data-lucide="history" class="w-5 h-5"></i>
+                <span>ประวัติการดราฟ</span>
+            </a>
+            <a href="#" onclick="alert('ฟีเจอร์นี้จะเปิดใช้งานเร็วๆ นี้')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 cursor-not-allowed">
+                <i data-lucide="trophy" class="w-5 h-5"></i>
+                <span>Meta Tournament</span>
+                <span class="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">เร็วๆ นี้</span>
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100">
+            <div id="sidebarUserInfo" class="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p>
+                    <p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-[80] hidden" onclick="app.toggleSidebar()"></div>
+    
+    <!-- Header -->
+    <header class="liquid-glass-strong sticky top-0 z-50 px-4 sm:px-6 py-4 mb-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="app.toggleSidebar()" class="p-2 rounded-xl hover:bg-white/50 transition-all">
+                    <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl liquid-glass flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <i data-lucide="swords" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                            ROV DRAFT
+                        </h1>
+                        <p class="text-xs text-gray-500 font-medium tracking-wide uppercase">Competitive Mode</p>
+                    </div>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
+                <!-- BO Display -->
+                <div id="boDisplay" class="hidden px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold text-sm shadow-lg shadow-purple-500/30">
+                    <span id="boText">BO3</span>
+                </div>
+                
+                <!-- Game Counter -->
+                <div id="gameCounter" class="hidden px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-sm shadow-lg shadow-orange-500/30">
+                    <span>Game <span id="currentGame">1</span>/<span id="totalGames">3</span></span>
+                </div>
+                
                 <button id="resetBtn" class="group px-4 py-2.5 rounded-xl liquid-glass hover:bg-white/60 transition-all flex items-center gap-2 text-sm font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
                     <i data-lucide="rotate-ccw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
                     <span class="hidden sm:inline">รีเซ็ต</span>
                 </button>
+                
+                <button id="changeBOBtn" onclick="draftApp.showBOModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold text-sm shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">ตั้งค่า BO</span>
+                </button>
+                
                 <div class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-sm shadow-lg shadow-blue-500/30 flex items-center gap-2">
                     <i data-lucide="clock" class="w-4 h-4 animate-pulse"></i>
-                    <span id="timer" class="font-mono text-lg">30</span>
+                    <span id="timer" class="font-mono text-lg">60</span>
                 </div>
             </div>
         </div>
     </header>
     
+    <!-- Login Required Banner -->
+    <div id="loginBanner" class="max-w-7xl mx-auto px-4 mb-6">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 text-white shadow-lg shadow-orange-500/20">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                    <div>
+                        <p class="font-semibold">คุณยังไม่ได้เข้าสู่ระบบ</p>
+                        <p class="text-sm text-white/80">เข้าสู่ระบบเพื่อบันทึกการดราฟและดูสถิติของคุณ</p>
+                    </div>
+                </div>
+                <button onclick="authManager.showLoginModal()" class="px-4 py-2 bg-white text-orange-600 rounded-xl font-semibold hover:bg-white/90 transition-all">
+                    เข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <main class="max-w-7xl mx-auto px-4 pb-8 space-y-6">
         
-        <!-- Phase Indicator - ปรับให้เด่นขึ้น -->
+        <!-- Phase Indicator -->
         <div class="relative overflow-hidden rounded-2xl p-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20">
             <div class="liquid-glass rounded-xl p-4 text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer-slow"></div>
@@ -59,28 +365,37 @@
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                         </span>
-                        <span class="text-sm font-bold text-gray-700 uppercase tracking-widest" id="phase-text">Ban Phase</span>
+                        <span class="text-sm font-bold text-gray-700 uppercase tracking-widest" id="phase-text">Ban Phase 1</span>
                     </div>
-                    <div class="flex items-center justify-center gap-4">
+                    <div class="flex items-center justify-center gap-4 flex-wrap">
                         <span id="currentTeamIndicator" class="flex items-center gap-2 font-bold text-lg">
                             <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                                 <i data-lucide="shield" class="w-5 h-5 text-blue-600"></i>
                             </div>
-                            <span class="text-blue-600" id="teamText">Blue Turn</span>
+                            <span class="text-blue-600" id="teamText">First Pick</span>
                         </span>
                         <span class="text-gray-300">|</span>
                         <span class="text-gray-600 font-medium" id="actionHint">เลือกตัวละครเพื่อแบน</span>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-600 font-medium" id="pickOrderHint">แบน 1 ตัว</span>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Pick/Ban Sequence Indicator -->
+        <div class="liquid-glass-strong rounded-2xl p-4">
+            <div class="flex items-center justify-center gap-2 flex-wrap" id="sequenceIndicator">
+                <!-- Generated by JS -->
             </div>
         </div>
         
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Blue Team - ปรับให้ดู Premium -->
+            <!-- Blue Team (First Pick) -->
             <div class="lg:col-span-3 space-y-4">
-                <div id="blue-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-400/30 shadow-xl shadow-blue-500/10 gpu-accelerated" data-team="blue">
+                <div id="blue-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-400/30 shadow-xl shadow-blue-500/10" data-team="blue">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-cyan-400"></div>
                     
                     <div class="flex items-center justify-between pb-3 border-b border-blue-200/30">
@@ -89,7 +404,7 @@
                                 <i data-lucide="shield" class="w-5 h-5 text-blue-600"></i>
                             </div>
                             <div>
-                                <h2 class="text-lg font-bold text-blue-900">BLUE TEAM</h2>
+                                <h2 class="text-lg font-bold text-blue-900">FIRST PICK</h2>
                                 <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wider">Bans: <span id="blue-ban-count">0</span>/4 | Picks: <span id="blue-pick-count">0</span>/5</p>
                             </div>
                         </div>
@@ -113,7 +428,7 @@
                 </div>
             </div>
             
-            <!-- Center - ปรับให้โฟกัสที่ Hero Grid -->
+            <!-- Center -->
             <div class="lg:col-span-6 space-y-4">
                 <!-- Controls -->
                 <div class="liquid-glass-strong rounded-2xl p-5 shadow-xl">
@@ -140,7 +455,7 @@
                     </div>
                 </div>
                 
-                <!-- Hero Grid - ปรับให้ดูดีขึ้น -->
+                <!-- Hero Grid -->
                 <div class="liquid-glass-strong rounded-3xl p-6 shadow-2xl border border-white/50">
                     <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-2">
@@ -155,9 +470,9 @@
                 </div>
             </div>
             
-            <!-- Red Team -->
+            <!-- Red Team (Second Pick) -->
             <div class="lg:col-span-3 space-y-4">
-                <div id="red-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-400/30 shadow-xl shadow-red-500/10 gpu-accelerated" data-team="red">
+                <div id="red-team-panel" class="team-panel relative overflow-hidden rounded-2xl p-6 space-y-4 bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-400/30 shadow-xl shadow-red-500/10" data-team="red">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 to-orange-400"></div>
                     
                     <div class="flex items-center justify-between pb-3 border-b border-red-200/30">
@@ -166,7 +481,7 @@
                                 <i data-lucide="flame" class="w-5 h-5 text-red-600"></i>
                             </div>
                             <div>
-                                <h2 class="text-lg font-bold text-red-900">RED TEAM</h2>
+                                <h2 class="text-lg font-bold text-red-900">SECOND PICK</h2>
                                 <p class="text-[10px] text-red-600 font-semibold uppercase tracking-wider">Bans: <span id="red-ban-count">0</span>/4 | Picks: <span id="red-pick-count">0</span>/5</p>
                             </div>
                         </div>
@@ -188,9 +503,20 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex justify-center gap-4">
+            <button id="nextGameBtn" onclick="draftApp.nextGame()" class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                เกมถัดไป
+            </button>
+            <button id="saveDraftBtn" onclick="draftApp.showSaveDraftModal()" class="hidden px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <i data-lucide="save" class="w-5 h-5"></i>
+                บันทึกการดราฟ
+            </button>
+        </div>
     </main>
     
     <script type="module" src="js/main.js"></script>
 </body>
-
 </html>
