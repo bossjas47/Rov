@@ -3,241 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waiting Room - ROV Draft Simulator</title>
+    <title>Waiting Room - ROV Draft Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            min-height: 100vh;
-        }
-        
-        .liquid-glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .liquid-glass-dark {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .team-blue {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.2));
-            border: 2px solid rgba(59, 130, 246, 0.5);
-        }
-        
-        .team-red {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.2));
-            border: 2px solid rgba(239, 68, 68, 0.5);
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
+        * { font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+        .player-card { transition: all 0.3s ease; }
+        .player-ready { border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+        .player-waiting { border-color: #f59e0b; }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
-        .chat-message {
-            animation: slideIn 0.3s ease-out;
-        }
-        
+        .animate-pulse-slow { animation: pulse 2s infinite; }
+        .chat-message { animation: slideIn 0.3s ease; }
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        .slot-empty {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-        }
-        
-        .slot-filled {
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
     </style>
 </head>
 <body class="text-white">
-    <!-- Hamburger Button -->
-    <button onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 w-12 h-12 liquid-glass rounded-xl flex items-center justify-center hover:bg-white/20 transition-all">
-        <i class="fas fa-bars text-xl"></i>
-    </button>
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 liquid-glass-dark z-50 text-white transform -translate-x-full transition-transform duration-300">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">ROV Draft</h2>
-                <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center transition-all">
-                    <i class="fas fa-times"></i>
+    <!-- Navbar -->
+    <nav class="glass fixed top-0 left-0 right-0 z-40 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button onclick="leaveRoom()" class="btn-secondary p-2 rounded-lg">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <div>
+                    <h1 class="text-lg font-bold">Room <span id="roomCode" class="text-blue-400">------</span></h1>
+                    <p class="text-xs text-gray-400">Waiting Room</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="copyRoomCode()" class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    Copy Code
+                </button>
+                <button onclick="copyRoomLink()" class="btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2">
+                    <i data-lucide="link" class="w-4 h-4"></i>
+                    Copy Link
                 </button>
             </div>
-            
-            <nav class="space-y-2">
-                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-user w-5"></i>
-                    <span>Solo Draft</span>
-                </a>
-                <a href="pvp-lobby.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/30 border border-blue-400/50">
-                    <i class="fas fa-users w-5"></i>
-                    <span>PVP Draft</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-user-circle w-5"></i>
-                    <span>Profile</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-chart-line w-5"></i>
-                    <span>Analyst</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
-                    <i class="fas fa-history w-5"></i>
-                    <span>History</span>
-                </a>
-            </nav>
         </div>
-    </aside>
-
-    <!-- Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+    </nav>
 
     <!-- Main Content -->
-    <main class="min-h-screen p-4 md:p-8 pt-20">
+    <main class="pt-24 pb-6 px-6">
         <div class="max-w-6xl mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center gap-3 px-6 py-3 liquid-glass rounded-2xl mb-4">
-                    <i class="fas fa-hourglass-half text-yellow-400 pulse-animation"></i>
-                    <span class="text-lg font-medium">Waiting Room</span>
-                </div>
-                <h1 class="text-4xl md:text-5xl font-bold mb-2">
-                    Room <span id="roomCodeDisplay" class="text-blue-400">------</span>
-                </h1>
-                <p class="text-white/60">Waiting for players to join...</p>
-            </div>
-
-            <!-- Room Info -->
-            <div class="grid md:grid-cols-3 gap-6 mb-8">
-                <div class="liquid-glass rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-bold text-blue-400 mb-1" id="boDisplay">BO1</div>
-                    <div class="text-sm text-white/60">Format</div>
-                </div>
-                <div class="liquid-glass rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-bold text-purple-400 mb-1" id="firstPickDisplay">Blue</div>
-                    <div class="text-sm text-white/60">First Pick</div>
-                </div>
-                <div class="liquid-glass rounded-2xl p-5 text-center">
-                    <div class="text-3xl font-bold text-green-400 mb-1" id="playerCount">1/2</div>
-                    <div class="text-sm text-white/60">Players Ready</div>
-                </div>
-            </div>
-
-            <!-- Teams -->
-            <div class="grid md:grid-cols-2 gap-6 mb-8">
-                <!-- Blue Team -->
-                <div class="team-blue rounded-3xl p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                                <i class="fas fa-shield-alt text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Blue Team</h3>
-                                <span class="text-sm text-blue-300">First Pick</span>
-                            </div>
-                        </div>
-                        <span id="blueStatus" class="px-3 py-1 rounded-full text-sm bg-blue-500/50">Waiting...</span>
-                    </div>
-                    
-                    <div id="blueCaptain" class="slot-empty rounded-2xl p-4 flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
-                            <i class="fas fa-user text-2xl text-white/30"></i>
+            <!-- Players Section -->
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <!-- Host -->
+                <div id="hostCard" class="glass rounded-2xl p-6 player-card player-waiting">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+                            <i data-lucide="crown" class="w-8 h-8 text-white"></i>
                         </div>
                         <div>
-                            <div class="text-white/50">Captain Slot</div>
-                            <div class="text-sm text-white/30">Waiting for player...</div>
+                            <p class="text-sm text-gray-400">HOST</p>
+                            <h3 id="hostName" class="text-xl font-bold">Waiting...</h3>
                         </div>
+                        <div id="hostStatus" class="ml-auto">
+                            <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-sm font-medium">Waiting</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
+                        <span>First Pick: <span id="firstPickDisplay">Random</span></span>
                     </div>
                 </div>
 
-                <!-- Red Team -->
-                <div class="team-red rounded-3xl p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center">
-                                <i class="fas fa-shield-alt text-2xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Red Team</h3>
-                                <span class="text-sm text-red-300">Second Pick</span>
-                            </div>
-                        </div>
-                        <span id="redStatus" class="px-3 py-1 rounded-full text-sm bg-red-500/50">Waiting...</span>
-                    </div>
-                    
-                    <div id="redCaptain" class="slot-empty rounded-2xl p-4 flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
-                            <i class="fas fa-user text-2xl text-white/30"></i>
+                <!-- Guest -->
+                <div id="guestCard" class="glass rounded-2xl p-6 player-card player-waiting">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
+                            <i data-lucide="user" class="w-8 h-8 text-white"></i>
                         </div>
                         <div>
-                            <div class="text-white/50">Captain Slot</div>
-                            <div class="text-sm text-white/30">Waiting for player...</div>
+                            <p class="text-sm text-gray-400">GUEST</p>
+                            <h3 id="guestName" class="text-xl font-bold">Waiting...</h3>
                         </div>
+                        <div id="guestStatus" class="ml-auto">
+                            <span class="px-3 py-1 rounded-full bg-gray-500/20 text-gray-400 text-sm font-medium">Empty</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-400">
+                        <i data-lucide="swords" class="w-4 h-4"></i>
+                        <span>BO Format: <span id="boDisplay">BO3</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button id="startDraftBtn" onclick="startDraft()" class="hidden px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-green-500/30">
-                    <i class="fas fa-play mr-2"></i> Start Draft
-                </button>
-                <button onclick="leaveRoom()" class="px-8 py-4 liquid-glass rounded-2xl font-bold text-lg hover:bg-red-500/30 transition-all">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Leave Room
-                </button>
-                <button onclick="copyRoomCode()" class="px-6 py-4 liquid-glass rounded-2xl font-medium hover:bg-white/20 transition-all">
-                    <i class="fas fa-copy mr-2"></i> Copy Code
-                </button>
+            <!-- Settings & Actions -->
+            <div class="glass rounded-2xl p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="settings" class="w-5 h-5 text-gray-400"></i>
+                            <span class="text-gray-400">Settings:</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 text-sm font-medium">BO<span id="settingsBO">3</span></span>
+                            <span class="px-3 py-1 rounded-lg bg-purple-500/20 text-purple-400 text-sm font-medium" id="settingsFirstPick">Random First Pick</span>
+                        </div>
+                    </div>
+                    <div id="startSection" class="hidden">
+                        <button onclick="startDraft()" class="btn-primary px-8 py-3 rounded-xl font-bold text-lg flex items-center gap-2 animate-glow">
+                            <i data-lucide="play" class="w-5 h-5"></i>
+                            START DRAFT
+                        </button>
+                    </div>
+                    <div id="waitingSection">
+                        <span class="text-gray-400 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+                            Waiting for opponent...
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <!-- Chat Section -->
-            <div class="liquid-glass rounded-3xl p-6">
-                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-comments text-purple-400"></i>
-                    Room Chat
+            <div class="glass rounded-2xl p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
+                    Chat
                 </h3>
-                
-                <div id="chatMessages" class="h-48 overflow-y-auto space-y-2 mb-4 p-4 bg-black/20 rounded-2xl">
-                    <div class="text-center text-white/40 text-sm py-4">
-                        <i class="fas fa-comment-dots text-2xl mb-2"></i>
-                        <p>No messages yet. Start the conversation!</p>
-                    </div>
+                <div id="chatMessages" class="h-48 overflow-y-auto space-y-2 mb-4 pr-2">
+                    <p class="text-gray-500 text-center text-sm py-8">No messages yet</p>
                 </div>
-                
-                <div class="flex gap-3">
-                    <input type="text" id="chatInput" placeholder="Type a message..." 
-                        class="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-blue-400"
-                        onkeypress="if(event.key==='Enter') sendChatMessage()">
-                    <button onclick="sendChatMessage()" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl transition-colors">
-                        <i class="fas fa-paper-plane"></i>
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Type a message..." maxlength="100"
+                           class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"
+                           onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="btn-primary px-6 py-3 rounded-xl">
+                        <i data-lucide="send" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>

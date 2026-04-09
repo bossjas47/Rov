@@ -1,101 +1,156 @@
-// Draft Room JavaScript - PVP Real-time Drafting
-// Using traditional JS (no ES6 modules) for file:// protocol compatibility
+// ROV Draft Pro - Draft Room (PVP)
 
-// ============================================
-// FIREBASE CONFIGURATION
-// ============================================
 const firebaseConfig = {
-    apiKey: "AIzaSyB0jGqS53Q4zF6E1K8vY9L2QcX7R5T3W1Q",
-    authDomain: "rov-draft-simulator.firebaseapp.com",
-    projectId: "rov-draft-simulator",
-    storageBucket: "rov-draft-simulator.firebasestorage.app",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789jkl"
+    apiKey: "AIzaSyC450kePwL6FdVXUSVli0bEP3DdnQs0qzU",
+    authDomain: "psl-esport.firebaseapp.com",
+    projectId: "psl-esport",
+    storageBucket: "psl-esport.firebasestorage.app",
+    messagingSenderId: "225108570173",
+    appId: "1:225108570173:web:b6483c02368908f3783a54"
 };
 
-// Initialize Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-const db = firebase.firestore();
-const auth = firebase.auth();
 
-// ============================================
-// HEROES DATA (127 Heroes)
-// ============================================
-const HEROES = [
-    { id: 1, name: "Thane", role: "tank" }, { id: 2, name: "Veera", role: "mage" },
-    { id: 3, name: "Lumburr", role: "tank" }, { id: 4, name: "Krixi", role: "mage" },
-    { id: 5, name: "Omega", role: "tank" }, { id: 6, name: "Kahlii", role: "mage" },
-    { id: 7, name: "Toro", role: "tank" }, { id: 8, name: "Natalya", role: "mage" },
-    { id: 9, name: "Grakk", role: "tank" }, { id: 10, name: "Ilumia", role: "mage" },
-    { id: 11, name: "Chaugnar", role: "tank" }, { id: 12, name: "Jinnar", role: "mage" },
-    { id: 13, name: "Ormarr", role: "tank" }, { id: 14, name: "Preyta", role: "mage" },
-    { id: 15, name: "Gildur", role: "tank" }, { id: 16, name: "Lauriel", role: "mage" },
-    { id: 17, name: "Xeniel", role: "tank" }, { id: 18, name: "Diao Chan", role: "mage" },
-    { id: 19, name: "Alice", role: "support" }, { id: 20, name: "Azzen'Ka", role: "mage" },
-    { id: 21, name: "Mganga", role: "support" }, { id: 22, name: "Zill", role: "mage" },
-    { id: 23, name: "Peura", role: "support" }, { id: 24, name: "Raz", role: "mage" },
-    { id: 25, name: "Payna", role: "support" }, { id: 26, name: "Liliana", role: "mage" },
-    { id: 27, name: "Annette", role: "support" }, { id: 28, name: "Ishar", role: "mage" },
-    { id: 29, name: "Ishar", role: "support" }, { id: 30, name: "Dirak", role: "mage" },
-    { id: 31, name: "Tulen", role: "mage" }, { id: 32, name: "Valhein", role: "marksman" },
-    { id: 33, name: "Taara", role: "fighter" }, { id: 34, name: "Yorn", role: "marksman" },
-    { id: 35, name: "Zanis", role: "fighter" }, { id: 36, name: "Slimz", role: "marksman" },
-    { id: 37, name: "Lu Bu", role: "fighter" }, { id: 38, name: "Violet", role: "marksman" },
-    { id: 39, name: "Zephys", role: "fighter" }, { id: 40, name: "Joker", role: "marksman" },
-    { id: 41, name: "Ryoma", role: "fighter" }, { id: 42, name: "Tel'Annas", role: "marksman" },
-    { id: 43, name: "Wonder Woman", role: "fighter" }, { id: 44, name: "Moren", role: "marksman" },
-    { id: 45, name: "Omen", role: "fighter" }, { id: 46, name: "Lindis", role: "marksman" },
-    { id: 47, name: "Astrid", role: "fighter" }, { id: 48, name: "Wisp", role: "marksman" },
-    { id: 49, name: "Superman", role: "fighter" }, { id: 50, name: "Hayate", role: "marksman" },
-    { id: 51, name: "Florentino", role: "fighter" }, { id: 52, name: "Capheny", role: "marksman" },
-    { id: 53, name: "Riktor", role: "fighter" }, { id: 54, name: "Elsu", role: "marksman" },
-    { id: 55, name: "Yena", role: "fighter" }, { id: 56, name: "Celica", role: "marksman" },
-    { id: 57, name: "Briar", role: "fighter" }, { id: 58, name: "Thorne", role: "marksman" },
-    { id: 59, name: "Allain", role: "fighter" }, { id: 60, name: "Keera", role: "assassin" },
-    { id: 61, name: "Airi", role: "assassin" }, { id: 62, name: "Paine", role: "assassin" },
-    { id: 63, name: "Nakroth", role: "assassin" }, { id: 64, name: "Thane", role: "assassin" },
-    { id: 65, name: "Batman", role: "assassin" }, { id: 66, name: "Kriknak", role: "assassin" },
-    { id: 67, name: "Murad", role: "assassin" }, { id: 68, name: "Zephys", role: "assassin" },
-    { id: 69, name: "Zuka", role: "assassin" }, { id: 70, name: "Kilian", role: "assassin" },
-    { id: 71, name: "Quillen", role: "assassin" }, { id: 72, name: "Nakroth", role: "assassin" },
-    { id: 73, name: "Enzo", role: "assassin" }, { id: 74, name: "Dextra", role: "assassin" },
-    { id: 75, name: "Sinestrea", role: "assassin" }, { id: 76, name: "Aoi", role: "assassin" },
-    { id: 77, name: "Bright", role: "assassin" }, { id: 78, name: "Zata", role: "assassin" },
-    { id: 79, name: "Keera", role: "assassin" }, { id: 80, name: "Kaine", role: "assassin" },
-    { id: 81, name: "Butterfly", role: "assassin" }, { id: 82, name: "Wukong", role: "assassin" },
-    { id: 83, name: "Krixi", role: "mage" }, { id: 84, name: "Aleister", role: "mage" },
-    { id: 85, name: "Mganga", role: "mage" }, { id: 86, name: "Gildur", role: "mage" },
-    { id: 87, name: "Diao Chan", role: "mage" }, { id: 88, name: "Krixi", role: "mage" },
-    { id: 89, name: "Veera", role: "mage" }, { id: 90, name: "Lauriel", role: "mage" },
-    { id: 91, name: "Ignis", role: "mage" }, { id: 92, name: "Natalya", role: "mage" },
-    { id: 93, name: "Zill", role: "mage" }, { id: 94, name: "Arduin", role: "fighter" },
-    { id: 95, name: "Raz", role: "mage" }, { id: 96, name: "Max", role: "tank" },
-    { id: 97, name: "Liliana", role: "mage" }, { id: 98, name: "Toro", role: "tank" },
-    { id: 99, name: "Tulen", role: "mage" }, { id: 100, name: "Lumburr", role: "tank" },
-    { id: 101, name: "Ishar", role: "mage" }, { id: 102, name: "Grakk", role: "tank" },
-    { id: 103, name: "Rouie", role: "support" }, { id: 104, name: "Chaugnar", role: "tank" },
-    { id: 105, name: "Zip", role: "support" }, { id: 106, name: "Omega", role: "tank" },
-    { id: 107, name: "Teeri", role: "support" }, { id: 108, name: "Thane", role: "tank" },
-    { id: 109, name: "Krizzix", role: "support" }, { id: 110, name: "Xeniel", role: "tank" },
-    { id: 111, name: "Y'bneth", role: "support" }, { id: 112, name: "Arum", role: "tank" },
-    { id: 113, name: "Helen", role: "support" }, { id: 114, name: "Mina", role: "tank" },
-    { id: 115, name: "Aya", role: "support" }, { id: 116, name: "Skud", role: "fighter" },
-    { id: 117, name: "Cresht", role: "support" }, { id: 118, name: "Kil'Groth", role: "fighter" },
-    { id: 119, name: "Baldum", role: "tank" }, { id: 120, name: "Errol", role: "fighter" },
-    { id: 121, name: "Tachi", role: "fighter" }, { id: 122, name: "Veres", role: "fighter" },
-    { id: 123, name: "Amily", role: "fighter" }, { id: 124, name: "Richter", role: "fighter" },
-    { id: 125, name: "Qi", role: "fighter" }, { id: 126, name: "Bonnie", role: "fighter" },
-    { id: 127, name: "Laville", role: "marksman" }
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Heroes Data (127 heroes)
+const heroesData = [
+    { id: 1, name: "Valhein", role: "marksman", imageFile: "valhein.png" },
+    { id: 2, name: "Zanis", role: "fighter", imageFile: "zanis.png" },
+    { id: 3, name: "Yorn", role: "marksman", imageFile: "yorn.png" },
+    { id: 4, name: "Thane", role: "tank", imageFile: "thane.png" },
+    { id: 5, name: "Krixi", role: "mage", imageFile: "krixi.png" },
+    { id: 6, name: "Ormarr", role: "fighter", imageFile: "ormarr.png" },
+    { id: 7, name: "Zephys", role: "assassin", imageFile: "zephys.png" },
+    { id: 8, name: "Lu Bu", role: "fighter", imageFile: "lu_bu.png" },
+    { id: 9, name: "Alice", role: "support", imageFile: "alice.png" },
+    { id: 10, name: "Mganga", role: "mage", imageFile: "mganga.png" },
+    { id: 11, name: "Gildur", role: "tank", imageFile: "gildur.png" },
+    { id: 12, name: "Butterfly", role: "assassin", imageFile: "butterfly.png" },
+    { id: 13, name: "Taara", role: "tank", imageFile: "taara.png" },
+    { id: 14, name: "Veera", role: "mage", imageFile: "veera.png" },
+    { id: 15, name: "Azzen'Ka", role: "mage", imageFile: "azzen_ka.png" },
+    { id: 16, name: "Mina", role: "tank", imageFile: "mina.png" },
+    { id: 17, name: "Toro", role: "tank", imageFile: "toro.png" },
+    { id: 18, name: "Violet", role: "marksman", imageFile: "violet.png" },
+    { id: 19, name: "Chaugnar", role: "support", imageFile: "chaugnar.png" },
+    { id: 20, name: "Kriknak", role: "assassin", imageFile: "kriknak.png" },
+    { id: 21, name: "Omega", role: "tank", imageFile: "omega.png" },
+    { id: 22, name: "Kahlii", role: "mage", imageFile: "kahlii.png" },
+    { id: 23, name: "Skud", role: "fighter", imageFile: "skud.png" },
+    { id: 24, name: "Ignis", role: "mage", imageFile: "ignis.png" },
+    { id: 25, name: "Airi", role: "assassin", imageFile: "airi.png" },
+    { id: 26, name: "Preyta", role: "mage", imageFile: "preyta.png" },
+    { id: 27, name: "Slimz", role: "marksman", imageFile: "slimz.png" },
+    { id: 28, name: "Arthur", role: "fighter", imageFile: "arthur.png" },
+    { id: 29, name: "Jinnar", role: "mage", imageFile: "jinnar.png" },
+    { id: 30, name: "Maloch", role: "fighter", imageFile: "maloch.png" },
+    { id: 31, name: "Cresht", role: "support", imageFile: "cresht.png" },
+    { id: 32, name: "Natalya", role: "mage", imageFile: "natalya.png" },
+    { id: 33, name: "Peura", role: "support", imageFile: "peura.png" },
+    { id: 34, name: "Lumburr", role: "support", imageFile: "lumburr.png" },
+    { id: 35, name: "Aleister", role: "mage", imageFile: "aleister.png" },
+    { id: 36, name: "Fennik", role: "marksman", imageFile: "fennik.png" },
+    { id: 37, name: "Grakk", role: "support", imageFile: "grakk.png" },
+    { id: 38, name: "Nakroth", role: "assassin", imageFile: "nakroth.png" },
+    { id: 39, name: "Diao Chan", role: "mage", imageFile: "diao_chan.png" },
+    { id: 40, name: "Lauriel", role: "mage", imageFile: "lauriel.png" },
+    { id: 41, name: "Zill", role: "assassin", imageFile: "zill.png" },
+    { id: 42, name: "Murad", role: "assassin", imageFile: "murad.png" },
+    { id: 43, name: "Raz", role: "assassin", imageFile: "raz.png" },
+    { id: 44, name: "Zuka", role: "fighter", imageFile: "zuka.png" },
+    { id: 45, name: "Tel'Annas", role: "marksman", imageFile: "tel_annas.png" },
+    { id: 46, name: "Kil'Groth", role: "fighter", imageFile: "kil_groth.png" },
+    { id: 47, name: "Ryoma", role: "assassin", imageFile: "ryoma.png" },
+    { id: 48, name: "Superman", role: "fighter", imageFile: "superman.png" },
+    { id: 49, name: "Wonder Woman", role: "fighter", imageFile: "wonder_woman.png" },
+    { id: 50, name: "Moren", role: "marksman", imageFile: "moren.png" },
+    { id: 51, name: "Xeniel", role: "tank", imageFile: "xeniel.png" },
+    { id: 52, name: "Lindis", role: "marksman", imageFile: "lindis.png" },
+    { id: 53, name: "TeeMee", role: "support", imageFile: "teemee.png" },
+    { id: 54, name: "Tulen", role: "mage", imageFile: "tulen.png" },
+    { id: 55, name: "Omen", role: "fighter", imageFile: "omen.png" },
+    { id: 56, name: "Max", role: "marksman", imageFile: "max.png" },
+    { id: 57, name: "Liliana", role: "mage", imageFile: "liliana.png" },
+    { id: 58, name: "Wisp", role: "marksman", imageFile: "wisp.png" },
+    { id: 59, name: "The Flash", role: "assassin", imageFile: "the_flash.png" },
+    { id: 60, name: "Arum", role: "support", imageFile: "arum.png" },
+    { id: 61, name: "Rourke", role: "marksman", imageFile: "rourke.png" },
+    { id: 62, name: "Marja", role: "mage", imageFile: "marja.png" },
+    { id: 63, name: "Baldum", role: "tank", imageFile: "baldum.png" },
+    { id: 64, name: "Roxie", role: "tank", imageFile: "roxie.png" },
+    { id: 65, name: "Annette", role: "support", imageFile: "annette.png" },
+    { id: 66, name: "Amily", role: "fighter", imageFile: "amily.png" },
+    { id: 67, name: "Y'bneth", role: "tank", imageFile: "y_bneth.png" },
+    { id: 68, name: "Elsu", role: "marksman", imageFile: "elsu.png" },
+    { id: 69, name: "Riktor", role: "fighter", imageFile: "riktor.png" },
+    { id: 70, name: "Wiro", role: "tank", imageFile: "wiro.png" },
+    { id: 71, name: "Quillen", role: "assassin", imageFile: "quillen.png" },
+    { id: 72, name: "Florentino", role: "fighter", imageFile: "florentino.png" },
+    { id: 73, name: "Sephera", role: "support", imageFile: "sephera.png" },
+    { id: 74, name: "D'Arcy", role: "mage", imageFile: "darcy.png" },
+    { id: 75, name: "Veres", role: "fighter", imageFile: "veres.png" },
+    { id: 76, name: "Hayate", role: "marksman", imageFile: "hayate.png" },
+    { id: 77, name: "Capheny", role: "marksman", imageFile: "capheny.png" },
+    { id: 78, name: "Errol", role: "fighter", imageFile: "errol.png" },
+    { id: 79, name: "Yena", role: "fighter", imageFile: "yena.png" },
+    { id: 80, name: "Enzo", role: "assassin", imageFile: "enzo.png" },
+    { id: 81, name: "Zip", role: "support", imageFile: "zip.png" },
+    { id: 82, name: "Qi", role: "fighter", imageFile: "qi.png" },
+    { id: 83, name: "Celica", role: "marksman", imageFile: "celica.png" },
+    { id: 84, name: "Volkath", role: "fighter", imageFile: "volkath.png" },
+    { id: 85, name: "Krizzix", role: "support", imageFile: "krizzix.png" },
+    { id: 86, name: "Eland'orr", role: "marksman", imageFile: "elandorr.png" },
+    { id: 87, name: "Ishar", role: "mage", imageFile: "ishar.png" },
+    { id: 88, name: "Dirak", role: "mage", imageFile: "dirak.png" },
+    { id: 89, name: "Keera", role: "assassin", imageFile: "keera.png" },
+    { id: 90, name: "Ata", role: "tank", imageFile: "ata.png" },
+    { id: 91, name: "Paine", role: "assassin", imageFile: "paine.png" },
+    { id: 92, name: "Laville", role: "marksman", imageFile: "laville.png" },
+    { id: 93, name: "Rouie", role: "support", imageFile: "rouie.png" },
+    { id: 94, name: "Zata", role: "mage", imageFile: "zata.png" },
+    { id: 95, name: "Allain", role: "fighter", imageFile: "allain.png" },
+    { id: 96, name: "Thorne", role: "marksman", imageFile: "thorne.png" },
+    { id: 97, name: "Sinestrea", role: "assassin", imageFile: "sinestrea.png" },
+    { id: 98, name: "Dextra", role: "fighter", imageFile: "dextra.png" },
+    { id: 99, name: "Lorion", role: "mage", imageFile: "lorion.png" },
+    { id: 100, name: "Bright", role: "assassin", imageFile: "bright.png" },
+    { id: 101, name: "Aoi", role: "assassin", imageFile: "aoi.png" },
+    { id: 102, name: "Iggy", role: "mage", imageFile: "iggy.png" },
+    { id: 103, name: "Tachi", role: "fighter", imageFile: "tachi.png" },
+    { id: 104, name: "Aya", role: "support", imageFile: "aya.png" },
+    { id: 105, name: "Yue", role: "mage", imageFile: "yue.png" },
+    { id: 106, name: "Yan", role: "fighter", imageFile: "yan.png" },
+    { id: 107, name: "Helen", role: "support", imageFile: "helen.png" },
+    { id: 108, name: "Teeri", role: "marksman", imageFile: "teeri.png" },
+    { id: 109, name: "Bonnie", role: "marksman", imageFile: "bonnie.png" },
+    { id: 110, name: "Bijan", role: "assassin", imageFile: "bijan.png" },
+    { id: 111, name: "Kaine", role: "assassin", imageFile: "kaine.png" },
+    { id: 112, name: "Stuart", role: "marksman", imageFile: "stuart.png" },
+    { id: 113, name: "Ming", role: "mage", imageFile: "ming.png" },
+    { id: 114, name: "Erin", role: "marksman", imageFile: "erin.png" },
+    { id: 115, name: "Charlotte", role: "fighter", imageFile: "charlotte.png" },
+    { id: 116, name: "Dolia", role: "support", imageFile: "dolia.png" },
+    { id: 117, name: "Biron", role: "fighter", imageFile: "biron.png" },
+    { id: 118, name: "Bolt Baron", role: "marksman", imageFile: "bolt_baron.png" },
+    { id: 119, name: "Billow", role: "assassin", imageFile: "billow.png" },
+    { id: 120, name: "Heino", role: "mage", imageFile: "heino.png" },
+    { id: 121, name: "Goverra", role: "tank", imageFile: "goverra.png" },
+    { id: 122, name: "Edras", role: "marksman", imageFile: "edras.png" },
+    { id: 123, name: "Dyadia", role: "mage", imageFile: "dyadia.png" },
+    { id: 124, name: "Arduin", role: "tank", imageFile: "arduin.png" },
+    { id: 125, name: "Astrid", role: "fighter", imageFile: "astrid.png" },
+    { id: 126, name: "Brunhilda", role: "marksman", imageFile: "brunhilda.png" },
+    { id: 127, name: "Flowborn", role: "marksman", imageFile: "flowborn.png" }
 ];
 
-// META Hero IDs (Top 30 from RPL Summer 2026)
-const META_HERO_IDS = [1, 3, 7, 11, 15, 19, 23, 27, 31, 33, 37, 41, 45, 49, 53, 57, 60, 63, 67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111];
+// META Heroes (Top 30 from RPL Summer 2026)
+const metaHeroIds = [17, 62, 76, 103, 67, 86, 82, 116, 102, 112, 119, 99, 94, 122, 36, 58, 93, 77, 7, 13, 53, 79, 57, 89, 97, 10, 23, 1, 117, 47];
 
-// ============================================
-// DRAFT SEQUENCE (Standard ROV Format)
-// ============================================
+// Draft Sequence (20 steps)
 const DRAFT_SEQUENCE = [
     { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
     { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
@@ -106,209 +161,319 @@ const DRAFT_SEQUENCE = [
     { type: 'ban', team: 'red' }, { type: 'ban', team: 'blue' },
     { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
     { type: 'pick', team: 'blue' }, { type: 'pick', team: 'red' },
-    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' }
+    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
 ];
 
-// ============================================
-// GLOBAL STATE
-// ============================================
+// State
 let currentUser = null;
 let roomCode = null;
-let currentTeam = null;
-let isCaptain = false;
-let roomData = null;
-let currentStep = 0;
-let selectedHero = null;
+let draftData = null;
+let myTeam = null;
+let isSpectator = false;
+let unsubscribe = null;
 let timerInterval = null;
-let timeLeft = 30;
-let roomListener = null;
+let selectedHeroId = null;
 let currentFilter = 'all';
 
-// ============================================
-// INITIALIZATION
-// ============================================
+// Get room code
+const urlParams = new URLSearchParams(window.location.search);
+roomCode = urlParams.get('room');
 
-document.addEventListener('DOMContentLoaded', () => {
-    roomCode = localStorage.getItem('currentRoomCode');
-    currentTeam = localStorage.getItem('currentTeam');
-    isCaptain = localStorage.getItem('isCaptain') === 'true';
-    
-    if (!roomCode) {
-        showToast('No room code found!', 'error');
-        window.location.href = 'pvp-lobby.html';
-        return;
+if (!roomCode) {
+    window.location.href = 'index.html';
+}
+
+document.getElementById('roomCode').textContent = roomCode;
+
+// Toast
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const colors = {
+        success: 'from-green-500 to-emerald-600',
+        error: 'from-red-500 to-rose-600',
+        warning: 'from-yellow-500 to-orange-600',
+        info: 'from-blue-500 to-indigo-600'
+    };
+    toast.className = `min-w-[280px] p-4 rounded-xl shadow-xl flex items-center gap-3 bg-gradient-to-r ${colors[type]} text-white`;
+    toast.innerHTML = `
+        <span class="flex-1">${message}</span>
+        <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100">✕</button>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Auth
+auth.onAuthStateChanged(user => {
+    currentUser = user;
+    if (!user) {
+        // Allow spectator mode
+        isSpectator = true;
     }
-    
-    document.getElementById('roomCodeDisplay').textContent = roomCode;
-    
-    auth.onAuthStateChanged((user) => {
-        currentUser = user;
-        setupRoomListener();
-    });
-    
-    renderHeroes();
+    subscribeToDraft();
 });
 
-// ============================================
-// ROOM LISTENER
-// ============================================
+// Subscribe to draft
+function subscribeToDraft() {
+    unsubscribe = db.collection('drafts').doc(roomCode).onSnapshot(doc => {
+        if (!doc.exists) {
+            showToast('Draft not found', 'error');
+            setTimeout(() => window.location.href = 'index.html', 2000);
+            return;
+        }
 
-function setupRoomListener() {
-    roomListener = db.collection('rooms').doc(roomCode)
-        .onSnapshot((doc) => {
-            if (!doc.exists) {
-                showToast('Room closed!', 'error');
-                window.location.href = 'pvp-lobby.html';
-                return;
+        draftData = doc.data();
+
+        // Determine my team
+        if (!isSpectator) {
+            if (draftData.blue.userId === currentUser?.uid) {
+                myTeam = 'blue';
+            } else if (draftData.red.userId === currentUser?.uid) {
+                myTeam = 'red';
+            } else {
+                isSpectator = true;
             }
-            
-            roomData = doc.data();
-            currentStep = roomData.currentStep || 0;
-            
-            // Update UI
-            document.getElementById('boDisplay').textContent = `BO${roomData.boFormat}`;
-            document.getElementById('blueCaptainName').textContent = roomData.blueTeam.captainName || 'Waiting...';
-            document.getElementById('redCaptainName').textContent = roomData.redTeam.captainName || 'Waiting...';
-            
-            // Update draft display
-            updateDraftDisplay();
-            
-            // Check if draft complete
-            if (currentStep >= DRAFT_SEQUENCE.length) {
-                showDraftComplete();
-                return;
-            }
-            
-            // Start timer if it's my turn
-            const currentAction = DRAFT_SEQUENCE[currentStep];
-            const isMyTurn = isCaptain && currentAction.team === currentTeam;
-            
-            if (isMyTurn && !timerInterval) {
-                startTimer();
-            } else if (!isMyTurn) {
-                stopTimer();
-            }
-            
-            // Update turn indicator
-            updateTurnIndicator(currentAction);
-            
-            // Update chat
-            updateChat(roomData.chat || []);
-            
-        }, (error) => {
-            console.error('Room listener error:', error);
-        });
-}
+        }
 
-// ============================================
-// UPDATE DRAFT DISPLAY
-// ============================================
+        // Update UI
+        updateUI();
+        renderHeroes();
+        updateChat();
+        updateSpectators();
 
-function updateDraftDisplay() {
-    const draft = roomData.draft || { blueBans: [], redBans: [], bluePicks: [], redPicks: [] };
-    
-    // Update Blue Bans
-    for (let i = 0; i < 2; i++) {
-        const slot = document.getElementById(`blueBan${i + 1}`);
-        const ban = draft.blueBans[i];
-        if (ban) {
-            const hero = HEROES.find(h => h.id === ban);
-            slot.className = 'ban-slot filled aspect-square rounded-lg flex items-center justify-center';
-            slot.innerHTML = `<div class="text-center"><div class="text-xs font-bold">${hero ? hero.name : '?'}</div></div>`;
+        // Start timer if my turn
+        if (!isSpectator && draftData.currentTeam === myTeam && draftData.status === 'drafting') {
+            startTimer();
+        } else {
+            stopTimer();
         }
-    }
-    
-    // Update Red Bans
-    for (let i = 0; i < 2; i++) {
-        const slot = document.getElementById(`redBan${i + 1}`);
-        const ban = draft.redBans[i];
-        if (ban) {
-            const hero = HEROES.find(h => h.id === ban);
-            slot.className = 'ban-slot filled aspect-square rounded-lg flex items-center justify-center';
-            slot.innerHTML = `<div class="text-center"><div class="text-xs font-bold">${hero ? hero.name : '?'}</div></div>`;
-        }
-    }
-    
-    // Update Blue Picks
-    for (let i = 0; i < 5; i++) {
-        const slot = document.getElementById(`bluePick${i + 1}`);
-        const pick = draft.bluePicks[i];
-        if (pick) {
-            const hero = HEROES.find(h => h.id === pick);
-            slot.className = 'pick-slot filled rounded-lg p-2 flex items-center gap-2';
-            slot.innerHTML = `
-                <div class="w-10 h-10 rounded bg-blue-500 flex items-center justify-center text-xs font-bold">${hero ? hero.name.slice(0, 2) : '?'}</div>
-                <span class="text-xs font-medium">${hero ? hero.name : 'Unknown'}</span>
-            `;
-        }
-    }
-    
-    // Update Red Picks
-    for (let i = 0; i < 5; i++) {
-        const slot = document.getElementById(`redPick${i + 1}`);
-        const pick = draft.redPicks[i];
-        if (pick) {
-            const hero = HEROES.find(h => h.id === pick);
-            slot.className = 'pick-slot filled rounded-lg p-2 flex items-center gap-2';
-            slot.innerHTML = `
-                <div class="w-10 h-10 rounded bg-red-500 flex items-center justify-center text-xs font-bold">${hero ? hero.name.slice(0, 2) : '?'}</div>
-                <span class="text-xs font-medium">${hero ? hero.name : 'Unknown'}</span>
-            `;
-        }
-    }
-    
-    // Update hero grid to show banned/picked heroes
-    updateHeroGridStatus(draft);
-}
 
-function updateHeroGridStatus(draft) {
-    const allBanned = [...(draft.blueBans || []), ...(draft.redBans || [])];
-    const allPicked = [...(draft.bluePicks || []), ...(draft.redPicks || [])];
-    const unavailable = [...allBanned, ...allPicked];
-    
-    document.querySelectorAll('.hero-card').forEach(card => {
-        const heroId = parseInt(card.dataset.heroId);
-        card.classList.remove('banned', 'picked');
-        
-        if (allBanned.includes(heroId)) {
-            card.classList.add('banned');
-        } else if (allPicked.includes(heroId)) {
-            card.classList.add('picked');
+        // Check if draft complete
+        if (draftData.status === 'finished') {
+            showResult();
         }
+    }, error => {
+        console.error('Draft error:', error);
+        showToast('Error connecting to draft', 'error');
     });
 }
 
-// ============================================
-// TURN INDICATOR
-// ============================================
+function updateUI() {
+    // Update player names
+    document.getElementById('bluePlayerName').textContent = draftData.blue.name;
+    document.getElementById('redPlayerName').textContent = draftData.red.name;
 
-function updateTurnIndicator(action) {
-    const turnDot = document.getElementById('turnDot');
-    const turnText = document.getElementById('turnText');
-    
-    const teamColor = action.team === 'blue' ? 'bg-blue-500' : 'bg-red-500';
-    const teamName = action.team === 'blue' ? 'Blue' : 'Red';
-    const actionName = action.type === 'ban' ? 'Ban' : 'Pick';
-    
-    turnDot.className = `w-3 h-3 rounded-full ${teamColor} pulse-animation`;
-    turnText.textContent = `${teamName} Team's Turn to ${actionName}`;
+    // Update game info
+    document.getElementById('gameNumber').textContent = draftData.gameNumber;
+    document.getElementById('boTotal').textContent = draftData.bo;
+
+    // Update turn indicator
+    const currentTurn = document.getElementById('currentTurn');
+    currentTurn.textContent = draftData.currentTeam.toUpperCase();
+    currentTurn.className = `font-bold ml-2 ${draftData.currentTeam === 'blue' ? 'text-blue-400' : 'text-red-400'}`;
+
+    // Show/hide turn indicators
+    document.getElementById('blueTurnIndicator').classList.toggle('hidden', draftData.currentTeam !== 'blue' || isSpectator);
+    document.getElementById('redTurnIndicator').classList.toggle('hidden', draftData.currentTeam !== 'red' || isSpectator);
+
+    // Highlight active team section
+    document.getElementById('blueTeamSection').classList.toggle('ring-2', draftData.currentTeam === 'blue');
+    document.getElementById('blueTeamSection').classList.toggle('ring-blue-500', draftData.currentTeam === 'blue');
+    document.getElementById('redTeamSection').classList.toggle('ring-2', draftData.currentTeam === 'red');
+    document.getElementById('redTeamSection').classList.toggle('ring-red-500', draftData.currentTeam === 'red');
+
+    // Update phase display
+    const step = draftData.currentStep;
+    let phaseText = '';
+    let actionText = '';
+
+    if (step < 4) {
+        phaseText = 'BAN PHASE 1';
+        actionText = 'Select a hero to BAN';
+    } else if (step < 10) {
+        phaseText = 'PICK PHASE 1';
+        actionText = 'Select a hero to PICK';
+    } else if (step < 14) {
+        phaseText = 'BAN PHASE 2';
+        actionText = 'Select a hero to BAN';
+    } else if (step < 20) {
+        phaseText = 'PICK PHASE 2';
+        actionText = 'Select a hero to PICK';
+    } else {
+        phaseText = 'DRAFT COMPLETE';
+        actionText = 'Waiting for result...';
+    }
+
+    document.getElementById('phaseDisplay').textContent = phaseText;
+    document.getElementById('actionDisplay').textContent = actionText;
+
+    // Update slots
+    updateSlots('blue', draftData.blue);
+    updateSlots('red', draftData.red);
 }
 
-// ============================================
-// TIMER
-// ============================================
+function updateSlots(team, data) {
+    // Update bans
+    for (let i = 0; i < 4; i++) {
+        const slot = document.querySelector(`#${team}TeamSection .ban-slot[data-slot="ban-${i}"]`);
+        if (data.bans[i]) {
+            const hero = heroesData.find(h => h.id === data.bans[i]);
+            slot.className = 'ban-slot slot-filled rounded-lg overflow-hidden border-red-500';
+            slot.innerHTML = `<img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover opacity-50 grayscale" alt="${hero.name}">`;
+        } else {
+            slot.className = 'ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold';
+            slot.innerHTML = i + 1;
+        }
+    }
 
+    // Update picks
+    for (let i = 0; i < 5; i++) {
+        const slot = document.querySelector(`#${team}TeamSection .pick-slot[data-slot="pick-${i}"]`);
+        if (data.picks[i]) {
+            const hero = heroesData.find(h => h.id === data.picks[i]);
+            slot.className = `pick-slot slot-filled rounded-lg overflow-hidden border-${team === 'blue' ? 'blue' : 'red'}-500`;
+            slot.innerHTML = `<img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover" alt="${hero.name}">`;
+        } else {
+            slot.className = 'pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm';
+            slot.innerHTML = i + 1;
+        }
+    }
+
+    // Update counts
+    const banText = document.querySelector(`#${team}TeamSection .text-xs:first-of-type`);
+    if (banText) banText.textContent = `BANS (${data.bans.length}/4)`;
+
+    const pickText = document.querySelectorAll(`#${team}TeamSection .text-xs`)[1];
+    if (pickText) pickText.textContent = `PICKS (${data.picks.length}/5)`;
+}
+
+function renderHeroes() {
+    const grid = document.getElementById('heroesGrid');
+    let filtered = heroesData;
+
+    if (currentFilter === 'meta') {
+        filtered = heroesData.filter(h => metaHeroIds.includes(h.id));
+    } else if (currentFilter !== 'all') {
+        filtered = heroesData.filter(h => h.role === currentFilter);
+    }
+
+    grid.innerHTML = filtered.map(hero => {
+        const isUsed = draftData.usedHeroes.includes(hero.id);
+        const isSelected = selectedHeroId === hero.id;
+        const bluePicked = draftData.blue.picks.includes(hero.id);
+        const redPicked = draftData.red.picks.includes(hero.id);
+
+        let className = 'hero-card relative rounded-lg overflow-hidden';
+        if (isUsed) className += ' banned';
+        else if (bluePicked) className += ' picked-blue';
+        else if (redPicked) className += ' picked-red';
+        else if (isSelected) className += ' selected';
+
+        return `
+            <div class="${className}" onclick="selectHero(${hero.id})" title="${hero.name}">
+                <img src="rovhero/${hero.imageFile}" class="w-full aspect-square object-cover" alt="${hero.name}" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #667eea, #764ba2)'; this.parentElement.innerHTML='<span class=\\'absolute inset-0 flex items-center justify-center text-white font-bold text-xs\\'>${hero.name.substring(0, 3)}</span>';">
+                ${isSelected ? '<div class="absolute inset-0 bg-yellow-500/30 flex items-center justify-center"><i data-lucide="check" class="w-6 h-6 text-yellow-400"></i></div>' : ''}
+            </div>
+        `;
+    }).join('');
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function filterHeroes(role) {
+    currentFilter = role;
+    document.querySelectorAll('.role-filter').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.role === role) {
+            btn.classList.add('active');
+        }
+    });
+    renderHeroes();
+}
+
+function selectHero(heroId) {
+    if (isSpectator) return;
+    if (draftData.currentTeam !== myTeam) return;
+    if (draftData.usedHeroes.includes(heroId)) return;
+
+    selectedHeroId = heroId;
+    const hero = heroesData.find(h => h.id === heroId);
+    document.getElementById('selectedHeroName').textContent = hero.name;
+    document.getElementById('confirmPanel').classList.remove('hidden');
+    renderHeroes();
+}
+
+function cancelSelection() {
+    selectedHeroId = null;
+    document.getElementById('confirmPanel').classList.add('hidden');
+    renderHeroes();
+}
+
+async function confirmSelection() {
+    if (!selectedHeroId || isSpectator) return;
+    if (draftData.currentTeam !== myTeam) return;
+
+    const step = DRAFT_SEQUENCE[draftData.currentStep];
+    const teamData = draftData[myTeam];
+
+    // Check if slot available
+    const maxSlots = step.type === 'ban' ? 4 : 5;
+    const currentSlots = step.type === 'ban' ? teamData.bans.length : teamData.picks.length;
+    if (currentSlots >= maxSlots) {
+        showToast('All slots filled!', 'error');
+        return;
+    }
+
+    try {
+        const update = {};
+        update[`${myTeam}.${step.type}s`] = firebase.firestore.FieldValue.arrayUnion(selectedHeroId);
+        update.usedHeroes = firebase.firestore.FieldValue.arrayUnion(selectedHeroId);
+        update.currentStep = draftData.currentStep + 1;
+
+        // Switch team
+        if (draftData.currentStep + 1 < 20) {
+            update.currentTeam = DRAFT_SEQUENCE[draftData.currentStep + 1].team;
+        } else {
+            update.status = 'finished';
+        }
+
+        update.timeLeft = 60;
+
+        await db.collection('drafts').doc(roomCode).update(update);
+
+        selectedHeroId = null;
+        document.getElementById('confirmPanel').classList.add('hidden');
+        showToast(`${step.type === 'ban' ? 'Banned' : 'Picked'} ${heroesData.find(h => h.id === selectedHeroId)?.name}!`, 'success');
+    } catch (error) {
+        showToast('Error: ' + error.message, 'error');
+    }
+}
+
+// Timer
 function startTimer() {
-    timeLeft = 30;
-    updateTimerDisplay();
-    
-    timerInterval = setInterval(() => {
+    stopTimer();
+    let timeLeft = draftData.timeLeft || 60;
+
+    timerInterval = setInterval(async () => {
         timeLeft--;
-        updateTimerDisplay();
-        
+
+        document.getElementById('timerDisplay').textContent = timeLeft;
+        document.getElementById('timerBar').style.width = `${(timeLeft / 60) * 100}%`;
+
         if (timeLeft <= 0) {
-            stopTimer();
-            autoSelect();
+            // Auto pick/ban random
+            const availableHeroes = heroesData.filter(h => !draftData.usedHeroes.includes(h.id));
+            if (availableHeroes.length > 0) {
+                const randomHero = availableHeroes[Math.floor(Math.random() * availableHeroes.length)];
+                selectedHeroId = randomHero.id;
+                await confirmSelection();
+            }
+        } else if (timeLeft % 5 === 0) {
+            // Update timer in DB every 5 seconds
+            await db.collection('drafts').doc(roomCode).update({ timeLeft });
         }
     }, 1000);
 }
@@ -320,397 +485,116 @@ function stopTimer() {
     }
 }
 
-function updateTimerDisplay() {
-    document.getElementById('timerDisplay').textContent = timeLeft;
-    const percentage = (timeLeft / 30) * 100;
-    document.getElementById('timerBar').style.width = `${percentage}%`;
-}
-
-function autoSelect() {
-    // Auto select first available hero
-    const draft = roomData.draft || { blueBans: [], redBans: [], bluePicks: [], redPicks: [] };
-    const unavailable = [...draft.blueBans, ...draft.redBans, ...draft.bluePicks, ...draft.redPicks];
-    
-    const availableHero = HEROES.find(h => !unavailable.includes(h.id));
-    if (availableHero) {
-        selectHero(availableHero.id);
-        confirmSelection();
-    }
-}
-
-// ============================================
-// HERO SELECTION
-// ============================================
-
-function renderHeroes() {
-    const grid = document.getElementById('heroGrid');
-    grid.innerHTML = '';
-    
-    let heroesToShow = HEROES;
-    
-    if (currentFilter === 'meta') {
-        heroesToShow = HEROES.filter(h => META_HERO_IDS.includes(h.id));
-    } else if (currentFilter !== 'all') {
-        heroesToShow = HEROES.filter(h => h.role === currentFilter);
-    }
-    
-    heroesToShow.forEach(hero => {
-        const card = document.createElement('div');
-        card.className = 'hero-card aspect-square rounded-lg bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20';
-        card.dataset.heroId = hero.id;
-        card.onclick = () => onHeroClick(hero.id);
-        
-        card.innerHTML = `
-            <div class="text-center p-1">
-                <div class="text-xs font-bold truncate">${hero.name}</div>
-                <div class="text-[10px] text-white/50 uppercase">${hero.role}</div>
-            </div>
-        `;
-        
-        grid.appendChild(card);
-    });
-    
-    document.getElementById('heroCount').textContent = heroesToShow.length;
-}
-
-function filterHeroes(role) {
-    currentFilter = role;
-    
-    // Update filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-blue-500/50');
-        btn.classList.add('bg-white/10');
-    });
-    document.querySelector(`[data-filter="${role}"]`).classList.add('active', 'bg-blue-500/50');
-    document.querySelector(`[data-filter="${role}"]`).classList.remove('bg-white/10');
-    
-    renderHeroes();
-}
-
-function searchHeroes(query) {
-    const grid = document.getElementById('heroGrid');
-    const cards = grid.querySelectorAll('.hero-card');
-    
-    cards.forEach(card => {
-        const heroId = parseInt(card.dataset.heroId);
-        const hero = HEROES.find(h => h.id === heroId);
-        
-        if (hero && hero.name.toLowerCase().includes(query.toLowerCase())) {
-            card.style.display = 'flex';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
-function onHeroClick(heroId) {
-    const currentAction = DRAFT_SEQUENCE[currentStep];
-    const isMyTurn = isCaptain && currentAction.team === currentTeam;
-    
-    if (!isMyTurn) {
-        showToast('Not your turn!', 'error');
-        return;
-    }
-    
-    const draft = roomData.draft || { blueBans: [], redBans: [], bluePicks: [], redPicks: [] };
-    const unavailable = [...draft.blueBans, ...draft.redBans, ...draft.bluePicks, ...draft.redPicks];
-    
-    if (unavailable.includes(heroId)) {
-        showToast('Hero already banned or picked!', 'error');
-        return;
-    }
-    
-    selectedHero = heroId;
-    showConfirmModal(heroId);
-}
-
-function showConfirmModal(heroId) {
-    const hero = HEROES.find(h => h.id === heroId);
-    const currentAction = DRAFT_SEQUENCE[currentStep];
-    
-    document.getElementById('confirmHeroDisplay').innerHTML = `
-        <div class="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mb-4">
-            <span class="text-3xl font-bold">${hero.name.slice(0, 2)}</span>
-        </div>
-        <div class="text-2xl font-bold mb-2">${hero.name}</div>
-        <div class="text-white/60 capitalize">${currentAction.type} as ${hero.role}</div>
-    `;
-    
-    document.getElementById('confirmModal').classList.remove('hidden');
-}
-
-function cancelSelection() {
-    selectedHero = null;
-    document.getElementById('confirmModal').classList.add('hidden');
-}
-
-async function confirmSelection() {
-    if (!selectedHero) return;
-    
-    const currentAction = DRAFT_SEQUENCE[currentStep];
-    const draft = roomData.draft || { blueBans: [], redBans: [], bluePicks: [], redPicks: [] };
-    
-    // Update draft data
-    if (currentAction.type === 'ban') {
-        const banKey = currentAction.team === 'blue' ? 'blueBans' : 'redBans';
-        if (!draft[banKey]) draft[banKey] = [];
-        draft[banKey].push(selectedHero);
-    } else {
-        const pickKey = currentAction.team === 'blue' ? 'bluePicks' : 'redPicks';
-        if (!draft[pickKey]) draft[pickKey] = [];
-        draft[pickKey].push(selectedHero);
-    }
-    
-    try {
-        await db.collection('rooms').doc(roomCode).update({
-            draft: draft,
-            currentStep: currentStep + 1
-        });
-        
-        // Add chat message
-        const hero = HEROES.find(h => h.id === selectedHero);
-        const chatMessage = {
-            type: 'system',
-            text: `${currentAction.team.toUpperCase()} ${currentAction.type.toUpperCase()}: ${hero.name}`,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        await db.collection('rooms').doc(roomCode).update({
-            chat: firebase.firestore.FieldValue.arrayUnion(chatMessage)
-        });
-        
-        selectedHero = null;
-        document.getElementById('confirmModal').classList.add('hidden');
-        
-    } catch (error) {
-        console.error('Error updating draft:', error);
-        showToast('Failed to select hero!', 'error');
-    }
-}
-
-// ============================================
-// CHAT FUNCTIONS
-// ============================================
-
-function toggleChat() {
-    const chatPanel = document.getElementById('chatPanel');
-    chatPanel.classList.toggle('translate-x-full');
-}
-
-function updateChat(messages) {
-    const chatContainer = document.getElementById('chatMessages');
-    
-    if (messages.length === 0) return;
-    
-    chatContainer.innerHTML = '';
-    messages.slice(-50).forEach((msg) => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-message';
-        
-        const isSystem = msg.type === 'system';
-        const isMe = msg.uid === (currentUser ? currentUser.uid : null);
-        
-        if (isSystem) {
-            msgDiv.innerHTML = `
-                <div class="text-center py-1">
-                    <span class="text-xs text-yellow-400/80 font-medium">${msg.text}</span>
-                </div>
-            `;
-        } else {
-            msgDiv.innerHTML = `
-                <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                    <div class="max-w-[85%] ${isMe ? 'bg-blue-500/40' : 'bg-white/10'} rounded-xl px-3 py-2">
-                        <div class="text-[10px] text-white/50 mb-0.5">${msg.name}</div>
-                        <div class="text-xs">${escapeHtml(msg.text)}</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        chatContainer.appendChild(msgDiv);
-    });
-    
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-async function sendChatMessage() {
+// Chat
+async function sendChat() {
     const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    
-    if (!text) return;
-    
-    const message = {
-        uid: currentUser ? currentUser.uid : 'guest_' + Date.now(),
-        name: currentUser ? (currentUser.displayName || currentUser.email) : 'Guest',
-        text: text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    
+    const message = input.value.trim();
+    if (!message) return;
+
+    const userName = isSpectator ? 'Spectator' : (myTeam === 'blue' ? draftData.blue.name : draftData.red.name);
+
     try {
-        await db.collection('rooms').doc(roomCode).update({
-            chat: firebase.firestore.FieldValue.arrayUnion(message)
+        await db.collection('drafts').doc(roomCode).update({
+            chat: firebase.firestore.FieldValue.arrayUnion({
+                user: userName,
+                message: message,
+                time: Date.now(),
+                team: isSpectator ? 'spec' : myTeam
+            })
         });
         input.value = '';
     } catch (error) {
-        console.error('Error sending message:', error);
+        showToast('Error sending message', 'error');
     }
 }
 
-// ============================================
-// DRAFT COMPLETE
-// ============================================
-
-function showDraftComplete() {
-    stopTimer();
-    
-    const draft = roomData.draft || { bluePicks: [], redPicks: [] };
-    
-    // Show final picks
-    const blueContainer = document.getElementById('finalBluePicks');
-    const redContainer = document.getElementById('finalRedPicks');
-    
-    blueContainer.innerHTML = '';
-    redContainer.innerHTML = '';
-    
-    draft.bluePicks.forEach(pickId => {
-        const hero = HEROES.find(h => h.id === pickId);
-        if (hero) {
-            blueContainer.innerHTML += `
-                <div class="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center text-xs font-bold" title="${hero.name}">
-                    ${hero.name.slice(0, 2)}
-                </div>
-            `;
-        }
-    });
-    
-    draft.redPicks.forEach(pickId => {
-        const hero = HEROES.find(h => h.id === pickId);
-        if (hero) {
-            redContainer.innerHTML += `
-                <div class="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center text-xs font-bold" title="${hero.name}">
-                    ${hero.name.slice(0, 2)}
-                </div>
-            `;
-        }
-    });
-    
-    document.getElementById('completeModal').classList.remove('hidden');
-}
-
-async function saveDraft() {
-    if (!currentUser) {
-        showToast('Please login to save draft!', 'error');
+function updateChat() {
+    const container = document.getElementById('chatMessages');
+    if (!draftData.chat || draftData.chat.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">No messages</p>';
         return;
     }
-    
-    const draft = roomData.draft || { bluePicks: [], redPicks: [], blueBans: [], redBans: [] };
-    
+
+    container.innerHTML = draftData.chat.slice(-20).map(msg => {
+        const color = msg.team === 'blue' ? 'text-blue-400' : msg.team === 'red' ? 'text-red-400' : 'text-purple-400';
+        return `
+            <div class="chat-message">
+                <span class="font-medium ${color}">${msg.user}:</span>
+                <span class="text-gray-300">${msg.message}</span>
+            </div>
+        `;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+// Spectators
+function updateSpectators() {
+    const container = document.getElementById('spectatorsList');
+    if (!draftData.spectators || draftData.spectators.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No spectators</p>';
+        return;
+    }
+
+    container.innerHTML = draftData.spectators.map(spec => `
+        <div class="flex items-center gap-2 text-sm">
+            <i data-lucide="eye" class="w-3 h-3 text-purple-400"></i>
+            <span class="text-gray-300">${spec.name}</span>
+        </div>
+    `).join('');
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// Result
+function showResult() {
+    stopTimer();
+    const modal = document.getElementById('resultModal');
+    modal.classList.remove('hidden');
+
+    // Show next game button if BO3/BO5/BO7
+    if (draftData.gameNumber < draftData.bo) {
+        document.getElementById('nextGameSection').classList.remove('hidden');
+    }
+}
+
+async function nextGame() {
     try {
-        await db.collection('drafts').add({
-            userId: currentUser.uid,
-            roomCode: roomCode,
-            blueTeam: {
-                captain: roomData.blueTeam.captainName,
-                bans: draft.blueBans || [],
-                picks: draft.bluePicks || []
-            },
-            redTeam: {
-                captain: roomData.redTeam.captainName,
-                bans: draft.redBans || [],
-                picks: draft.redPicks || []
-            },
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        // Create new game draft
+        await db.collection('drafts').doc(roomCode).update({
+            gameNumber: draftData.gameNumber + 1,
+            currentStep: 0,
+            currentTeam: draftData.currentTeam === 'blue' ? 'red' : 'blue', // Alternate first pick
+            timeLeft: 60,
+            phase: 'ban1',
+            'blue.bans': [],
+            'blue.picks': [],
+            'red.bans': [],
+            'red.picks': [],
+            status: 'drafting'
         });
-        
-        showToast('Draft saved!', 'success');
+
+        document.getElementById('resultModal').classList.add('hidden');
     } catch (error) {
-        console.error('Error saving draft:', error);
-        showToast('Failed to save draft!', 'error');
+        showToast('Error starting next game', 'error');
     }
 }
 
 function backToLobby() {
-    localStorage.removeItem('currentRoomCode');
-    localStorage.removeItem('currentTeam');
-    localStorage.removeItem('isCaptain');
-    window.location.href = 'pvp-lobby.html';
-}
-
-// ============================================
-// LEAVE DRAFT
-// ============================================
-
-async function leaveDraft() {
-    if (!confirm('Are you sure you want to leave?')) return;
-    
+    if (unsubscribe) unsubscribe();
     stopTimer();
-    
-    try {
-        await db.collection('rooms').doc(roomCode).update({
-            status: 'finished'
-        });
-        
-        localStorage.removeItem('currentRoomCode');
-        localStorage.removeItem('currentTeam');
-        localStorage.removeItem('isCaptain');
-        
-        window.location.href = 'pvp-lobby.html';
-    } catch (error) {
-        console.error('Error leaving draft:', error);
-    }
+    window.location.href = 'index.html';
 }
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg backdrop-blur-xl z-50 font-medium text-sm transition-all duration-300 transform translate-x-full`;
-    
-    const colors = {
-        success: 'bg-green-500/80 text-white',
-        error: 'bg-red-500/80 text-white',
-        info: 'bg-blue-500/80 text-white',
-        warning: 'bg-yellow-500/80 text-white'
-    };
-    
-    toast.classList.add(...colors[type].split(' '));
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => toast.classList.remove('translate-x-full'), 100);
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
-        setTimeout(() => toast.remove(), 300);
-    }, 2500);
-}
-
-// ============================================
-// SIDEBAR NAVIGATION
-// ============================================
-
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    
-    sidebar.classList.toggle('-translate-x-full');
-    overlay.classList.toggle('hidden');
-}
-
-// ============================================
-// CLEANUP
-// ============================================
-
+// Cleanup
 window.addEventListener('beforeunload', () => {
+    if (unsubscribe) unsubscribe();
     stopTimer();
-    if (roomListener) {
-        roomListener();
-    }
 });
+
+// Init
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+renderHeroes();
