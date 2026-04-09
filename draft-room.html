@@ -3,274 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draft Room - ROV Draft Pro</title>
+    <title>Draft Room - ROV Draft Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); transition: all 0.3s ease; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
-        .ban-slot { aspect-ratio: 1; transition: all 0.3s ease; }
-        .pick-slot { aspect-ratio: 4/5; transition: all 0.3s ease; }
-        .slot-empty { background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(255, 255, 255, 0.2); }
-        .slot-filled { background: rgba(255, 255, 255, 0.1); border: 2px solid; }
-        .slot-active { animation: pulse-border 1.5s infinite; }
-        @keyframes pulse-border {
-            0%, 100% { border-color: rgba(102, 126, 234, 0.5); box-shadow: 0 0 10px rgba(102, 126, 234, 0.3); }
-            50% { border-color: rgba(102, 126, 234, 1); box-shadow: 0 0 20px rgba(102, 126, 234, 0.6); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
         }
-        .hero-card { transition: all 0.2s ease; cursor: pointer; }
-        .hero-card:hover { transform: scale(1.05); }
-        .hero-card.selected { box-shadow: 0 0 0 3px #facc15; }
-        .hero-card.banned { opacity: 0.4; filter: grayscale(100%); }
-        .hero-card.picked-blue { box-shadow: 0 0 0 3px #3b82f6; }
-        .hero-card.picked-red { box-shadow: 0 0 0 3px #ef4444; }
-        .timer-bar { transition: width 1s linear; }
-        .chat-message { animation: slideIn 0.3s ease; }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .liquid-glass-dark {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-blue {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .team-red {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .ban-slot {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px dashed rgba(239, 68, 68, 0.5);
+        }
+        
+        .ban-slot.filled {
+            background: rgba(239, 68, 68, 0.4);
+            border: 2px solid rgba(239, 68, 68, 0.8);
+        }
+        
+        .pick-slot {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px dashed rgba(34, 197, 94, 0.5);
+        }
+        
+        .pick-slot.filled {
+            background: rgba(34, 197, 94, 0.4);
+            border: 2px solid rgba(34, 197, 94, 0.8);
+        }
+        
+        .pick-slot.active-turn {
+            animation: pulse-border 1.5s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        }
+        
+        .hero-card {
+            transition: all 0.2s ease;
+        }
+        
+        .hero-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .hero-card.banned {
+            opacity: 0.3;
+            filter: grayscale(100%);
+            pointer-events: none;
+        }
+        
+        .hero-card.picked {
+            opacity: 0.3;
+            filter: grayscale(100%);
+            pointer-events: none;
+        }
+        
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
         }
-        .role-filter { transition: all 0.2s ease; }
-        .role-filter.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .role-filter.meta { background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); }
-        .role-filter.meta.active { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+        
+        .timer-bar {
+            transition: width 1s linear;
+        }
+        
+        /* Horizontal layout specific */
+        .draft-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 1rem;
+            height: calc(100vh - 100px);
+        }
+        
+        @media (max-width: 1200px) {
+            .draft-layout {
+                grid-template-columns: 200px 1fr 200px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .draft-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+                height: auto;
+            }
+        }
+        
+        .hero-pool-scroll {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+        
+        .hero-pool-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .hero-pool-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .hero-pool-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body class="text-white overflow-x-hidden">
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+<body class="text-white">
+    <!-- Hamburger Button -->
+    <button onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 w-10 h-10 liquid-glass rounded-xl flex items-center justify-center hover:bg-white/20 transition-all">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
 
-    <!-- Header -->
-    <header class="glass fixed top-0 left-0 right-0 z-40 px-4 py-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                    <i data-lucide="swords" class="w-5 h-5 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold">Room <span id="roomCode" class="text-blue-400">------</span></h1>
-                    <p class="text-xs text-gray-400">Game <span id="gameNumber">1</span> / <span id="boTotal">3</span></p>
-                </div>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-72 liquid-glass-dark z-50 text-white transform -translate-x-full transition-transform duration-300">
+        <div class="p-5">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">ROV Draft</h2>
+                <button onclick="toggleSidebar()" class="w-8 h-8 rounded-xl hover:bg-white/10 flex items-center justify-center transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
+            
+            <nav class="space-y-1">
+                <a href="index.html" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                    <i class="fas fa-user w-4"></i>
+                    <span>Solo Draft</span>
+                </a>
+                <a href="pvp-lobby.html" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-blue-500/30 border border-blue-400/50 text-sm">
+                    <i class="fas fa-users w-4"></i>
+                    <span>PVP Draft</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                    <i class="fas fa-user-circle w-4"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                    <i class="fas fa-chart-line w-4"></i>
+                    <span>Analyst</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/10 transition-all text-sm">
+                    <i class="fas fa-history w-4"></i>
+                    <span>History</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="min-h-screen p-3 pt-16">
+        <!-- Top Bar -->
+        <div class="flex items-center justify-between mb-3 px-2">
             <div class="flex items-center gap-4">
-                <!-- Timer -->
-                <div class="flex items-center gap-2 glass px-4 py-2 rounded-xl">
-                    <i data-lucide="clock" class="w-5 h-5 text-yellow-400"></i>
-                    <span id="timerDisplay" class="text-2xl font-bold font-mono">60</span>
-                    <div class="w-24 h-2 bg-white/20 rounded-full overflow-hidden">
-                        <div id="timerBar" class="h-full bg-gradient-to-r from-green-500 to-yellow-500 timer-bar" style="width: 100%"></div>
-                    </div>
+                <div class="liquid-glass rounded-xl px-4 py-2">
+                    <span class="text-sm text-white/60">Room</span>
+                    <span id="roomCodeDisplay" class="ml-2 font-bold text-blue-400">------</span>
                 </div>
-                <!-- Status -->
-                <div id="turnIndicator" class="glass px-4 py-2 rounded-xl">
-                    <span class="text-sm text-gray-400">Turn:</span>
-                    <span id="currentTurn" class="font-bold text-blue-400 ml-2">BLUE</span>
+                <div class="liquid-glass rounded-xl px-4 py-2">
+                    <span class="text-sm text-white/60">Format</span>
+                    <span id="boDisplay" class="ml-2 font-bold">BO1</span>
                 </div>
             </div>
+            
+            <!-- Timer -->
+            <div class="liquid-glass rounded-xl px-6 py-2 flex items-center gap-3">
+                <i class="fas fa-clock text-yellow-400"></i>
+                <span id="timerDisplay" class="text-2xl font-bold font-mono">30</span>
+                <div class="w-24 h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div id="timerBar" class="h-full bg-gradient-to-r from-green-500 to-yellow-500 timer-bar" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="toggleChat()" class="liquid-glass rounded-xl px-4 py-2 hover:bg-white/20 transition-all">
+                    <i class="fas fa-comments mr-2"></i>
+                    <span>Chat</span>
+                </button>
+                <button onclick="leaveDraft()" class="liquid-glass rounded-xl px-4 py-2 hover:bg-red-500/30 transition-all text-red-400">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
         </div>
-    </header>
 
-    <!-- Main Draft Area -->
-    <main class="pt-20 pb-4">
-        <!-- Teams Section -->
-        <div class="flex gap-4 px-4 mb-4">
-            <!-- Blue Team -->
-            <div class="flex-1 glass rounded-2xl p-4" id="blueTeamSection">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-                            <i data-lucide="shield" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-400">BLUE TEAM</p>
-                            <h3 id="bluePlayerName" class="font-bold">Player 1</h3>
-                        </div>
+        <!-- Draft Status -->
+        <div class="text-center mb-3">
+            <div id="turnIndicator" class="inline-flex items-center gap-3 liquid-glass rounded-2xl px-6 py-2">
+                <div id="turnDot" class="w-3 h-3 rounded-full bg-blue-500 pulse-animation"></div>
+                <span id="turnText" class="font-medium">Blue Team's Turn to Ban</span>
+            </div>
+        </div>
+
+        <!-- Draft Layout -->
+        <div class="draft-layout">
+            <!-- Left Panel - Blue Team -->
+            <div class="team-blue rounded-2xl p-3 flex flex-col">
+                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-blue-500/30">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-sm"></i>
                     </div>
-                    <span id="blueTurnIndicator" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium hidden">YOUR TURN</span>
+                    <div>
+                        <div class="font-bold text-sm">Blue Team</div>
+                        <div id="blueCaptainName" class="text-xs text-blue-300">-</div>
+                    </div>
                 </div>
                 
-                <!-- Bans -->
+                <!-- Blue Bans -->
                 <div class="mb-3">
-                    <p class="text-xs text-gray-500 mb-2">BANS (0/4)</p>
-                    <div class="flex gap-2">
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-0">1</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-1">2</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-2">3</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-3">4</div>
-                    </div>
-                </div>
-                
-                <!-- Picks -->
-                <div>
-                    <p class="text-xs text-gray-500 mb-2">PICKS (0/5)</p>
-                    <div class="flex gap-2">
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-0">1</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-1">2</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-2">3</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-3">4</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-4">5</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VS -->
-            <div class="flex items-center justify-center">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center font-bold text-lg">VS</div>
-            </div>
-
-            <!-- Red Team -->
-            <div class="flex-1 glass rounded-2xl p-4" id="redTeamSection">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
-                            <i data-lucide="swords" class="w-5 h-5 text-white"></i>
+                    <div class="text-xs text-white/60 mb-2">BANS</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div id="blueBan1" class="ban-slot aspect-square rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-white/20"></i>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-400">RED TEAM</p>
-                            <h3 id="redPlayerName" class="font-bold">Player 2</h3>
+                        <div id="blueBan2" class="ban-slot aspect-square rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-white/20"></i>
                         </div>
                     </div>
-                    <span id="redTurnIndicator" class="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm font-medium hidden">YOUR TURN</span>
                 </div>
                 
-                <!-- Bans -->
-                <div class="mb-3">
-                    <p class="text-xs text-gray-500 mb-2">BANS (0/4)</p>
-                    <div class="flex gap-2">
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-0">1</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-1">2</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-2">3</div>
-                        <div class="ban-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold" data-slot="ban-3">4</div>
-                    </div>
-                </div>
-                
-                <!-- Picks -->
-                <div>
-                    <p class="text-xs text-gray-500 mb-2">PICKS (0/5)</p>
-                    <div class="flex gap-2">
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-0">1</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-1">2</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-2">3</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-3">4</div>
-                        <div class="pick-slot slot-empty rounded-lg flex items-center justify-center text-gray-600 font-bold text-sm" data-slot="pick-4">5</div>
+                <!-- Blue Picks -->
+                <div class="flex-1">
+                    <div class="text-xs text-white/60 mb-2">PICKS</div>
+                    <div class="space-y-2">
+                        <div id="bluePick1" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">1</div>
+                            <span class="text-xs text-white/50">Pick 1</span>
+                        </div>
+                        <div id="bluePick2" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">2</div>
+                            <span class="text-xs text-white/50">Pick 2</span>
+                        </div>
+                        <div id="bluePick3" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">3</div>
+                            <span class="text-xs text-white/50">Pick 3</span>
+                        </div>
+                        <div id="bluePick4" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">4</div>
+                            <span class="text-xs text-white/50">Pick 4</span>
+                        </div>
+                        <div id="bluePick5" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">5</div>
+                            <span class="text-xs text-white/50">Pick 5</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Phase Indicator -->
-        <div class="px-4 mb-4">
-            <div class="glass rounded-xl p-3 text-center">
-                <span class="text-gray-400">Phase:</span>
-                <span id="phaseDisplay" class="font-bold text-lg ml-2 text-purple-400">BAN PHASE 1</span>
-                <span class="mx-3 text-gray-600">|</span>
-                <span class="text-gray-400">Action:</span>
-                <span id="actionDisplay" class="font-bold ml-2">Select a hero to BAN</span>
-            </div>
-        </div>
-
-        <!-- Hero Pool -->
-        <div class="px-4 mb-4">
-            <div class="glass rounded-2xl p-4">
+            <!-- Center Panel - Hero Pool -->
+            <div class="liquid-glass rounded-2xl p-4 flex flex-col">
                 <!-- Role Filters -->
-                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-                    <button onclick="filterHeroes('meta')" class="role-filter meta px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="meta">META</button>
-                    <button onclick="filterHeroes('all')" class="role-filter active px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="all">ALL</button>
-                    <button onclick="filterHeroes('tank')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="tank">TANK</button>
-                    <button onclick="filterHeroes('fighter')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="fighter">FIGHTER</button>
-                    <button onclick="filterHeroes('assassin')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="assassin">ASSASSIN</button>
-                    <button onclick="filterHeroes('mage')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="mage">MAGE</button>
-                    <button onclick="filterHeroes('marksman')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="marksman">MM</button>
-                    <button onclick="filterHeroes('support')" class="role-filter px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap" data-role="support">SUP</button>
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <button onclick="filterHeroes('all')" class="filter-btn active px-3 py-1 rounded-lg text-xs bg-blue-500/50 hover:bg-blue-500/70 transition-all" data-filter="all">ALL</button>
+                    <button onclick="filterHeroes('meta')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="meta">META</button>
+                    <button onclick="filterHeroes('tank')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="tank">TANK</button>
+                    <button onclick="filterHeroes('fighter')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="fighter">FIGHTER</button>
+                    <button onclick="filterHeroes('assassin')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="assassin">ASSASSIN</button>
+                    <button onclick="filterHeroes('mage')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="mage">MAGE</button>
+                    <button onclick="filterHeroes('marksman')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="marksman">MM</button>
+                    <button onclick="filterHeroes('support')" class="filter-btn px-3 py-1 rounded-lg text-xs bg-white/10 hover:bg-white/20 transition-all" data-filter="support">SUP</button>
                 </div>
-
-                <!-- Heroes Grid -->
-                <div id="heroesGrid" class="grid grid-cols-10 md:grid-cols-12 lg:grid-cols-15 gap-2 max-h-64 overflow-y-auto">
+                
+                <!-- Hero Count -->
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-white/60">Hero Pool: <span id="heroCount" class="text-white font-medium">0</span> heroes</span>
+                    <input type="text" id="heroSearch" placeholder="Search hero..." 
+                        class="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-white/50 focus:outline-none focus:border-blue-400 w-40"
+                        oninput="searchHeroes(this.value)">
+                </div>
+                
+                <!-- Hero Grid -->
+                <div id="heroGrid" class="hero-pool-scroll grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 gap-2">
                     <!-- Heroes will be rendered here -->
                 </div>
             </div>
-        </div>
 
-        <!-- Confirm Panel -->
-        <div id="confirmPanel" class="px-4 mb-4 hidden">
-            <div class="glass rounded-xl p-4 flex items-center justify-between border-2 border-yellow-500/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-yellow-400"></i>
+            <!-- Right Panel - Red Team -->
+            <div class="team-red rounded-2xl p-3 flex flex-col">
+                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-red-500/30">
+                    <div class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-sm"></i>
                     </div>
                     <div>
-                        <p class="font-bold">Confirm Selection</p>
-                        <p class="text-sm text-gray-400" id="selectedHeroName">No hero selected</p>
+                        <div class="font-bold text-sm">Red Team</div>
+                        <div id="redCaptainName" class="text-xs text-red-300">-</div>
                     </div>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="cancelSelection()" class="btn-secondary px-6 py-3 rounded-xl font-semibold flex items-center gap-2">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                        Cancel
-                    </button>
-                    <button onclick="confirmSelection()" class="btn-primary px-6 py-3 rounded-xl font-semibold flex items-center gap-2">
-                        <i data-lucide="check" class="w-5 h-5"></i>
-                        Confirm
-                    </button>
+                
+                <!-- Red Bans -->
+                <div class="mb-3">
+                    <div class="text-xs text-white/60 mb-2">BANS</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div id="redBan1" class="ban-slot aspect-square rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-white/20"></i>
+                        </div>
+                        <div id="redBan2" class="ban-slot aspect-square rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-white/20"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Chat & Spectators -->
-        <div class="px-4 flex gap-4">
-            <!-- Chat -->
-            <div class="flex-1 glass rounded-2xl p-4">
-                <h4 class="text-sm font-bold mb-3 flex items-center gap-2">
-                    <i data-lucide="message-circle" class="w-4 h-4 text-blue-400"></i>
-                    Chat
-                </h4>
-                <div id="chatMessages" class="h-32 overflow-y-auto space-y-2 mb-3 pr-2 text-sm">
-                    <p class="text-gray-500 text-center py-4">No messages</p>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chatInput" placeholder="Type message..." maxlength="100"
-                           class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                           onkeypress="if(event.key==='Enter') sendChat()">
-                    <button onclick="sendChat()" class="btn-primary px-4 py-2 rounded-lg">
-                        <i data-lucide="send" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Spectators -->
-            <div class="w-48 glass rounded-2xl p-4">
-                <h4 class="text-sm font-bold mb-3 flex items-center gap-2">
-                    <i data-lucide="eye" class="w-4 h-4 text-purple-400"></i>
-                    Spectators
-                </h4>
-                <div id="spectatorsList" class="space-y-2 text-sm">
-                    <p class="text-gray-500">No spectators</p>
+                
+                <!-- Red Picks -->
+                <div class="flex-1">
+                    <div class="text-xs text-white/60 mb-2">PICKS</div>
+                    <div class="space-y-2">
+                        <div id="redPick1" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">1</div>
+                            <span class="text-xs text-white/50">Pick 1</span>
+                        </div>
+                        <div id="redPick2" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">2</div>
+                            <span class="text-xs text-white/50">Pick 2</span>
+                        </div>
+                        <div id="redPick3" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">3</div>
+                            <span class="text-xs text-white/50">Pick 3</span>
+                        </div>
+                        <div id="redPick4" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">4</div>
+                            <span class="text-xs text-white/50">Pick 4</span>
+                        </div>
+                        <div id="redPick5" class="pick-slot rounded-lg p-2 flex items-center gap-2">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">5</div>
+                            <span class="text-xs text-white/50">Pick 5</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Game Result Modal -->
-    <div id="resultModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass rounded-2xl p-8 max-w-md w-full text-center">
-            <div id="resultIcon" class="w-20 h-20 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="trophy" class="w-10 h-10 text-white"></i>
+    <!-- Chat Panel (Slide-in) -->
+    <div id="chatPanel" class="fixed right-0 top-0 h-full w-80 liquid-glass-dark z-50 transform translate-x-full transition-transform duration-300">
+        <div class="p-4 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+                <h3 class="font-bold flex items-center gap-2">
+                    <i class="fas fa-comments text-purple-400"></i>
+                    Room Chat
+                </h3>
+                <button onclick="toggleChat()" class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <h2 id="resultTitle" class="text-3xl font-bold mb-2">BLUE WINS!</h2>
-            <p id="resultSubtitle" class="text-gray-400 mb-6">Game 1 Complete</p>
-            <div id="nextGameSection" class="hidden">
-                <button onclick="nextGame()" class="btn-primary w-full py-3 rounded-xl font-bold mb-3">Next Game</button>
+            
+            <div id="chatMessages" class="flex-1 overflow-y-auto space-y-2 mb-4">
+                <div class="text-center text-white/40 text-sm py-4">
+                    <i class="fas fa-comment-dots text-2xl mb-2"></i>
+                    <p>No messages yet</p>
+                </div>
             </div>
-            <button onclick="backToLobby()" class="btn-secondary w-full py-3 rounded-xl font-semibold">Back to Lobby</button>
+            
+            <div class="flex gap-2">
+                <input type="text" id="chatInput" placeholder="Type message..." 
+                    class="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-white/50 focus:outline-none focus:border-blue-400"
+                    onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="px-3 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors">
+                    <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass rounded-3xl p-6 max-w-sm w-full mx-4">
+            <h3 class="text-xl font-bold mb-4 text-center">Confirm Selection</h3>
+            <div id="confirmHeroDisplay" class="text-center mb-4">
+                <!-- Hero info will be shown here -->
+            </div>
+            <div class="flex gap-3">
+                <button onclick="cancelSelection()" class="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium">
+                    Cancel
+                </button>
+                <button onclick="confirmSelection()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:scale-105 transition-transform font-medium">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Draft Complete Modal -->
+    <div id="completeModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass rounded-3xl p-8 max-w-2xl w-full mx-4 text-center">
+            <div class="text-6xl mb-4">🏆</div>
+            <h2 class="text-3xl font-bold mb-4">Draft Complete!</h2>
+            <p class="text-white/70 mb-6">Both teams have completed their selections.</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="team-blue rounded-2xl p-4">
+                    <h3 class="font-bold text-blue-400 mb-2">Blue Team</h3>
+                    <div id="finalBluePicks" class="flex justify-center gap-2 flex-wrap"></div>
+                </div>
+                <div class="team-red rounded-2xl p-4">
+                    <h3 class="font-bold text-red-400 mb-2">Red Team</h3>
+                    <div id="finalRedPicks" class="flex justify-center gap-2 flex-wrap"></div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 justify-center">
+                <button onclick="saveDraft()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105 transition-transform font-medium">
+                    <i class="fas fa-save mr-2"></i> Save Draft
+                </button>
+                <button onclick="backToLobby()" class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-medium">
+                    Back to Lobby
+                </button>
+            </div>
         </div>
     </div>
 

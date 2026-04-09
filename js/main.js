@@ -1,357 +1,101 @@
-// ROV Draft Pro - Combined JavaScript (No ES6 Modules)
+// Main JavaScript - Solo Draft Mode
+// Using traditional JS (no ES6 modules) for file:// protocol compatibility
 
-// ============== HEROES DATA ==============
-const heroesData = [
-    { id: 1, heroId: "valhein", name: "Valhein", thaiName: "Valhein", role: "marksman", imageFile: "valhein.png" },
-    { id: 2, heroId: "zanis", name: "Zanis", thaiName: "Zanis", role: "fighter", imageFile: "zanis.png" },
-    { id: 3, heroId: "yorn", name: "Yorn", thaiName: "Yorn", role: "marksman", imageFile: "yorn.png" },
-    { id: 4, heroId: "thane", name: "Thane", thaiName: "Thane", role: "tank", imageFile: "thane.png" },
-    { id: 5, heroId: "krixi", name: "Krixi", thaiName: "Krixi", role: "mage", imageFile: "krixi.png" },
-    { id: 6, heroId: "ormarr", name: "Ormarr", thaiName: "Ormarr", role: "fighter", imageFile: "ormarr.png" },
-    { id: 7, heroId: "zephys", name: "Zephys", thaiName: "Zephys", role: "assassin", imageFile: "zephys.png" },
-    { id: 8, heroId: "lu_bu", name: "Lu Bu", thaiName: "Lu Bu", role: "fighter", imageFile: "lu_bu.png" },
-    { id: 9, heroId: "alice", name: "Alice", thaiName: "Alice", role: "support", imageFile: "alice.png" },
-    { id: 10, heroId: "mganga", name: "Mganga", thaiName: "Mganga", role: "mage", imageFile: "mganga.png" },
-    { id: 11, heroId: "gildur", name: "Gildur", thaiName: "Gildur", role: "tank", imageFile: "gildur.png" },
-    { id: 12, heroId: "butterfly", name: "Butterfly", thaiName: "Butterfly", role: "assassin", imageFile: "butterfly.png" },
-    { id: 13, heroId: "taara", name: "Taara", thaiName: "Taara", role: "tank", imageFile: "taara.png" },
-    { id: 14, heroId: "veera", name: "Veera", thaiName: "Veera", role: "mage", imageFile: "veera.png" },
-    { id: 15, heroId: "azzen_ka", name: "Azzen'Ka", thaiName: "Azzen'Ka", role: "mage", imageFile: "azzen_ka.png" },
-    { id: 16, heroId: "mina", name: "Mina", thaiName: "Mina", role: "tank", imageFile: "mina.png" },
-    { id: 17, heroId: "toro", name: "Toro", thaiName: "Toro", role: "tank", imageFile: "toro.png" },
-    { id: 18, heroId: "violet", name: "Violet", thaiName: "Violet", role: "marksman", imageFile: "violet.png" },
-    { id: 19, heroId: "chaugnar", name: "Chaugnar", thaiName: "Chaugnar", role: "support", imageFile: "chaugnar.png" },
-    { id: 20, heroId: "kriknak", name: "Kriknak", thaiName: "Kriknak", role: "assassin", imageFile: "kriknak.png" },
-    { id: 21, heroId: "omega", name: "Omega", thaiName: "Omega", role: "tank", imageFile: "omega.png" },
-    { id: 22, heroId: "kahlii", name: "Kahlii", thaiName: "Kahlii", role: "mage", imageFile: "kahlii.png" },
-    { id: 23, heroId: "skud", name: "Skud", thaiName: "Skud", role: "fighter", imageFile: "skud.png" },
-    { id: 24, heroId: "ignis", name: "Ignis", thaiName: "Ignis", role: "mage", imageFile: "ignis.png" },
-    { id: 25, heroId: "airi", name: "Airi", thaiName: "Airi", role: "assassin", imageFile: "airi.png" },
-    { id: 26, heroId: "preyta", name: "Preyta", thaiName: "Preyta", role: "mage", imageFile: "preyta.png" },
-    { id: 27, heroId: "slimz", name: "Slimz", thaiName: "Slimz", role: "marksman", imageFile: "slimz.png" },
-    { id: 28, heroId: "arthur", name: "Arthur", thaiName: "Arthur", role: "fighter", imageFile: "arthur.png" },
-    { id: 29, heroId: "jinnar", name: "Jinnar", thaiName: "Jinnar", role: "mage", imageFile: "jinnar.png" },
-    { id: 30, heroId: "maloch", name: "Maloch", thaiName: "Maloch", role: "fighter", imageFile: "maloch.png" },
-    { id: 31, heroId: "cresht", name: "Cresht", thaiName: "Cresht", role: "support", imageFile: "cresht.png" },
-    { id: 32, heroId: "natalya", name: "Natalya", thaiName: "Natalya", role: "mage", imageFile: "natalya.png" },
-    { id: 33, heroId: "peura", name: "Peura", thaiName: "Peura", role: "support", imageFile: "peura.png" },
-    { id: 34, heroId: "lumburr", name: "Lumburr", thaiName: "Lumburr", role: "support", imageFile: "lumburr.png" },
-    { id: 35, heroId: "aleister", name: "Aleister", thaiName: "Aleister", role: "mage", imageFile: "aleister.png" },
-    { id: 36, heroId: "fennik", name: "Fennik", thaiName: "Fennik", role: "marksman", imageFile: "fennik.png" },
-    { id: 37, heroId: "grakk", name: "Grakk", thaiName: "Grakk", role: "support", imageFile: "grakk.png" },
-    { id: 38, heroId: "nakroth", name: "Nakroth", thaiName: "Nakroth", role: "assassin", imageFile: "nakroth.png" },
-    { id: 39, heroId: "diao_chan", name: "Diao Chan", thaiName: "Diao Chan", role: "mage", imageFile: "diao_chan.png" },
-    { id: 40, heroId: "lauriel", name: "Lauriel", thaiName: "Lauriel", role: "mage", imageFile: "lauriel.png" },
-    { id: 41, heroId: "zill", name: "Zill", thaiName: "Zill", role: "assassin", imageFile: "zill.png" },
-    { id: 42, heroId: "murad", name: "Murad", thaiName: "Murad", role: "assassin", imageFile: "murad.png" },
-    { id: 43, heroId: "raz", name: "Raz", thaiName: "Raz", role: "assassin", imageFile: "raz.png" },
-    { id: 44, heroId: "zuka", name: "Zuka", thaiName: "Zuka", role: "fighter", imageFile: "zuka.png" },
-    { id: 45, heroId: "tel_annas", name: "Tel'Annas", thaiName: "Tel'Annas", role: "marksman", imageFile: "tel_annas.png" },
-    { id: 46, heroId: "kil_groth", name: "Kil'Groth", thaiName: "Kil'Groth", role: "fighter", imageFile: "kil_groth.png" },
-    { id: 47, heroId: "ryoma", name: "Ryoma", thaiName: "Ryoma", role: "assassin", imageFile: "ryoma.png" },
-    { id: 48, heroId: "superman", name: "Superman", thaiName: "Superman", role: "fighter", imageFile: "superman.png" },
-    { id: 49, heroId: "wonder_woman", name: "Wonder Woman", thaiName: "Wonder Woman", role: "fighter", imageFile: "wonder_woman.png" },
-    { id: 50, heroId: "moren", name: "Moren", thaiName: "Moren", role: "marksman", imageFile: "moren.png" },
-    { id: 51, heroId: "xeniel", name: "Xeniel", thaiName: "Xeniel", role: "tank", imageFile: "xeniel.png" },
-    { id: 52, heroId: "lindis", name: "Lindis", thaiName: "Lindis", role: "marksman", imageFile: "lindis.png" },
-    { id: 53, heroId: "teemee", name: "TeeMee", thaiName: "TeeMee", role: "support", imageFile: "teemee.png" },
-    { id: 54, heroId: "tulen", name: "Tulen", thaiName: "Tulen", role: "mage", imageFile: "tulen.png" },
-    { id: 55, heroId: "omen", name: "Omen", thaiName: "Omen", role: "fighter", imageFile: "omen.png" },
-    { id: 56, heroId: "max", name: "Max", thaiName: "Max", role: "marksman", imageFile: "max.png" },
-    { id: 57, heroId: "liliana", name: "Liliana", thaiName: "Liliana", role: "mage", imageFile: "liliana.png" },
-    { id: 58, heroId: "wisp", name: "Wisp", thaiName: "Wisp", role: "marksman", imageFile: "wisp.png" },
-    { id: 59, heroId: "the_flash", name: "The Flash", thaiName: "The Flash", role: "assassin", imageFile: "the_flash.png" },
-    { id: 60, heroId: "arum", name: "Arum", thaiName: "Arum", role: "support", imageFile: "arum.png" },
-    { id: 61, heroId: "rourke", name: "Rourke", thaiName: "Rourke", role: "marksman", imageFile: "rourke.png" },
-    { id: 62, heroId: "marja", name: "Marja", thaiName: "Marja", role: "mage", imageFile: "marja.png" },
-    { id: 63, heroId: "baldum", name: "Baldum", thaiName: "Baldum", role: "tank", imageFile: "baldum.png" },
-    { id: 64, heroId: "roxie", name: "Roxie", thaiName: "Roxie", role: "tank", imageFile: "roxie.png" },
-    { id: 65, heroId: "annette", name: "Annette", thaiName: "Annette", role: "support", imageFile: "annette.png" },
-    { id: 66, heroId: "amily", name: "Amily", thaiName: "Amily", role: "fighter", imageFile: "amily.png" },
-    { id: 67, heroId: "y_bneth", name: "Y'bneth", thaiName: "Y'bneth", role: "tank", imageFile: "y_bneth.png" },
-    { id: 68, heroId: "elsu", name: "Elsu", thaiName: "Elsu", role: "marksman", imageFile: "elsu.png" },
-    { id: 69, heroId: "riktor", name: "Riktor", thaiName: "Riktor", role: "fighter", imageFile: "riktor.png" },
-    { id: 70, heroId: "wiro", name: "Wiro", thaiName: "Wiro", role: "tank", imageFile: "wiro.png" },
-    { id: 71, heroId: "quillen", name: "Quillen", thaiName: "Quillen", role: "assassin", imageFile: "quillen.png" },
-    { id: 72, heroId: "florentino", name: "Florentino", thaiName: "Florentino", role: "fighter", imageFile: "florentino.png" },
-    { id: 73, heroId: "sephera", name: "Sephera", thaiName: "Sephera", role: "support", imageFile: "sephera.png" },
-    { id: 74, heroId: "darcy", name: "D'Arcy", thaiName: "D'Arcy", role: "mage", imageFile: "darcy.png" },
-    { id: 75, heroId: "veres", name: "Veres", thaiName: "Veres", role: "fighter", imageFile: "veres.png" },
-    { id: 76, heroId: "hayate", name: "Hayate", thaiName: "Hayate", role: "marksman", imageFile: "hayate.png" },
-    { id: 77, heroId: "capheny", name: "Capheny", thaiName: "Capheny", role: "marksman", imageFile: "capheny.png" },
-    { id: 78, heroId: "errol", name: "Errol", thaiName: "Errol", role: "fighter", imageFile: "errol.png" },
-    { id: 79, heroId: "yena", name: "Yena", thaiName: "Yena", role: "fighter", imageFile: "yena.png" },
-    { id: 80, heroId: "enzo", name: "Enzo", thaiName: "Enzo", role: "assassin", imageFile: "enzo.png" },
-    { id: 81, heroId: "zip", name: "Zip", thaiName: "Zip", role: "support", imageFile: "zip.png" },
-    { id: 82, heroId: "qi", name: "Qi", thaiName: "Qi", role: "fighter", imageFile: "qi.png" },
-    { id: 83, heroId: "celica", name: "Celica", thaiName: "Celica", role: "marksman", imageFile: "celica.png" },
-    { id: 84, heroId: "volkath", name: "Volkath", thaiName: "Volkath", role: "fighter", imageFile: "volkath.png" },
-    { id: 85, heroId: "krizzix", name: "Krizzix", thaiName: "Krizzix", role: "support", imageFile: "krizzix.png" },
-    { id: 86, heroId: "elandorr", name: "Eland'orr", thaiName: "Eland'orr", role: "marksman", imageFile: "elandorr.png" },
-    { id: 87, heroId: "ishar", name: "Ishar", thaiName: "Ishar", role: "mage", imageFile: "ishar.png" },
-    { id: 88, heroId: "dirak", name: "Dirak", thaiName: "Dirak", role: "mage", imageFile: "dirak.png" },
-    { id: 89, heroId: "keera", name: "Keera", thaiName: "Keera", role: "assassin", imageFile: "keera.png" },
-    { id: 90, heroId: "ata", name: "Ata", thaiName: "Ata", role: "tank", imageFile: "ata.png" },
-    { id: 91, heroId: "paine", name: "Paine", thaiName: "Paine", role: "assassin", imageFile: "paine.png" },
-    { id: 92, heroId: "laville", name: "Laville", thaiName: "Laville", role: "marksman", imageFile: "laville.png" },
-    { id: 93, heroId: "rouie", name: "Rouie", thaiName: "Rouie", role: "support", imageFile: "rouie.png" },
-    { id: 94, heroId: "zata", name: "Zata", thaiName: "Zata", role: "mage", imageFile: "zata.png" },
-    { id: 95, heroId: "allain", name: "Allain", thaiName: "Allain", role: "fighter", imageFile: "allain.png" },
-    { id: 96, heroId: "thorne", name: "Thorne", thaiName: "Thorne", role: "marksman", imageFile: "thorne.png" },
-    { id: 97, heroId: "sinestrea", name: "Sinestrea", thaiName: "Sinestrea", role: "assassin", imageFile: "sinestrea.png" },
-    { id: 98, heroId: "dextra", name: "Dextra", thaiName: "Dextra", role: "fighter", imageFile: "dextra.png" },
-    { id: 99, heroId: "lorion", name: "Lorion", thaiName: "Lorion", role: "mage", imageFile: "lorion.png" },
-    { id: 100, heroId: "bright", name: "Bright", thaiName: "Bright", role: "assassin", imageFile: "bright.png" },
-    { id: 101, heroId: "aoi", name: "Aoi", thaiName: "Aoi", role: "assassin", imageFile: "aoi.png" },
-    { id: 102, heroId: "iggy", name: "Iggy", thaiName: "Iggy", role: "mage", imageFile: "iggy.png" },
-    { id: 103, heroId: "tachi", name: "Tachi", thaiName: "Tachi", role: "fighter", imageFile: "tachi.png" },
-    { id: 104, heroId: "aya", name: "Aya", thaiName: "Aya", role: "support", imageFile: "aya.png" },
-    { id: 105, heroId: "yue", name: "Yue", thaiName: "Yue", role: "mage", imageFile: "yue.png" },
-    { id: 106, heroId: "yan", name: "Yan", thaiName: "Yan", role: "fighter", imageFile: "yan.png" },
-    { id: 107, heroId: "helen", name: "Helen", thaiName: "Helen", role: "support", imageFile: "helen.png" },
-    { id: 108, heroId: "teeri", name: "Teeri", thaiName: "Teeri", role: "marksman", imageFile: "teeri.png" },
-    { id: 109, heroId: "bonnie", name: "Bonnie", thaiName: "Bonnie", role: "marksman", imageFile: "bonnie.png" },
-    { id: 110, heroId: "bijan", name: "Bijan", thaiName: "Bijan", role: "assassin", imageFile: "bijan.png" },
-    { id: 111, heroId: "kaine", name: "Kaine", thaiName: "Kaine", role: "assassin", imageFile: "kaine.png" },
-    { id: 112, heroId: "stuart", name: "Stuart", thaiName: "Stuart", role: "marksman", imageFile: "stuart.png" },
-    { id: 113, heroId: "ming", name: "Ming", thaiName: "Ming", role: "mage", imageFile: "ming.png" },
-    { id: 114, heroId: "erin", name: "Erin", thaiName: "Erin", role: "marksman", imageFile: "erin.png" },
-    { id: 115, heroId: "charlotte", name: "Charlotte", thaiName: "Charlotte", role: "fighter", imageFile: "charlotte.png" },
-    { id: 116, heroId: "dolia", name: "Dolia", thaiName: "Dolia", role: "support", imageFile: "dolia.png" },
-    { id: 117, heroId: "biron", name: "Biron", thaiName: "Biron", role: "fighter", imageFile: "biron.png" },
-    { id: 118, heroId: "bolt_baron", name: "Bolt Baron", thaiName: "Bolt Baron", role: "marksman", imageFile: "bolt_baron.png" },
-    { id: 119, heroId: "billow", name: "Billow", thaiName: "Billow", role: "assassin", imageFile: "billow.png" },
-    { id: 120, heroId: "heino", name: "Heino", thaiName: "Heino", role: "mage", imageFile: "heino.png" },
-    { id: 121, heroId: "goverra", name: "Goverra", thaiName: "Goverra", role: "tank", imageFile: "goverra.png" },
-    { id: 122, heroId: "edras", name: "Edras", thaiName: "Edras", role: "marksman", imageFile: "edras.png" },
-    { id: 123, heroId: "dyadia", name: "Dyadia", thaiName: "Dyadia", role: "mage", imageFile: "dyadia.png" },
-    { id: 124, heroId: "arduin", name: "Arduin", thaiName: "Arduin", role: "tank", imageFile: "arduin.png" },
-    { id: 125, heroId: "astrid", name: "Astrid", thaiName: "Astrid", role: "fighter", imageFile: "astrid.png" },
-    { id: 126, heroId: "brunhilda", name: "Brunhilda", thaiName: "Brunhilda", role: "marksman", imageFile: "brunhilda.png" },
-    { id: 127, heroId: "flowborn", name: "Flowborn", thaiName: "Flowborn", role: "marksman", imageFile: "flowborn.png" }
+// ============================================
+// FIREBASE CONFIGURATION
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyB0jGqS53Q4zF6E1K8vY9L2QcX7R5T3W1Q",
+    authDomain: "rov-draft-simulator.firebaseapp.com",
+    projectId: "rov-draft-simulator",
+    storageBucket: "rov-draft-simulator.firebasestorage.app",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abc123def456ghi789jkl"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// ============================================
+// HEROES DATA (127 Heroes)
+// ============================================
+const HEROES = [
+    { id: 1, name: "Thane", role: "tank" }, { id: 2, name: "Veera", role: "mage" },
+    { id: 3, name: "Lumburr", role: "tank" }, { id: 4, name: "Krixi", role: "mage" },
+    { id: 5, name: "Omega", role: "tank" }, { id: 6, name: "Kahlii", role: "mage" },
+    { id: 7, name: "Toro", role: "tank" }, { id: 8, name: "Natalya", role: "mage" },
+    { id: 9, name: "Grakk", role: "tank" }, { id: 10, name: "Ilumia", role: "mage" },
+    { id: 11, name: "Chaugnar", role: "tank" }, { id: 12, name: "Jinnar", role: "mage" },
+    { id: 13, name: "Ormarr", role: "tank" }, { id: 14, name: "Preyta", role: "mage" },
+    { id: 15, name: "Gildur", role: "tank" }, { id: 16, name: "Lauriel", role: "mage" },
+    { id: 17, name: "Xeniel", role: "tank" }, { id: 18, name: "Diao Chan", role: "mage" },
+    { id: 19, name: "Alice", role: "support" }, { id: 20, name: "Azzen'Ka", role: "mage" },
+    { id: 21, name: "Mganga", role: "support" }, { id: 22, name: "Zill", role: "mage" },
+    { id: 23, name: "Peura", role: "support" }, { id: 24, name: "Raz", role: "mage" },
+    { id: 25, name: "Payna", role: "support" }, { id: 26, name: "Liliana", role: "mage" },
+    { id: 27, name: "Annette", role: "support" }, { id: 28, name: "Ishar", role: "mage" },
+    { id: 29, name: "Teeri", role: "support" }, { id: 30, name: "Dirak", role: "mage" },
+    { id: 31, name: "Tulen", role: "mage" }, { id: 32, name: "Valhein", role: "marksman" },
+    { id: 33, name: "Taara", role: "fighter" }, { id: 34, name: "Yorn", role: "marksman" },
+    { id: 35, name: "Zanis", role: "fighter" }, { id: 36, name: "Slimz", role: "marksman" },
+    { id: 37, name: "Lu Bu", role: "fighter" }, { id: 38, name: "Violet", role: "marksman" },
+    { id: 39, name: "Zephys", role: "fighter" }, { id: 40, name: "Joker", role: "marksman" },
+    { id: 41, name: "Ryoma", role: "fighter" }, { id: 42, name: "Tel'Annas", role: "marksman" },
+    { id: 43, name: "Wonder Woman", role: "fighter" }, { id: 44, name: "Moren", role: "marksman" },
+    { id: 45, name: "Omen", role: "fighter" }, { id: 46, name: "Lindis", role: "marksman" },
+    { id: 47, name: "Astrid", role: "fighter" }, { id: 48, name: "Wisp", role: "marksman" },
+    { id: 49, name: "Superman", role: "fighter" }, { id: 50, name: "Hayate", role: "marksman" },
+    { id: 51, name: "Florentino", role: "fighter" }, { id: 52, name: "Capheny", role: "marksman" },
+    { id: 53, name: "Riktor", role: "fighter" }, { id: 54, name: "Elsu", role: "marksman" },
+    { id: 55, name: "Yena", role: "fighter" }, { id: 56, name: "Celica", role: "marksman" },
+    { id: 57, name: "Briar", role: "fighter" }, { id: 58, name: "Thorne", role: "marksman" },
+    { id: 59, name: "Allain", role: "fighter" }, { id: 60, name: "Keera", role: "assassin" },
+    { id: 61, name: "Airi", role: "assassin" }, { id: 62, name: "Paine", role: "assassin" },
+    { id: 63, name: "Nakroth", role: "assassin" }, { id: 64, name: "Kriknak", role: "assassin" },
+    { id: 65, name: "Batman", role: "assassin" }, { id: 66, name: "Murad", role: "assassin" },
+    { id: 67, name: "Zuka", role: "assassin" }, { id: 68, name: "Kilian", role: "assassin" },
+    { id: 69, name: "Quillen", role: "assassin" }, { id: 70, name: "Enzo", role: "assassin" },
+    { id: 71, name: "Dextra", role: "assassin" }, { id: 72, name: "Sinestrea", role: "assassin" },
+    { id: 73, name: "Aoi", role: "assassin" }, { id: 74, name: "Bright", role: "assassin" },
+    { id: 75, name: "Zata", role: "assassin" }, { id: 76, name: "Kaine", role: "assassin" },
+    { id: 77, name: "Butterfly", role: "assassin" }, { id: 78, name: "Wukong", role: "assassin" },
+    { id: 79, name: "Aleister", role: "mage" }, { id: 80, name: "Ignis", role: "mage" },
+    { id: 81, name: "Arduin", role: "fighter" }, { id: 82, name: "Max", role: "tank" },
+    { id: 83, name: "Rouie", role: "support" }, { id: 84, name: "Zip", role: "support" },
+    { id: 85, name: "Krizzix", role: "support" }, { id: 86, name: "Y'bneth", role: "support" },
+    { id: 87, name: "Helen", role: "support" }, { id: 88, name: "Aya", role: "support" },
+    { id: 89, name: "Cresht", role: "support" }, { id: 90, name: "Arum", role: "tank" },
+    { id: 91, name: "Mina", role: "tank" }, { id: 92, name: "Skud", role: "fighter" },
+    { id: 93, name: "Kil'Groth", role: "fighter" }, { id: 94, name: "Errol", role: "fighter" },
+    { id: 95, name: "Tachi", role: "fighter" }, { id: 96, name: "Veres", role: "fighter" },
+    { id: 97, name: "Amily", role: "fighter" }, { id: 98, name: "Richter", role: "fighter" },
+    { id: 99, name: "Qi", role: "fighter" }, { id: 100, name: "Bonnie", role: "fighter" },
+    { id: 101, name: "Laville", role: "marksman" }, { id: 102, name: "Eland'orr", role: "marksman" },
+    { id: 103, name: "Bright", role: "mage" }, { id: 104, name: "Dolia", role: "support" },
+    { id: 105, name: "Slimz", role: "marksman" }, { id: 106, name: "Iggy", role: "mage" },
+    { id: 107, name: "Nakroth", role: "assassin" }, { id: 108, name: "Zill", role: "assassin" },
+    { id: 109, name: "Krixi", role: "mage" }, { id: 110, name: "Veera", role: "mage" },
+    { id: 111, name: "Lauriel", role: "mage" }, { id: 112, name: "Natalya", role: "mage" },
+    { id: 113, name: "Jinnar", role: "mage" }, { id: 114, name: "Preyta", role: "mage" },
+    { id: 115, name: "Diao Chan", role: "mage" }, { id: 116, name: "Azzen'Ka", role: "mage" },
+    { id: 117, name: "Kahlii", role: "mage" }, { id: 118, name: "Ilumia", role: "mage" },
+    { id: 119, name: "Gildur", role: "mage" }, { id: 120, name: "Mganga", role: "mage" },
+    { id: 121, name: "Raz", role: "mage" }, { id: 122, name: "Tulen", role: "mage" },
+    { id: 123, name: "Liliana", role: "mage" }, { id: 124, name: "Ishar", role: "mage" },
+    { id: 125, name: "Dirak", role: "mage" }, { id: 126, name: "Rouie", role: "support" },
+    { id: 127, name: "Ata", role: "tank" }
 ];
 
-const heroes = heroesData;
+// META Hero IDs (Top 30 from RPL Summer 2026)
+const META_HERO_IDS = [1, 3, 7, 11, 15, 19, 23, 27, 31, 33, 37, 41, 45, 49, 53, 57, 60, 63, 67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111];
 
-// META Heroes from RPL Summer 2026 (Top 30 by Pick Rate from Liquipedia)
-const metaHeroIds = [17, 62, 76, 103, 67, 86, 82, 116, 102, 112, 119, 99, 94, 122, 36, 58, 93, 77, 7, 13, 53, 79, 57, 89, 97, 10, 23, 1, 117, 47];
-
-const roleColors = {
-    meta: '#f59e0b',
-    tank: '#3b82f6',
-    fighter: '#f97316',
-    assassin: '#a855f7',
-    mage: '#06b6d4',
-    marksman: '#ef4444',
-    support: '#22c55e'
-};
-
-const roleLabels = {
-    meta: 'META',
-    all: 'ALL',
-    tank: 'TANK',
-    fighter: 'FIGHTER',
-    assassin: 'ASSASSIN',
-    mage: 'MAGE',
-    marksman: 'MARKSMAN',
-    support: 'SUPPORT'
-};
-
-function getHeroById(id) {
-    return heroesData.find(h => h.id.toString() === id.toString());
-}
-
-function getHeroesByRole(role) {
-    if (role === 'all') return heroesData;
-    if (role === 'meta') return heroesData.filter(h => metaHeroIds.includes(h.id));
-    return heroesData.filter(h => h.role === role);
-}
-
-function searchHeroes(query) {
-    const q = query.toLowerCase();
-    return heroesData.filter(h => 
-        h.name.toLowerCase().includes(q) || 
-        h.heroId.toLowerCase().includes(q)
-    );
-}
-
-// ============== TOAST MANAGER ==============
-class ToastManager {
-    constructor() {
-        this.container = document.getElementById('toast-container');
-        if (!this.container) {
-            this.container = document.createElement('div');
-            this.container.id = 'toast-container';
-            this.container.className = 'fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none';
-            document.body.appendChild(this.container);
-        }
-    }
-    show(message, type = 'info', duration = 3000) {
-        const toast = document.createElement('div');
-        const styles = { success: 'from-green-500 to-emerald-600', error: 'from-red-500 to-rose-600', warning: 'from-amber-500 to-orange-600', info: 'from-blue-500 to-indigo-600', ban: 'from-gray-600 to-gray-700', pick: 'from-purple-500 to-pink-600' };
-        toast.className = `toast pointer-events-auto min-w-[280px] max-w-[400px] p-4 rounded-xl shadow-xl flex items-start gap-3 bg-gradient-to-r ${styles[type] || styles.info} text-white`;
-        toast.innerHTML = `<div class="flex-1"><p class="text-sm font-medium">${message}</p></div><button class="flex-shrink-0 opacity-60 hover:opacity-100" onclick="this.parentElement.remove()">✕</button>`;
-        this.container.appendChild(toast);
-        setTimeout(() => { toast.classList.add('hiding'); setTimeout(() => toast.remove(), 300); }, duration);
-    }
-    ban(heroName, team) { const color = team === 'blue' ? 'text-blue-600' : 'text-red-600'; this.show(`<span class="${color} font-bold">${team === 'blue' ? 'Blue' : 'Red'}</span> แบน <b>${heroName}</b>`, 'ban'); }
-    pick(heroName, team) { const color = team === 'blue' ? 'text-blue-600' : 'text-red-600'; this.show(`<span class="${color} font-bold">${team === 'blue' ? 'Blue' : 'Red'}</span> เลือก <b>${heroName}</b>`, 'pick'); }
-}
-
-// ============== HERO GRID ==============
-class HeroGrid {
-    constructor(containerId, draftManager) {
-        this.container = document.getElementById(containerId);
-        this.draftManager = draftManager;
-        this.currentRole = 'all';
-        this.searchQuery = '';
-        this.render();
-    }
-    
-    render() {
-        if (!this.container) return;
-        let filtered = this.searchQuery ? searchHeroes(this.searchQuery) : getHeroesByRole(this.currentRole);
-        const countEl = document.getElementById('hero-count');
-        if (countEl) countEl.textContent = `${filtered.length} ตัว`;
-        
-        this.container.innerHTML = filtered.map(hero => {
-            const state = this.draftManager.getHeroState(hero.id);
-            const isSelected = this.draftManager.selectedHeroId === hero.id;
-            let statusClass = '';
-            let statusBadge = '';
-            
-            if (state) {
-                if (state.type === 'ban') {
-                    statusClass = 'selected-ban disabled';
-                    statusBadge = '<div class="status-badge status-ban">✕</div>';
-                } else if (state.type === 'pick') {
-                    statusClass = state.team === 'blue' ? 'selected-pick-blue disabled' : 'selected-pick-red disabled';
-                    statusBadge = `<div class="status-badge ${state.team === 'blue' ? 'status-pick-blue' : 'status-pick-red'}">✓</div>`;
-                }
-            }
-            
-            // Highlight selected hero
-            if (isSelected) {
-                statusClass += ' ring-4 ring-yellow-400';
-            }
-            
-            const isGlobal = this.draftManager.isGlobalBanned(hero.id);
-            const globalClass = isGlobal ? 'global-banned' : '';
-            const tooltip = isGlobal ? ' - ถูกใช้ในเกมก่อน' : '';
-            
-            const imgSrc = `rovhero/${hero.imageFile}`;
-            
-            return `
-                <div class="hero-card ${statusClass} ${globalClass}" 
-                     data-hero-id="${hero.id}"
-                     title="${hero.name}${tooltip}"
-                     onclick="draftApp.onHeroClick(${hero.id})">
-                    <div class="relative w-full aspect-square">
-                        <img src="${imgSrc}" 
-                             alt="${hero.name}" 
-                             class="w-full h-full object-cover rounded-md"
-                             loading="lazy"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-md flex items-center justify-center text-white font-bold text-lg" style="display:none;">
-                            ${hero.name.charAt(0)}
-                        </div>
-                    </div>
-                    ${statusBadge}
-                    ${isSelected ? '<div class="absolute top-1 right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-black">★</div>' : ''}
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1">
-                        <p class="text-[10px] text-white font-medium truncate text-center">${hero.name}</p>
-                    </div>
-                    <div class="absolute top-1 left-1 w-2 h-2 rounded-full" style="background-color: ${roleColors[hero.role]}"></div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    updateStatus() { this.render(); }
-    setRole(role) { this.currentRole = role; this.render(); }
-    setSearch(query) { this.searchQuery = query; this.render(); }
-}
-
-// ============== TEAM PANEL ==============
-class TeamPanel {
-    constructor(team, containerId) {
-        this.team = team;
-        this.container = document.getElementById(containerId);
-        this.bansContainer = document.getElementById(`${team}-bans`);
-        this.picksContainer = document.getElementById(`${team}-picks`);
-        this.renderEmpty();
-    }
-    
-    renderEmpty() {
-        if (this.bansContainer) {
-            this.bansContainer.innerHTML = Array(4).fill(0).map((_, i) => 
-                `<div class="draft-slot rounded-lg aspect-square flex items-center justify-center text-gray-400 text-xs font-bold bg-white/50" data-index="${i}">${i + 1}</div>`
-            ).join('');
-        }
-        if (this.picksContainer) {
-            this.picksContainer.innerHTML = Array(5).fill(0).map((_, i) => 
-                `<div class="draft-slot rounded-lg aspect-[4/3] flex items-center justify-center text-gray-400 text-xs font-bold bg-white/50" data-index="${i}">${i + 1}</div>`
-            ).join('');
-        }
-    }
-    
-    update(state) {
-        const teamState = state[this.team];
-        
-        if (this.bansContainer) {
-            const banSlots = this.bansContainer.querySelectorAll('.draft-slot');
-            banSlots.forEach((slot, idx) => {
-                const heroId = teamState.bans[idx];
-                if (heroId !== undefined && heroId !== null) {
-                    const hero = heroes.find(h => h.id.toString() === heroId.toString());
-                    if (hero) {
-                        slot.classList.add('filled');
-                        slot.dataset.heroId = heroId;
-                        slot.innerHTML = `
-                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md opacity-60 grayscale" alt="${hero.name}" onerror="this.style.display='none'">
-                            <div class="remove-btn" onclick="event.stopPropagation(); window.draftApp.removeHero('${this.team}', 'bans', ${idx})">×</div>
-                        `;
-                    }
-                } else if (slot.classList.contains('filled')) {
-                    slot.classList.remove('filled');
-                    delete slot.dataset.heroId;
-                    slot.innerHTML = `${idx + 1}`;
-                }
-            });
-        }
-        
-        if (this.picksContainer) {
-            const pickSlots = this.picksContainer.querySelectorAll('.draft-slot');
-            pickSlots.forEach((slot, idx) => {
-                const heroId = teamState.picks[idx];
-                if (heroId !== undefined && heroId !== null) {
-                    const hero = heroes.find(h => h.id.toString() === heroId.toString());
-                    if (hero) {
-                        slot.classList.add('filled');
-                        slot.dataset.heroId = heroId;
-                        slot.innerHTML = `
-                            <img src="rovhero/${hero.imageFile}" class="w-full h-full object-cover rounded-md" alt="${hero.name}" onerror="this.style.display='none'">
-                            <div class="hero-name">${hero.name}</div>
-                            <div class="remove-btn" onclick="event.stopPropagation(); window.draftApp.removeHero('${this.team}', 'picks', ${idx})">×</div>
-                        `;
-                    }
-                } else if (slot.classList.contains('filled')) {
-                    slot.classList.remove('filled');
-                    delete slot.dataset.heroId;
-                    slot.innerHTML = `<span class="text-gray-400 text-xs font-bold">${idx + 1}</span>`;
-                }
-            });
-        }
-        
-        const banCount = document.getElementById(`${this.team}-ban-count`);
-        const pickCount = document.getElementById(`${this.team}-pick-count`);
-        if (banCount) banCount.textContent = teamState.bans.length;
-        if (pickCount) pickCount.textContent = teamState.picks.length;
-    }
-}
-
-// ============== DRAFT MANAGER ==============
-// ลำดับดราฟมาตรฐาน ROV: 4 Bans + 10 Picks (5 ต่อทีม)
+// ============================================
+// DRAFT SEQUENCE (Standard ROV Format)
+// ============================================
 const DRAFT_SEQUENCE = [
     { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
     { type: 'ban', team: 'blue' }, { type: 'ban', team: 'red' },
@@ -362,700 +106,477 @@ const DRAFT_SEQUENCE = [
     { type: 'ban', team: 'red' }, { type: 'ban', team: 'blue' },
     { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
     { type: 'pick', team: 'blue' }, { type: 'pick', team: 'red' },
-    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' },
+    { type: 'pick', team: 'red' }, { type: 'pick', team: 'blue' }
 ];
 
-class DraftManager {
-    constructor(onUpdate, toast) {
-        this.heroes = heroes;
-        this.onUpdate = onUpdate;
-        this.toast = toast;
-        this.bo = 3;
-        this.currentGame = 1;
-        this.matchId = null;
-        this.globalBannedHeroes = new Set();
-        this.state = { blue: { bans: [], picks: [] }, red: { bans: [], picks: [] }, currentStep: 0, isComplete: false };
-        this.games = [];
-        this.selectedHeroId = null; // สำหรับระบบยืนยัน
-    }
-    
-    initMatch(bo) {
-        this.bo = bo;
-        this.currentGame = 1;
-        this.matchId = 'match_' + Date.now();
-        this.globalBannedHeroes.clear();
-        this.games = [];
-        this.selectedHeroId = null;
-        this.resetGame();
-    }
-    
-    resetGame() {
-        this.state = { blue: { bans: [], picks: [] }, red: { bans: [], picks: [] }, currentStep: 0, isComplete: false };
-        this.selectedHeroId = null;
-        this.onUpdate();
-    }
-    
-    reset() {
-        this.bo = 3;
-        this.currentGame = 1;
-        this.matchId = null;
-        this.globalBannedHeroes.clear();
-        this.games = [];
-        this.selectedHeroId = null;
-        this.resetGame();
-    }
-    
-    getCurrentStep() { 
-        if (this.state.isComplete) return null;
-        return this.state.currentStep < DRAFT_SEQUENCE.length ? DRAFT_SEQUENCE[this.state.currentStep] : null; 
-    }
-    getCurrentTeam() { const step = this.getCurrentStep(); return step ? step.team : null; }
-    getCurrentMode() { const step = this.getCurrentStep(); return step ? step.type : null; }
-    getState() { return { ...this.state, bo: this.bo, currentGame: this.currentGame, matchId: this.matchId, isMatchComplete: this.isMatchComplete() }; }
-    
-    isHeroDrafted(heroId) {
-        const id = heroId.toString();
-        return this.state.blue.bans.some(b => b.toString() === id) || 
-               this.state.red.bans.some(b => b.toString() === id) || 
-               this.state.blue.picks.some(p => p.toString() === id) || 
-               this.state.red.picks.some(p => p.toString() === id);
-    }
-    
-    isGlobalBanned(heroId) { return this.globalBannedHeroes.has(heroId.toString()); }
-    
-    getHeroState(heroId) {
-        const id = heroId.toString();
-        if (this.state.blue.bans.some(b => b.toString() === id)) return { type: 'ban', team: 'blue' };
-        if (this.state.red.bans.some(b => b.toString() === id)) return { type: 'ban', team: 'red' };
-        if (this.state.blue.picks.some(p => p.toString() === id)) return { type: 'pick', team: 'blue' };
-        if (this.state.red.picks.some(p => p.toString() === id)) return { type: 'pick', team: 'red' };
-        return null;
-    }
-    
-    // เลือกตัวละคร (แค่ highlight ยังไม่ยืนยัน)
-    selectHeroForConfirm(heroId) {
-        const step = this.getCurrentStep();
-        if (!step) return { success: false, error: 'Draft completed' };
-        if (this.isGlobalBanned(heroId)) return { success: false, error: 'ตัวละครนี้ถูกใช้ในเกมก่อนหน้าแล้ว' };
-        if (this.isHeroDrafted(heroId)) return { success: false, error: 'ตัวละครนี้ถูกเลือกไปแล้ว' };
-        
-        this.selectedHeroId = heroId;
-        return { success: true };
-    }
-    
-    // ยืนยันการดราฟ
-    confirmSelection() {
-        if (!this.selectedHeroId) return { success: false, error: 'กรุณาเลือกตัวละครก่อน' };
-        
-        const step = this.getCurrentStep();
-        if (!step) return { success: false, error: 'Draft completed' };
-        
-        const hero = this.heroes.find(h => h.id.toString() === this.selectedHeroId.toString());
-        const team = step.team;
-        const type = step.type;
-        
-        // ตรวจสอบจำนวนก่อนเพิ่ม
-        const currentCount = this.state[team][type === 'ban' ? 'bans' : 'picks'].length;
-        const maxCount = type === 'ban' ? 4 : 5;
-        
-        if (currentCount >= maxCount) {
-            return { success: false, error: `ทีม ${team} มี${type === 'ban' ? 'การแบน' : 'การเลือก'}ครบแล้ว` };
-        }
-        
-        this.state[team][type === 'ban' ? 'bans' : 'picks'].push(this.selectedHeroId);
-        
-        if (type === 'ban') this.toast?.ban(hero?.thaiName || hero?.name || 'Hero', team);
-        else this.toast?.pick(hero?.thaiName || hero?.name || 'Hero', team);
-        
-        this.selectedHeroId = null;
-        this.nextStep();
-        return { success: true };
-    }
-    
-    // ยกเลิกการเลือก
-    cancelSelection() {
-        this.selectedHeroId = null;
-        return { success: true };
-    }
-    
-    nextStep() {
-        this.state.currentStep++;
-        if (this.state.currentStep >= DRAFT_SEQUENCE.length) {
-            this.state.isComplete = true;
-            this.games.push({ gameNumber: this.currentGame, blue: { ...this.state.blue }, red: { ...this.state.red } });
-            this.state.blue.picks.forEach(id => this.globalBannedHeroes.add(id.toString()));
-            this.state.red.picks.forEach(id => this.globalBannedHeroes.add(id.toString()));
-            this.toast?.show(`ดราฟเกมที่ ${this.currentGame} เสร็จสิ้น!`, 'success');
-        }
-        this.onUpdate();
-    }
-    
-    nextGame() {
-        if (this.currentGame < this.bo) {
-            this.currentGame++;
-            this.resetGame();
-            this.toast?.show(`เริ่มดราฟเกมที่ ${this.currentGame}`, 'info');
-            return true;
-        }
-        return false;
-    }
-    
-    isMatchComplete() { return this.currentGame >= this.bo && this.state.isComplete; }
-    
-    removeHero(team, type, index) {
-        const list = this.state[team][type === 'ban' ? 'bans' : 'picks'];
-        if (index >= 0 && index < list.length) {
-            list.splice(index, 1);
-            this.state.currentStep = Math.max(0, this.state.currentStep - 1);
-            this.state.isComplete = false;
-            this.selectedHeroId = null;
-            this.onUpdate();
-        }
-    }
-    
-    getPhaseText() {
-        if (this.state.isComplete) return 'ดราฟเสร็จสิ้น';
-        const step = this.state.currentStep;
-        if (step < 4) return 'Ban Phase 1';
-        if (step < 10) return 'Pick Phase 1';
-        if (step < 14) return 'Ban Phase 2';
-        return 'Pick Phase 2';
-    }
-    
-    getActionHint() { 
-        const step = this.getCurrentStep(); 
-        if (!step) return 'ดราฟเสร็จสิ้น'; 
-        if (this.selectedHeroId) {
-            const hero = getHeroById(this.selectedHeroId);
-            return `กด "ยืนยัน" เพื่อ${step.type === 'ban' ? 'แบน' : 'เลือก'} ${hero?.thaiName || ''}`;
-        }
-        return `${step.type === 'ban' ? 'แบน' : 'เลือก'}ตัวละคร (คลิกเพื่อเลือก แล้วกดยืนยัน)`; 
-    }
-    
-    getTeamText() { const step = this.getCurrentStep(); return step ? (step.team === 'blue' ? 'First Pick' : 'Second Pick') : '-'; }
-    
-    getDraftData() {
-        return {
-            bo: this.bo, matchId: this.matchId,
-            games: this.games.map(g => ({ gameNumber: g.gameNumber, myPicks: g.blue.picks, myBans: g.blue.bans, opponentPicks: g.red.picks, opponentBans: g.red.bans })),
-            currentGame: this.currentGame, isComplete: this.isMatchComplete()
-        };
-    }
-}
+// ============================================
+// GLOBAL STATE
+// ============================================
+let currentUser = null;
+let currentStep = 0;
+let selectedHero = null;
+let timerInterval = null;
+let timeLeft = 30;
+let currentFilter = 'all';
+let boFormat = 1;
 
-// ============== FIREBASE SERVICE ==============
-const firebaseConfig = {
-    apiKey: "AIzaSyC450kePwL6FdVXUSVli0bEP3DdnQs0qzU",
-    authDomain: "psl-esport.firebaseapp.com",
-    projectId: "psl-esport",
-    storageBucket: "psl-esport.firebasestorage.app",
-    messagingSenderId: "225108570173",
-    appId: "1:225108570173:web:b6483c02368908f3783a54"
+let draftState = {
+    blueBans: [],
+    redBans: [],
+    bluePicks: [],
+    redPicks: []
 };
 
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+// ============================================
+// INITIALIZATION
+// ============================================
 
-const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
-const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
-
-class FirebaseService {
-    constructor() { 
-        this.auth = auth; 
-        this.db = db; 
-        this.currentUser = null; 
-        this.userData = null; 
-    }
-    getCurrentUser() { return this.currentUser; }
-    isLoggedIn() { return !!this.currentUser; }
-    onAuthStateChanged(callback) {
-        if (!this.auth) return;
-        this.auth.onAuthStateChanged(async (user) => {
-            this.currentUser = user;
-            if (user) this.userData = await this.getUserData(user.uid);
-            else this.userData = null;
-            callback(user, this.userData);
-        });
-    }
-    async register(email, password, username) {
-        try {
-            const cred = await this.auth.createUserWithEmailAndPassword(email, password);
-            await this.db.collection('users').doc(cred.user.uid).set({
-                uid: cred.user.uid, email, username, displayName: username, photoURL: null,
-                isPublic: true, teamName: '', bio: '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                stats: { totalDrafts: 0, wins: 0, losses: 0, draws: 0 }
-            });
-            await cred.user.updateProfile({ displayName: username });
-            return { success: true, user: cred.user };
-        } catch (e) { return { success: false, error: this.getError(e) }; }
-    }
-    async login(email, password) {
-        try { const cred = await this.auth.signInWithEmailAndPassword(email, password); return { success: true, user: cred.user }; }
-        catch (e) { return { success: false, error: this.getError(e) }; }
-    }
-    async signInWithGoogle() {
-        try {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const result = await this.auth.signInWithPopup(provider);
-            const user = result.user;
-            const doc = await this.db.collection('users').doc(user.uid).get();
-            if (!doc.exists) {
-                await this.db.collection('users').doc(user.uid).set({
-                    uid: user.uid, email: user.email, username: user.displayName || 'User',
-                    displayName: user.displayName || 'User', photoURL: user.photoURL,
-                    isPublic: true, teamName: '', bio: '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    stats: { totalDrafts: 0, wins: 0, losses: 0, draws: 0 }
-                });
-            }
-            return { success: true, user };
-        } catch (e) { return { success: false, error: this.getError(e) }; }
-    }
-    async logout() { try { await this.auth.signOut(); this.currentUser = null; this.userData = null; return { success: true }; } catch (e) { return { success: false, error: e.message }; } }
-    getError(e) {
-        const msgs = { 'auth/email-already-in-use': 'อีเมลนี้ถูกใช้แล้ว', 'auth/invalid-email': 'อีเมลไม่ถูกต้อง', 'auth/weak-password': 'รหัสผ่านต้องมีอย่างน้อย 6 ตัว', 'auth/user-not-found': 'ไม่พบบัญชี', 'auth/wrong-password': 'รหัสผ่านไม่ถูกต้อง', 'auth/invalid-credential': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' };
-        return msgs[e.code] || e.message || 'เกิดข้อผิดพลาด';
-    }
-    async getUserData(uid) { const doc = await this.db.collection('users').doc(uid).get(); return doc.exists ? { id: doc.id, ...doc.data() } : null; }
-    async updateUserProfile(uid, data) { try { await this.db.collection('users').doc(uid).update({ ...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); return { success: true }; } catch (e) { return { success: false, error: e.message }; } }
-    async updatePrivacy(uid, isPublic) { return this.updateUserProfile(uid, { isPublic }); }
-    async saveDraft(draftData) {
-        if (!this.currentUser) return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนบันทึก' };
-        try {
-            console.log('Saving draft:', draftData);
-            const draft = { 
-                userId: this.currentUser.uid, 
-                userEmail: this.currentUser.email, 
-                userName: this.userData?.username || 'Unknown', 
-                ...draftData, 
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(), 
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
-            };
-            const ref = await this.db.collection('drafts').add(draft);
-            console.log('Draft saved with ID:', ref.id);
-            await this.updateStats(draftData.result);
-            return { success: true, draftId: ref.id };
-        } catch (e) { 
-            console.error('Save draft error:', e);
-            return { success: false, error: e.message }; 
-        }
-    }
-    async updateStats(result) {
-        if (!this.currentUser) return;
-        const ref = this.db.collection('users').doc(this.currentUser.uid);
-        const data = { 'stats.totalDrafts': firebase.firestore.FieldValue.increment(1), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-        if (result === 'win') data['stats.wins'] = firebase.firestore.FieldValue.increment(1);
-        else if (result === 'lose') data['stats.losses'] = firebase.firestore.FieldValue.increment(1);
-        else if (result === 'draw') data['stats.draws'] = firebase.firestore.FieldValue.increment(1);
-        await ref.update(data);
-    }
-    async getUserDrafts(uid, limit = 50) {
-        const snap = await this.db.collection('drafts').where('userId', '==', uid).orderBy('createdAt', 'desc').limit(limit).get();
-        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    }
-    async deleteDraft(draftId) {
-        if (!this.currentUser) return { success: false, error: 'กรุณาเข้าสู่ระบบ' };
-        const draft = await this.db.collection('drafts').doc(draftId).get();
-        if (!draft.exists || draft.data().userId !== this.currentUser.uid) return { success: false, error: 'ไม่มีสิทธิ์ลบ' };
-        await this.db.collection('drafts').doc(draftId).delete();
-        return { success: true };
-    }
-    async getUserAnalytics(uid) {
-        const drafts = await this.getUserDrafts(uid, 1000);
-        if (drafts.length === 0) return { totalDrafts: 0, wins: 0, losses: 0, draws: 0, winRate: 0, mostPickedHeroes: [], mostBannedHeroes: [], boStats: {}, heroWinRates: {} };
-        const stats = { totalDrafts: drafts.length, wins: drafts.filter(d => d.result === 'win').length, losses: drafts.filter(d => d.result === 'lose').length, draws: drafts.filter(d => d.result === 'draw').length };
-        stats.winRate = stats.totalDrafts > 0 ? ((stats.wins / (stats.totalDrafts - drafts.filter(d => d.result === 'practice').length)) * 100).toFixed(1) : 0;
-        const pickCounts = {}, heroWinCounts = {};
-        drafts.forEach(d => { if (d.games) d.games.forEach(g => { if (g.myPicks) g.myPicks.forEach(id => { pickCounts[id] = (pickCounts[id] || 0) + 1; if (!heroWinCounts[id]) heroWinCounts[id] = { wins: 0, total: 0 }; heroWinCounts[id].total++; if (d.result === 'win') heroWinCounts[id].wins++; }); }); });
-        stats.mostPickedHeroes = Object.entries(pickCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-        const banCounts = {};
-        drafts.forEach(d => { if (d.games) d.games.forEach(g => { if (g.myBans) g.myBans.forEach(id => banCounts[id] = (banCounts[id] || 0) + 1); }); });
-        stats.mostBannedHeroes = Object.entries(banCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-        const boStats = {};
-        drafts.forEach(d => { const bo = d.bo || 1; if (!boStats[bo]) boStats[bo] = { total: 0, wins: 0, losses: 0 }; boStats[bo].total++; if (d.result === 'win') boStats[bo].wins++; else if (d.result === 'lose') boStats[bo].losses++; });
-        Object.keys(boStats).forEach(bo => { const s = boStats[bo]; s.winRate = s.total > 0 ? ((s.wins / s.total) * 100).toFixed(1) : 0; });
-        stats.boStats = boStats;
-        stats.heroWinRates = {};
-        Object.entries(heroWinCounts).forEach(([id, d]) => { stats.heroWinRates[id] = { total: d.total, wins: d.wins, winRate: ((d.wins / d.total) * 100).toFixed(1) }; });
-        return stats;
-    }
-}
-
-const firebaseService = new FirebaseService();
-
-// ============== AUTH MANAGER ==============
-class AuthManager {
-    constructor() {
-        this.toast = new ToastManager();
-        this.onAuthChange = null;
-        this.init();
-    }
-    init() {
-        firebaseService.onAuthStateChanged((user, userData) => {
-            this.updateUI(user, userData);
-            if (this.onAuthChange) this.onAuthChange(user, userData);
-        });
-    }
-    updateUI(user, userData) {
-        const loginBanner = document.getElementById('loginBanner');
-        const sidebarUserInfo = document.getElementById('sidebarUserInfo');
-        if (user) {
-            if (loginBanner) loginBanner.style.display = 'none';
-            if (sidebarUserInfo) {
-                const name = userData?.username || user.displayName || 'User';
-                const photo = userData?.photoURL || user.photoURL;
-                sidebarUserInfo.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden">${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : `<span class="text-white font-bold text-sm">${name.charAt(0).toUpperCase()}</span>`}</div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${name}</p><p class="text-xs text-green-600 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span>ออนไลน์</p></div><button onclick="authManager.logout()" class="p-2 rounded-lg hover:bg-gray-200" title="ออกจากระบบ"><i data-lucide="log-out" class="w-4 h-4 text-gray-600"></i></button>`;
-                if (window.lucide) lucide.createIcons();
-            }
-        } else {
-            if (loginBanner) loginBanner.style.display = 'block';
-            if (sidebarUserInfo) { 
-                sidebarUserInfo.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-gray-400 to-gray-500 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-white"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p><p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p></div>`; 
-                if (window.lucide) lucide.createIcons(); 
-            }
-        }
-    }
-    showLoginModal() { document.getElementById('loginModal')?.classList.remove('hidden'); document.getElementById('registerModal')?.classList.add('hidden'); }
-    closeLoginModal() { document.getElementById('loginModal')?.classList.add('hidden'); }
-    showRegisterModal() { document.getElementById('registerModal')?.classList.remove('hidden'); document.getElementById('loginModal')?.classList.add('hidden'); }
-    closeRegisterModal() { document.getElementById('registerModal')?.classList.add('hidden'); }
-    async login(email, password) { const r = await firebaseService.login(email, password); if (r.success) { this.toast.show('เข้าสู่ระบบสำเร็จ!', 'success'); this.closeLoginModal(); } else this.toast.show(r.error, 'error'); return r; }
-    async register(email, password, username) { const r = await firebaseService.register(email, password, username); if (r.success) { this.toast.show('สมัครสมาชิกสำเร็จ!', 'success'); this.closeRegisterModal(); } else this.toast.show(r.error, 'error'); return r; }
-    async signInWithGoogle() { const r = await firebaseService.signInWithGoogle(); if (r.success) { this.toast.show('เข้าสู่ระบบด้วย Google สำเร็จ!', 'success'); this.closeLoginModal(); } else this.toast.show(r.error, 'error'); return r; }
-    async logout() { const r = await firebaseService.logout(); if (r.success) this.toast.show('ออกจากระบบสำเร็จ', 'info'); else this.toast.show(r.error, 'error'); return r; }
-    isLoggedIn() { return firebaseService.isLoggedIn(); }
-    getCurrentUser() { return firebaseService.getCurrentUser(); }
-    requireLogin(msg = 'กรุณาเข้าสู่ระบบก่อน') { if (!this.isLoggedIn()) { this.toast.show(msg, 'warning'); this.showLoginModal(); return false; } return true; }
-}
-
-const authManager = new AuthManager();
-window.authManager = authManager;
-
-// ============== MAIN APP ==============
-class DraftApp {
-    constructor() {
-        this.toast = new ToastManager();
-        this.draftManager = new DraftManager(() => this.update(), this.toast);
-        this.draftManager.heroes = heroes;
-        this.heroGrid = new HeroGrid('hero-grid', this.draftManager);
-        this.bluePanel = new TeamPanel('blue', 'blue-team-panel');
-        this.redPanel = new TeamPanel('red', 'red-team-panel');
-        this.timerInterval = null;
-        this.timeLeft = 60;
-        this.boSelected = false;
-        this.init();
-    }
-
-    init() {
-        this.renderRoleFilters();
-        this.setupEventListeners();
-        this.update();
-        // ไม่แสดง BO Modal อัตโนมัติ ต้อง login ก่อน
-        window.draftApp = this;
-        window.app = this;
-    }
-
-    renderRoleFilters() {
-        const container = document.getElementById('role-filters');
-        if (!container) return;
-        container.innerHTML = ['meta', 'all', 'fighter', 'tank', 'mage', 'assassin', 'marksman', 'support'].map(role => 
-            `<button onclick="draftApp.setRole('${role}')" class="role-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide ${role === 'meta' ? 'active' : 'bg-white/40 text-gray-600 hover:bg-white/60'}" data-role="${role}">${roleLabels[role]}</button>`
-        ).join('');
-    }
-
-    setupEventListeners() {
-        let searchTimer;
-        document.getElementById('searchHero')?.addEventListener('input', (e) => { 
-            clearTimeout(searchTimer); 
-            searchTimer = setTimeout(() => this.heroGrid.setSearch(e.target.value), 150); 
-        });
-        document.getElementById('resetBtn')?.addEventListener('click', () => { 
-            if (confirm('ต้องการรีเซ็ตการดราฟทั้งหมด?')) { 
-                this.draftManager.reset(); 
-                this.boSelected = false; 
-                this.stopTimer();
-                this.toast.show('รีเซ็ตการดราฟท์เรียบร้อย', 'info'); 
-            } 
-        });
-        document.getElementById('saveDraftForm')?.addEventListener('submit', (e) => this.handleSaveDraft(e));
-        
-        // ปุ่มยืนยันและยกเลิก
-        document.getElementById('confirmBtn')?.addEventListener('click', () => this.confirmSelection());
-        document.getElementById('cancelBtn')?.addEventListener('click', () => this.cancelSelection());
-    }
-
-    toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        if (sidebar) {
-            const isOpen = sidebar.classList.contains('open');
-            if (isOpen) {
-                sidebar.classList.remove('open');
-                sidebar.style.transform = 'translateX(-100%)';
-            } else {
-                sidebar.classList.add('open');
-                sidebar.style.transform = 'translateX(0)';
-            }
-        }
-        if (overlay) overlay.classList.toggle('hidden');
-    }
-
-    setBO(bo) {
-        // บังคับ login ก่อนเริ่มดราฟ
-        if (!authManager.isLoggedIn()) {
-            this.toast.show('กรุณาเข้าสู่ระบบก่อนเริ่มดราฟ', 'warning');
-            authManager.showLoginModal();
-            return;
-        }
-        
-        this.draftManager.initMatch(bo);
-        this.boSelected = true;
-        this.closeBOModal();
-        const boDisplay = document.getElementById('boDisplay');
-        const boText = document.getElementById('boText');
-        const gameCounter = document.getElementById('gameCounter');
-        const totalGames = document.getElementById('totalGames');
-        if (boDisplay) boDisplay.classList.remove('hidden');
-        if (boText) boText.textContent = `BO${bo}`;
-        if (gameCounter) gameCounter.classList.remove('hidden');
-        if (totalGames) totalGames.textContent = bo;
-        this.updateGameCounter();
-        this.startTimer();
-        this.toast.show(`เริ่มดราฟแบบ BO${bo}`, 'success');
-    }
-
-    showBOModal() {
-        // บังคับ login ก่อนแสดง BO Modal
-        if (!authManager.isLoggedIn()) {
-            this.toast.show('กรุณาเข้าสู่ระบบก่อนเริ่มดราฟ', 'warning');
-            authManager.showLoginModal();
-            return;
-        }
-        const modal = document.getElementById('boModal');
-        if (modal) modal.classList.remove('hidden');
-    }
-
-    closeBOModal() {
-        const modal = document.getElementById('boModal');
-        if (modal) modal.classList.add('hidden');
-    }
-
-    updateGameCounter() {
-        const el = document.getElementById('currentGame');
-        if (el) el.textContent = this.draftManager.currentGame;
-    }
-
-    nextGame() {
-        if (this.draftManager.nextGame()) {
-            this.updateGameCounter();
-            this.resetTimer();
-            this.update();
-            document.getElementById('nextGameBtn')?.classList.add('hidden');
-            document.getElementById('saveDraftBtn')?.classList.add('hidden');
-        }
-    }
-
-    // เมื่อคลิกที่ตัวละคร
-    onHeroClick(heroId) {
-        if (!this.boSelected) { 
-            this.toast.show('กรุณาเลือกรูปแบบการแข่งขันก่อน', 'warning'); 
-            this.showBOModal(); 
-            return; 
-        }
-        
-        const step = this.draftManager.getCurrentStep();
-        if (!step) {
-            this.toast.show('ดราฟเสร็จสิ้นแล้ว', 'info');
-            return;
-        }
-        
-        // ตรวจสอบว่าครบ 5 ตัวหรือยัง
-        const currentCount = this.draftManager.state[step.team][step.type === 'ban' ? 'bans' : 'picks'].length;
-        const maxCount = step.type === 'ban' ? 4 : 5;
-        if (currentCount >= maxCount) {
-            this.toast.show(`ทีม ${step.team} มี${step.type === 'ban' ? 'การแบน' : 'การเลือก'}ครบแล้ว`, 'warning');
-            return;
-        }
-        
-        const result = this.draftManager.selectHeroForConfirm(heroId);
-        if (!result.success) {
-            this.toast.show(result.error, 'error');
-            return;
-        }
-        
-        this.update();
-        this.showConfirmButtons();
-    }
-
-    // แสดงปุ่มยืนยัน/ยกเลิก
-    showConfirmButtons() {
-        const confirmPanel = document.getElementById('confirmPanel');
-        if (confirmPanel) confirmPanel.classList.remove('hidden');
-    }
-
-    hideConfirmButtons() {
-        const confirmPanel = document.getElementById('confirmPanel');
-        if (confirmPanel) confirmPanel.classList.add('hidden');
-    }
-
-    // ยืนยันการเลือก
-    confirmSelection() {
-        const result = this.draftManager.confirmSelection();
-        if (!result.success) {
-            this.toast.show(result.error, 'error');
-            return;
-        }
-        this.hideConfirmButtons();
-        this.update();
-    }
-
-    // ยกเลิกการเลือก
-    cancelSelection() {
-        this.draftManager.cancelSelection();
-        this.hideConfirmButtons();
-        this.update();
-    }
-
-    removeHero(team, type, index) { 
-        this.draftManager.removeHero(team, type, index); 
-        this.update(); 
-    }
-
-    setRole(role) { 
-        this.heroGrid.setRole(role); 
-        document.querySelectorAll('.role-btn').forEach(btn => { 
-            btn.className = `role-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wide ${btn.dataset.role === role ? 'active' : 'bg-white/40 text-gray-600 hover:bg-white/60'}`; 
-        }); 
-    }
-
-    update() {
-        const state = this.draftManager.getState();
-        requestAnimationFrame(() => {
-            this.bluePanel.update(state);
-            this.redPanel.update(state);
-            this.heroGrid.updateStatus();
-            this.resetTimer();
-            
-            const phaseText = document.getElementById('phase-text');
-            const teamText = document.getElementById('teamText');
-            const actionHint = document.getElementById('actionHint');
-            if (phaseText) phaseText.textContent = this.draftManager.getPhaseText();
-            if (teamText) teamText.textContent = this.draftManager.getTeamText();
-            if (actionHint) actionHint.textContent = this.draftManager.getActionHint();
-            
-            const currentTeam = this.draftManager.getCurrentTeam();
-            const indicator = document.getElementById('currentTeamIndicator');
-            if (indicator && currentTeam) indicator.className = `flex items-center gap-3 font-bold text-lg ${currentTeam === 'blue' ? 'text-blue-600' : 'text-red-600'}`;
-            
-            const bluePanel = document.getElementById('blue-team-panel');
-            const redPanel = document.getElementById('red-team-panel');
-            if (bluePanel && redPanel && currentTeam) {
-                bluePanel.classList.toggle('team-active', currentTeam === 'blue');
-                redPanel.classList.toggle('team-active-red', currentTeam === 'red');
-            }
-            
-            if (state.isComplete) this.onDraftComplete();
-            if (window.lucide) lucide.createIcons();
-        });
-    }
-
-    onDraftComplete() {
-        this.hideConfirmButtons();
-        if (this.draftManager.currentGame < this.draftManager.bo) {
-            const nextBtn = document.getElementById('nextGameBtn');
-            if (nextBtn) nextBtn.classList.remove('hidden');
-        }
-        const saveBtn = document.getElementById('saveDraftBtn');
-        if (saveBtn) saveBtn.classList.remove('hidden');
-    }
-
-    showSaveDraftModal() {
-        if (!authManager.isLoggedIn()) { 
-            this.toast.show('กรุณาเข้าสู่ระบบก่อนบันทึก', 'warning'); 
-            authManager.showLoginModal(); 
-            return; 
-        }
-        const modal = document.getElementById('saveDraftModal');
-        if (modal) modal.classList.remove('hidden');
-    }
-
-    closeSaveDraftModal() {
-        const modal = document.getElementById('saveDraftModal');
-        if (modal) modal.classList.add('hidden');
-    }
-
-    async handleSaveDraft(e) {
-        e.preventDefault();
-        
-        if (!authManager.isLoggedIn()) {
-            this.toast.show('กรุณาเข้าสู่ระบบก่อนบันทึก', 'warning');
-            authManager.showLoginModal();
-            return;
-        }
-        
-        const matchName = document.getElementById('draftMatchName')?.value;
-        const myTeam = document.getElementById('draftMyTeam')?.value;
-        const opponentTeam = document.getElementById('draftOpponentTeam')?.value;
-        const result = document.getElementById('draftResult')?.value;
-        const notes = document.getElementById('draftNotes')?.value;
-        
-        if (!matchName) {
-            this.toast.show('กรุณาใส่ชื่อ Match', 'warning');
-            return;
-        }
-        
-        const draftData = { 
-            ...this.draftManager.getDraftData(), 
-            matchName, myTeam, opponentTeam, result, notes 
-        };
-        
-        console.log('Saving draft data:', draftData);
-        const saveResult = await firebaseService.saveDraft(draftData);
-        
-        if (saveResult.success) { 
-            this.toast.show(`บันทึกการดราฟสำเร็จ! (ID: ${saveResult.draftId})`, 'success'); 
-            this.closeSaveDraftModal(); 
-            e.target.reset(); 
-        } else {
-            this.toast.show(saveResult.error || 'เกิดข้อผิดพลาด', 'error');
-        }
-    }
-
-    resetTimer() {
-        this.timeLeft = 60;
-        const el = document.getElementById('timer');
-        if (el) el.textContent = this.timeLeft;
-    }
-
-    stopTimer() {
-        if (this.timerInterval) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-        }
-    }
-
-    startTimer() {
-        this.stopTimer();
-        this.timerInterval = setInterval(() => {
-            this.timeLeft--;
-            const el = document.getElementById('timer');
-            if (this.timeLeft <= 0) { 
-                this.toast.show('หมดเวลา!', 'warning'); 
-                this.resetTimer(); 
-                return; 
-            }
-            if (el) el.textContent = this.timeLeft;
-        }, 1000);
-    }
-}
-
-// ============== INITIALIZE ==============
-document.addEventListener('DOMContentLoaded', function() {
-    window.draftApp = new DraftApp();
-    window.app = window.draftApp;
-    if (window.lucide) lucide.createIcons();
+document.addEventListener('DOMContentLoaded', () => {
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+    });
+    
+    renderHeroes();
+    updateTurnDisplay();
+    startTimer();
 });
+
+// ============================================
+// HERO RENDERING
+// ============================================
+
+function renderHeroes() {
+    const grid = document.getElementById('heroGrid');
+    grid.innerHTML = '';
+    
+    let heroesToShow = HEROES;
+    
+    if (currentFilter === 'meta') {
+        heroesToShow = HEROES.filter(h => META_HERO_IDS.includes(h.id));
+    } else if (currentFilter !== 'all') {
+        heroesToShow = HEROES.filter(h => h.role === currentFilter);
+    }
+    
+    heroesToShow.forEach(hero => {
+        const card = document.createElement('div');
+        card.className = 'hero-card aspect-square rounded-lg bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20';
+        card.dataset.heroId = hero.id;
+        card.onclick = () => onHeroClick(hero.id);
+        
+        card.innerHTML = `
+            <div class="text-center p-1">
+                <div class="text-[10px] font-bold truncate">${hero.name}</div>
+                <div class="text-[8px] text-white/50 uppercase">${hero.role}</div>
+            </div>
+        `;
+        
+        grid.appendChild(card);
+    });
+    
+    document.getElementById('heroCount').textContent = heroesToShow.length;
+    updateHeroStatus();
+}
+
+function filterHeroes(role) {
+    currentFilter = role;
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-filter="${role}"]`).classList.add('active');
+    
+    renderHeroes();
+}
+
+function searchHeroes(query) {
+    const grid = document.getElementById('heroGrid');
+    const cards = grid.querySelectorAll('.hero-card');
+    
+    cards.forEach(card => {
+        const heroId = parseInt(card.dataset.heroId);
+        const hero = HEROES.find(h => h.id === heroId);
+        
+        if (hero && hero.name.toLowerCase().includes(query.toLowerCase())) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function updateHeroStatus() {
+    const unavailable = [...draftState.blueBans, ...draftState.redBans, ...draftState.bluePicks, ...draftState.redPicks];
+    
+    document.querySelectorAll('.hero-card').forEach(card => {
+        const heroId = parseInt(card.dataset.heroId);
+        card.classList.remove('banned', 'picked');
+        
+        if (draftState.blueBans.includes(heroId) || draftState.redBans.includes(heroId)) {
+            card.classList.add('banned');
+        } else if (draftState.bluePicks.includes(heroId) || draftState.redPicks.includes(heroId)) {
+            card.classList.add('picked');
+        }
+    });
+}
+
+// ============================================
+// DRAFT LOGIC
+// ============================================
+
+function onHeroClick(heroId) {
+    if (currentStep >= DRAFT_SEQUENCE.length) return;
+    
+    const unavailable = [...draftState.blueBans, ...draftState.redBans, ...draftState.bluePicks, ...draftState.redPicks];
+    
+    if (unavailable.includes(heroId)) {
+        showToast('Hero already banned or picked!', 'error');
+        return;
+    }
+    
+    selectedHero = heroId;
+    showConfirmModal(heroId);
+}
+
+function showConfirmModal(heroId) {
+    const hero = HEROES.find(h => h.id === heroId);
+    const currentAction = DRAFT_SEQUENCE[currentStep];
+    
+    document.getElementById('confirmHeroDisplay').innerHTML = `
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mb-3">
+            <span class="text-2xl font-bold">${hero.name.slice(0, 2)}</span>
+        </div>
+        <div class="text-xl font-bold mb-1">${hero.name}</div>
+        <div class="text-white/60 capitalize">${currentAction.type} as ${hero.role}</div>
+    `;
+    
+    document.getElementById('confirmModal').classList.remove('hidden');
+}
+
+function cancelSelection() {
+    selectedHero = null;
+    document.getElementById('confirmModal').classList.add('hidden');
+}
+
+function confirmSelection() {
+    if (!selectedHero || currentStep >= DRAFT_SEQUENCE.length) return;
+    
+    const currentAction = DRAFT_SEQUENCE[currentStep];
+    
+    if (currentAction.type === 'ban') {
+        if (currentAction.team === 'blue') {
+            draftState.blueBans.push(selectedHero);
+        } else {
+            draftState.redBans.push(selectedHero);
+        }
+    } else {
+        if (currentAction.team === 'blue') {
+            draftState.bluePicks.push(selectedHero);
+        } else {
+            draftState.redPicks.push(selectedHero);
+        }
+    }
+    
+    updateDraftDisplay();
+    currentStep++;
+    
+    if (currentStep >= DRAFT_SEQUENCE.length) {
+        stopTimer();
+        showToast('Draft Complete!', 'success');
+    } else {
+        resetTimer();
+        updateTurnDisplay();
+    }
+    
+    selectedHero = null;
+    document.getElementById('confirmModal').classList.add('hidden');
+}
+
+function updateDraftDisplay() {
+    // Update Blue Bans
+    draftState.blueBans.forEach((heroId, index) => {
+        const slot = document.getElementById(`blueBan${index + 1}`);
+        if (slot) {
+            const hero = HEROES.find(h => h.id === heroId);
+            slot.className = 'ban-slot filled aspect-square rounded-lg flex items-center justify-center';
+            slot.innerHTML = `<span class="text-xs font-bold">${hero ? hero.name : '?'}</span>`;
+        }
+    });
+    
+    // Update Red Bans
+    draftState.redBans.forEach((heroId, index) => {
+        const slot = document.getElementById(`redBan${index + 1}`);
+        if (slot) {
+            const hero = HEROES.find(h => h.id === heroId);
+            slot.className = 'ban-slot filled aspect-square rounded-lg flex items-center justify-center';
+            slot.innerHTML = `<span class="text-xs font-bold">${hero ? hero.name : '?'}</span>`;
+        }
+    });
+    
+    // Update Blue Picks
+    draftState.bluePicks.forEach((heroId, index) => {
+        const slot = document.getElementById(`bluePick${index + 1}`);
+        if (slot) {
+            const hero = HEROES.find(h => h.id === heroId);
+            slot.className = 'pick-slot filled rounded-lg p-2 flex items-center gap-2';
+            slot.innerHTML = `
+                <div class="w-10 h-10 rounded bg-blue-500 flex items-center justify-center text-xs font-bold">${hero ? hero.name.slice(0, 2) : '?'}</div>
+                <span class="text-sm font-medium">${hero ? hero.name : 'Unknown'}</span>
+            `;
+        }
+    });
+    
+    // Update Red Picks
+    draftState.redPicks.forEach((heroId, index) => {
+        const slot = document.getElementById(`redPick${index + 1}`);
+        if (slot) {
+            const hero = HEROES.find(h => h.id === heroId);
+            slot.className = 'pick-slot filled rounded-lg p-2 flex items-center gap-2';
+            slot.innerHTML = `
+                <div class="w-10 h-10 rounded bg-red-500 flex items-center justify-center text-xs font-bold">${hero ? hero.name.slice(0, 2) : '?'}</div>
+                <span class="text-sm font-medium">${hero ? hero.name : 'Unknown'}</span>
+            `;
+        }
+    });
+    
+    updateHeroStatus();
+}
+
+function updateTurnDisplay() {
+    if (currentStep >= DRAFT_SEQUENCE.length) return;
+    
+    const currentAction = DRAFT_SEQUENCE[currentStep];
+    const turnDot = document.getElementById('turnDot');
+    const turnText = document.getElementById('turnText');
+    
+    const teamColor = currentAction.team === 'blue' ? 'bg-blue-500' : 'bg-red-500';
+    const teamName = currentAction.team === 'blue' ? 'Blue' : 'Red';
+    const actionName = currentAction.type === 'ban' ? 'Ban' : 'Pick';
+    
+    turnDot.className = `w-3 h-3 rounded-full ${teamColor} pulse-animation`;
+    turnText.textContent = `${teamName} Team's Turn to ${actionName}`;
+}
+
+// ============================================
+// TIMER
+// ============================================
+
+function startTimer() {
+    timeLeft = 30;
+    updateTimerDisplay();
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+            autoSelect();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function resetTimer() {
+    stopTimer();
+    startTimer();
+}
+
+function updateTimerDisplay() {
+    document.getElementById('timerDisplay').textContent = timeLeft;
+}
+
+function autoSelect() {
+    const unavailable = [...draftState.blueBans, ...draftState.redBans, ...draftState.bluePicks, ...draftState.redPicks];
+    const availableHero = HEROES.find(h => !unavailable.includes(h.id));
+    
+    if (availableHero) {
+        selectedHero = availableHero.id;
+        confirmSelection();
+    }
+}
+
+// ============================================
+// CONTROLS
+// ============================================
+
+function resetDraft() {
+    if (!confirm('Reset the draft?')) return;
+    
+    stopTimer();
+    currentStep = 0;
+    draftState = {
+        blueBans: [],
+        redBans: [],
+        bluePicks: [],
+        redPicks: []
+    };
+    
+    // Reset UI
+    for (let i = 1; i <= 2; i++) {
+        const blueBan = document.getElementById(`blueBan${i}`);
+        const redBan = document.getElementById(`redBan${i}`);
+        blueBan.className = 'ban-slot aspect-square rounded-lg flex items-center justify-center';
+        blueBan.innerHTML = '<i class="fas fa-ban text-white/20"></i>';
+        redBan.className = 'ban-slot aspect-square rounded-lg flex items-center justify-center';
+        redBan.innerHTML = '<i class="fas fa-ban text-white/20"></i>';
+    }
+    
+    for (let i = 1; i <= 5; i++) {
+        const bluePick = document.getElementById(`bluePick${i}`);
+        const redPick = document.getElementById(`redPick${i}`);
+        bluePick.className = 'pick-slot rounded-lg p-2 flex items-center gap-2';
+        bluePick.innerHTML = `<div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">${i}</div><span class="text-sm text-white/50">Pick ${i}</span>`;
+        redPick.className = 'pick-slot rounded-lg p-2 flex items-center gap-2';
+        redPick.innerHTML = `<div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-xs text-white/30">${i}</div><span class="text-sm text-white/50">Pick ${i}</span>`;
+    }
+    
+    renderHeroes();
+    updateTurnDisplay();
+    startTimer();
+    showToast('Draft reset!', 'info');
+}
+
+function openBoModal() {
+    document.getElementById('boModal').classList.remove('hidden');
+}
+
+function closeBoModal() {
+    document.getElementById('boModal').classList.add('hidden');
+}
+
+function setBoFormat(format) {
+    boFormat = format;
+    showToast(`Format set to BO${format}`, 'success');
+    closeBoModal();
+}
+
+function openSaveModal() {
+    if (!currentUser) {
+        openLoginModal();
+        return;
+    }
+    document.getElementById('saveModal').classList.remove('hidden');
+}
+
+function closeSaveModal() {
+    document.getElementById('saveModal').classList.add('hidden');
+}
+
+async function saveDraft() {
+    if (!currentUser) {
+        showToast('Please login first!', 'error');
+        return;
+    }
+    
+    const draftName = document.getElementById('draftName').value || 'Untitled Draft';
+    
+    try {
+        await db.collection('drafts').add({
+            userId: currentUser.uid,
+            name: draftName,
+            boFormat: boFormat,
+            blueBans: draftState.blueBans,
+            redBans: draftState.redBans,
+            bluePicks: draftState.bluePicks,
+            redPicks: draftState.redPicks,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast('Draft saved!', 'success');
+        closeSaveModal();
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        showToast('Failed to save draft!', 'error');
+    }
+}
+
+// ============================================
+// AUTH FUNCTIONS
+// ============================================
+
+function openLoginModal() {
+    document.getElementById('loginModal').classList.remove('hidden');
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').classList.add('hidden');
+}
+
+async function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        showToast('Please fill all fields!', 'error');
+        return;
+    }
+    
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+        showToast('Login successful!', 'success');
+        closeLoginModal();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+async function register() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        showToast('Please fill all fields!', 'error');
+        return;
+    }
+    
+    try {
+        await auth.createUserWithEmailAndPassword(email, password);
+        showToast('Registration successful!', 'success');
+        closeLoginModal();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+// ============================================
+// SIDEBAR
+// ============================================
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
+
+// ============================================
+// UTILITY
+// ============================================
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg backdrop-blur-xl z-50 font-medium text-sm transition-all duration-300 transform translate-x-full`;
+    
+    const colors = {
+        success: 'bg-green-500/80 text-white',
+        error: 'bg-red-500/80 text-white',
+        info: 'bg-blue-500/80 text-white',
+        warning: 'bg-yellow-500/80 text-white'
+    };
+    
+    toast.classList.add(...colors[type].split(' '));
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
+}

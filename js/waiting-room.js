@@ -1,265 +1,381 @@
-// ROV Draft Pro - Waiting Room
+// Waiting Room JavaScript - PVP Room Management
+// Using traditional JS (no ES6 modules) for file:// protocol compatibility
 
+// ============================================
+// FIREBASE CONFIGURATION
+// ============================================
 const firebaseConfig = {
-    apiKey: "AIzaSyC450kePwL6FdVXUSVli0bEP3DdnQs0qzU",
-    authDomain: "psl-esport.firebaseapp.com",
-    projectId: "psl-esport",
-    storageBucket: "psl-esport.firebasestorage.app",
-    messagingSenderId: "225108570173",
-    appId: "1:225108570173:web:b6483c02368908f3783a54"
+    apiKey: "AIzaSyB0jGqS53Q4zF6E1K8vY9L2QcX7R5T3W1Q",
+    authDomain: "rov-draft-simulator.firebaseapp.com",
+    projectId: "rov-draft-simulator",
+    storageBucket: "rov-draft-simulator.firebasestorage.app",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abc123def456ghi789jkl"
 };
 
+// Initialize Firebase
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-
-const auth = firebase.auth();
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-// State
+// ============================================
+// GLOBAL STATE
+// ============================================
 let currentUser = null;
 let roomCode = null;
-let roomData = null;
-let isHost = false;
-let unsubscribe = null;
+let currentTeam = null;
+let isCaptain = false;
+let roomListener = null;
+let isRoomCreator = false;
 
-// Get room code from URL
-const urlParams = new URLSearchParams(window.location.search);
-roomCode = urlParams.get('room');
+// ============================================
+// INITIALIZATION
+// ============================================
 
-if (!roomCode) {
-    window.location.href = 'index.html';
-}
-
-document.getElementById('roomCode').textContent = roomCode;
-
-// Toast
-function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    const colors = {
-        success: 'from-green-500 to-emerald-600',
-        error: 'from-red-500 to-rose-600',
-        warning: 'from-yellow-500 to-orange-600',
-        info: 'from-blue-500 to-indigo-600'
-    };
-    toast.className = `min-w-[280px] p-4 rounded-xl shadow-xl flex items-center gap-3 bg-gradient-to-r ${colors[type]} text-white`;
-    toast.innerHTML = `
-        <span class="flex-1">${message}</span>
-        <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100">✕</button>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Auth
-auth.onAuthStateChanged(user => {
-    currentUser = user;
-    if (!user) {
-        window.location.href = 'index.html';
+document.addEventListener('DOMContentLoaded', () => {
+    // Get room info from localStorage
+    roomCode = localStorage.getItem('currentRoomCode');
+    currentTeam = localStorage.getItem('currentTeam');
+    isCaptain = localStorage.getItem('isCaptain') === 'true';
+    
+    if (!roomCode) {
+        showToast('No room code found!', 'error');
+        window.location.href = 'pvp-lobby.html';
         return;
     }
-    subscribeToRoom();
+    
+    // Display room code
+    document.getElementById('roomCodeDisplay').textContent = roomCode;
+    
+    // Check auth and setup room
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        setupRoomListener();
+    });
 });
 
-// Subscribe to room updates
-function subscribeToRoom() {
-    unsubscribe = db.collection('rooms').doc(roomCode).onSnapshot(doc => {
-        if (!doc.exists) {
-            showToast('Room closed', 'error');
-            setTimeout(() => window.location.href = 'index.html', 2000);
-            return;
-        }
+// ============================================
+// ROOM LISTENER
+// ============================================
 
-        roomData = doc.data();
-        isHost = roomData.hostId === currentUser.uid;
-
-        updateUI();
-
-        // Check if draft started
-        if (roomData.status === 'drafting') {
-            window.location.href = `draft-room.html?room=${roomCode}`;
-        }
-    }, error => {
-        console.error('Room error:', error);
-        showToast('Error connecting to room', 'error');
-    });
+function setupRoomListener() {
+    roomListener = db.collection('rooms').doc(roomCode)
+        .onSnapshot((doc) => {
+            if (!doc.exists) {
+                showToast('Room has been closed!', 'error');
+                window.location.href = 'pvp-lobby.html';
+                return;
+            }
+            
+            const roomData = doc.data();
+            updateRoomDisplay(roomData);
+            
+            // Check if draft has started
+            if (roomData.status === 'drafting') {
+                window.location.href = 'draft-room.html';
+                return;
+            }
+            
+            // Check if room is finished
+            if (roomData.status === 'finished') {
+                showToast('Draft has ended!', 'info');
+                window.location.href = 'pvp-lobby.html';
+                return;
+            }
+        }, (error) => {
+            console.error('Room listener error:', error);
+            showToast('Connection error!', 'error');
+        });
 }
 
-function updateUI() {
-    // Host info
-    document.getElementById('hostName').textContent = roomData.hostName;
-    document.getElementById('firstPickDisplay').textContent = roomData.settings.firstPick;
-    document.getElementById('settingsBO').textContent = roomData.settings.bo;
-    document.getElementById('boDisplay').textContent = 'BO' + roomData.settings.bo;
-    document.getElementById('settingsFirstPick').textContent = roomData.settings.firstPick + ' First Pick';
+// ============================================
+// UPDATE ROOM DISPLAY
+// ============================================
 
-    const hostStatus = document.getElementById('hostStatus');
-    hostStatus.innerHTML = '<span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">Ready</span>';
-
-    // Guest info
-    const guestName = document.getElementById('guestName');
-    const guestStatus = document.getElementById('guestStatus');
-    const guestCard = document.getElementById('guestCard');
-
-    if (roomData.guestId) {
-        guestName.textContent = roomData.guestName;
-        guestStatus.innerHTML = '<span class="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm font-medium">Ready</span>';
-        guestCard.classList.remove('player-waiting');
-        guestCard.classList.add('player-ready');
-
-        // Show start button for host
-        if (isHost) {
-            document.getElementById('startSection').classList.remove('hidden');
-            document.getElementById('waitingSection').classList.add('hidden');
-        } else {
-            document.getElementById('startSection').classList.add('hidden');
-            document.getElementById('waitingSection').classList.remove('hidden');
-            document.getElementById('waitingSection').innerHTML = '<span class="text-green-400 flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full"></span>Waiting for host to start...</span>';
-        }
+function updateRoomDisplay(roomData) {
+    // Update room info
+    document.getElementById('boDisplay').textContent = `BO${roomData.boFormat}`;
+    document.getElementById('firstPickDisplay').textContent = roomData.firstPick === 'blue' ? 'Blue' : 'Red';
+    
+    // Check if current user is room creator
+    isRoomCreator = roomData.creatorId === (currentUser ? currentUser.uid : null);
+    
+    // Count players
+    let playerCount = 0;
+    if (roomData.blueTeam.captain) playerCount++;
+    if (roomData.redTeam.captain) playerCount++;
+    document.getElementById('playerCount').textContent = `${playerCount}/2`;
+    
+    // Update Blue Team
+    const blueCaptain = document.getElementById('blueCaptain');
+    const blueStatus = document.getElementById('blueStatus');
+    
+    if (roomData.blueTeam.captain) {
+        blueCaptain.className = 'slot-filled rounded-2xl p-4 flex items-center gap-4';
+        blueCaptain.innerHTML = `
+            <div class="w-16 h-16 rounded-xl bg-blue-500 flex items-center justify-center">
+                <i class="fas fa-user text-2xl"></i>
+            </div>
+            <div>
+                <div class="font-bold text-lg">${roomData.blueTeam.captainName}</div>
+                <div class="text-sm text-blue-300">Captain</div>
+            </div>
+        `;
+        blueStatus.textContent = 'Ready';
+        blueStatus.className = 'px-3 py-1 rounded-full text-sm bg-green-500/50';
     } else {
-        guestName.textContent = 'Waiting...';
-        guestStatus.innerHTML = '<span class="px-3 py-1 rounded-full bg-gray-500/20 text-gray-400 text-sm font-medium">Empty</span>';
-        guestCard.classList.add('player-waiting');
-        guestCard.classList.remove('player-ready');
-        document.getElementById('startSection').classList.add('hidden');
-        document.getElementById('waitingSection').classList.remove('hidden');
-        document.getElementById('waitingSection').innerHTML = '<span class="text-gray-400 flex items-center gap-2"><span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>Waiting for opponent...</span>';
+        blueCaptain.className = 'slot-empty rounded-2xl p-4 flex items-center gap-4';
+        blueCaptain.innerHTML = `
+            <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
+                <i class="fas fa-user text-2xl text-white/30"></i>
+            </div>
+            <div>
+                <div class="text-white/50">Captain Slot</div>
+                <div class="text-sm text-white/30">Waiting for player...</div>
+            </div>
+        `;
+        blueStatus.textContent = 'Waiting...';
+        blueStatus.className = 'px-3 py-1 rounded-full text-sm bg-blue-500/50';
     }
-
+    
+    // Update Red Team
+    const redCaptain = document.getElementById('redCaptain');
+    const redStatus = document.getElementById('redStatus');
+    
+    if (roomData.redTeam.captain) {
+        redCaptain.className = 'slot-filled rounded-2xl p-4 flex items-center gap-4';
+        redCaptain.innerHTML = `
+            <div class="w-16 h-16 rounded-xl bg-red-500 flex items-center justify-center">
+                <i class="fas fa-user text-2xl"></i>
+            </div>
+            <div>
+                <div class="font-bold text-lg">${roomData.redTeam.captainName}</div>
+                <div class="text-sm text-red-300">Captain</div>
+            </div>
+        `;
+        redStatus.textContent = 'Ready';
+        redStatus.className = 'px-3 py-1 rounded-full text-sm bg-green-500/50';
+    } else {
+        redCaptain.className = 'slot-empty rounded-2xl p-4 flex items-center gap-4';
+        redCaptain.innerHTML = `
+            <div class="w-16 h-16 rounded-xl bg-white/10 flex items-center justify-center">
+                <i class="fas fa-user text-2xl text-white/30"></i>
+            </div>
+            <div>
+                <div class="text-white/50">Captain Slot</div>
+                <div class="text-sm text-white/30">Waiting for player...</div>
+            </div>
+        `;
+        redStatus.textContent = 'Waiting...';
+        redStatus.className = 'px-3 py-1 rounded-full text-sm bg-red-500/50';
+    }
+    
+    // Show/hide start button
+    const startBtn = document.getElementById('startDraftBtn');
+    if (isRoomCreator && roomData.blueTeam.captain && roomData.redTeam.captain) {
+        startBtn.classList.remove('hidden');
+    } else {
+        startBtn.classList.add('hidden');
+    }
+    
     // Update chat
-    updateChat();
+    updateChat(roomData.chat || []);
 }
 
-function updateChat() {
-    const container = document.getElementById('chatMessages');
-    if (!roomData.chat || roomData.chat.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center text-sm py-8">No messages yet</p>';
-        return;
-    }
+// ============================================
+// CHAT FUNCTIONS
+// ============================================
 
-    container.innerHTML = roomData.chat.map(msg => `
-        <div class="chat-message">
-            <span class="font-medium text-blue-400">${msg.user}:</span>
-            <span class="text-gray-300">${msg.message}</span>
-        </div>
-    `).join('');
-    container.scrollTop = container.scrollHeight;
-}
-
-// Actions
-async function startDraft() {
-    if (!isHost || !roomData.guestId) return;
-
-    try {
-        // Determine first pick
-        let firstPickTeam = 'blue';
-        if (roomData.settings.firstPick === 'random') {
-            firstPickTeam = Math.random() < 0.5 ? 'blue' : 'red';
-        } else if (roomData.settings.firstPick === 'host') {
-            firstPickTeam = 'blue';
+function updateChat(messages) {
+    const chatContainer = document.getElementById('chatMessages');
+    
+    if (messages.length === 0) return;
+    
+    chatContainer.innerHTML = '';
+    messages.slice(-50).forEach((msg) => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-message';
+        
+        const isSystem = msg.type === 'system';
+        const isMe = msg.uid === (currentUser ? currentUser.uid : null);
+        
+        if (isSystem) {
+            msgDiv.innerHTML = `
+                <div class="text-center py-1">
+                    <span class="text-xs text-white/50 italic">${msg.text}</span>
+                </div>
+            `;
         } else {
-            firstPickTeam = 'red';
+            msgDiv.innerHTML = `
+                <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[80%] ${isMe ? 'bg-blue-500/50' : 'bg-white/10'} rounded-2xl px-4 py-2">
+                        <div class="text-xs text-white/60 mb-1">${msg.name}</div>
+                        <div class="text-sm">${escapeHtml(msg.text)}</div>
+                    </div>
+                </div>
+            `;
         }
-
-        // Create draft document
-        await db.collection('drafts').doc(roomCode).set({
-            roomCode: roomCode,
-            gameNumber: 1,
-            bo: roomData.settings.bo,
-            currentStep: 0,
-            currentTeam: firstPickTeam,
-            timeLeft: 60,
-            phase: 'ban1',
-            blue: {
-                userId: roomData.hostId,
-                name: roomData.hostName,
-                bans: [],
-                picks: []
-            },
-            red: {
-                userId: roomData.guestId,
-                name: roomData.guestName,
-                bans: [],
-                picks: []
-            },
-            usedHeroes: [],
-            chat: [],
-            spectators: [],
-            status: 'drafting',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Update room status
-        await db.collection('rooms').doc(roomCode).update({
-            status: 'drafting'
-        });
-
-    } catch (error) {
-        showToast('Error starting draft: ' + error.message, 'error');
-    }
+        
+        chatContainer.appendChild(msgDiv);
+    });
+    
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-async function sendChat() {
+async function sendChatMessage() {
     const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    if (!message) return;
-
-    const userName = isHost ? roomData.hostName : roomData.guestName;
-
+    const text = input.value.trim();
+    
+    if (!text) return;
+    
+    const message = {
+        uid: currentUser ? currentUser.uid : 'guest_' + Date.now(),
+        name: currentUser ? (currentUser.displayName || currentUser.email) : 'Guest',
+        text: text,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
     try {
         await db.collection('rooms').doc(roomCode).update({
-            chat: firebase.firestore.FieldValue.arrayUnion({
-                user: userName,
-                message: message,
-                time: Date.now()
-            })
+            chat: firebase.firestore.FieldValue.arrayUnion(message)
         });
         input.value = '';
     } catch (error) {
-        showToast('Error sending message', 'error');
+        console.error('Error sending message:', error);
+        showToast('Failed to send message!', 'error');
+    }
+}
+
+// ============================================
+// ROOM ACTIONS
+// ============================================
+
+async function startDraft() {
+    if (!isRoomCreator) {
+        showToast('Only room creator can start!', 'error');
+        return;
+    }
+    
+    try {
+        await db.collection('rooms').doc(roomCode).update({
+            status: 'drafting',
+            startedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast('Starting draft...', 'success');
+        window.location.href = 'draft-room.html';
+    } catch (error) {
+        console.error('Error starting draft:', error);
+        showToast('Failed to start draft!', 'error');
     }
 }
 
 async function leaveRoom() {
-    if (unsubscribe) unsubscribe();
-
+    if (!confirm('Are you sure you want to leave this room?')) return;
+    
     try {
-        if (isHost) {
-            // Host leaving = close room
-            await db.collection('rooms').doc(roomCode).delete();
-        } else {
-            // Guest leaving = reset guest
-            await db.collection('rooms').doc(roomCode).update({
-                guestId: null,
-                guestName: null,
-                status: 'waiting'
-            });
+        const roomDoc = await db.collection('rooms').doc(roomCode).get();
+        const roomData = roomDoc.data();
+        
+        const userId = currentUser ? currentUser.uid : 'guest_' + Date.now();
+        
+        // Remove user from their team
+        const updateData = {};
+        
+        if (roomData.blueTeam.captain === userId) {
+            updateData['blueTeam.captain'] = null;
+            updateData['blueTeam.captainName'] = null;
+            updateData['blueTeam.members'] = [];
+        } else if (roomData.redTeam.captain === userId) {
+            updateData['redTeam.captain'] = null;
+            updateData['redTeam.captainName'] = null;
+            updateData['redTeam.members'] = [];
         }
+        
+        // Add leave message to chat
+        const leaveMessage = {
+            type: 'system',
+            text: `${currentUser ? (currentUser.displayName || currentUser.email) : 'Guest'} left the room`,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        updateData.chat = firebase.firestore.FieldValue.arrayUnion(leaveMessage);
+        
+        await db.collection('rooms').doc(roomCode).update(updateData);
+        
+        // Clear localStorage
+        localStorage.removeItem('currentRoomCode');
+        localStorage.removeItem('currentTeam');
+        localStorage.removeItem('isCaptain');
+        
+        showToast('Left room!', 'info');
+        window.location.href = 'pvp-lobby.html';
+        
     } catch (error) {
         console.error('Error leaving room:', error);
+        showToast('Failed to leave room!', 'error');
     }
-
-    window.location.href = 'index.html';
 }
 
 function copyRoomCode() {
-    navigator.clipboard.writeText(roomCode);
-    showToast('Room code copied!', 'success');
+    navigator.clipboard.writeText(roomCode).then(() => {
+        showToast('Room code copied!', 'success');
+    }).catch(() => {
+        showToast('Failed to copy!', 'error');
+    });
 }
 
-function copyRoomLink() {
-    const link = `${window.location.origin}/waiting-room.html?room=${roomCode}`;
-    navigator.clipboard.writeText(link);
-    showToast('Room link copied!', 'success');
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-// Cleanup on page unload
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-xl backdrop-blur-xl z-50 font-medium transition-all duration-300 transform translate-x-full`;
+    
+    const colors = {
+        success: 'bg-green-500/80 text-white',
+        error: 'bg-red-500/80 text-white',
+        info: 'bg-blue-500/80 text-white',
+        warning: 'bg-yellow-500/80 text-white'
+    };
+    
+    toast.classList.add(...colors[type].split(' '));
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ============================================
+// SIDEBAR NAVIGATION
+// ============================================
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+}
+
+// ============================================
+// CLEANUP
+// ============================================
+
 window.addEventListener('beforeunload', () => {
-    if (unsubscribe) unsubscribe();
+    if (roomListener) {
+        roomListener();
+    }
 });
-
-// Init
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-}

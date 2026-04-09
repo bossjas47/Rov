@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PVP Lobby - ROV Draft Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+        }
+        
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .liquid-glass-dark {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Hamburger Button -->
+    <button onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 w-12 h-12 liquid-glass rounded-xl flex items-center justify-center hover:bg-white/20 transition-all">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 liquid-glass-dark z-50 text-white transform -translate-x-full transition-transform duration-300">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">ROV Draft</h2>
+                <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-user w-5"></i>
+                    <span>Solo Draft</span>
+                </a>
+                <a href="pvp-lobby.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/30 border border-blue-400/50">
+                    <i class="fas fa-users w-5"></i>
+                    <span>PVP Draft</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-user-circle w-5"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Analyst</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-all">
+                    <i class="fas fa-history w-5"></i>
+                    <span>History</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="min-h-screen p-4 md:p-8 pt-20">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3">
+                    <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">PVP Draft Lobby</span>
+                </h1>
+                <p class="text-white/60 text-lg">Create or join a room to draft against other players</p>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+                <!-- Create Room -->
+                <div onclick="openCreateRoomModal()" class="liquid-glass rounded-3xl p-8 card-hover cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center mb-5 mx-auto">
+                        <i class="fas fa-plus text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-2">Create Room</h3>
+                    <p class="text-white/60 text-center text-sm">Create a new draft room and invite friends</p>
+                </div>
+
+                <!-- Join Room -->
+                <div onclick="openJoinRoomModal()" class="liquid-glass rounded-3xl p-8 card-hover cursor-pointer">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-5 mx-auto">
+                        <i class="fas fa-door-open text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-2">Join Room</h3>
+                    <p class="text-white/60 text-center text-sm">Enter a room code to join existing room</p>
+                </div>
+
+                <!-- Active Rooms -->
+                <div class="liquid-glass rounded-3xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Active Rooms</h3>
+                    </div>
+                    <div id="activeRoomsList" class="space-y-2 max-h-48 overflow-y-auto">
+                        <div class="text-center py-4 text-white/40 text-sm">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Loading rooms...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How to Play -->
+            <div class="liquid-glass rounded-3xl p-6 max-w-3xl mx-auto">
+                <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    How to Play
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4 text-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/30 flex items-center justify-center flex-shrink-0 text-blue-400 font-bold">1</div>
+                        <div>
+                            <div class="font-medium mb-1">Create or Join</div>
+                            <div class="text-white/60">Create a room or join with 6-digit code</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center flex-shrink-0 text-purple-400 font-bold">2</div>
+                        <div>
+                            <div class="font-medium mb-1">Wait for Players</div>
+                            <div class="text-white/60">Both teams need a captain to start</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-green-500/30 flex items-center justify-center flex-shrink-0 text-green-400 font-bold">3</div>
+                        <div>
+                            <div class="font-medium mb-1">Draft Heroes</div>
+                            <div class="text-white/60">Ban and pick heroes in turn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass rounded-3xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Create Room</h3>
+                <button onclick="closeCreateRoomModal()" class="w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">Format (BO)</label>
+                    <select id="boSelect" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-400">
+                        <option value="1">BO1 - Best of 1</option>
+                        <option value="3">BO3 - Best of 3</option>
+                        <option value="5">BO5 - Best of 5</option>
+                        <option value="7">BO7 - Best of 7</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">First Pick</label>
+                    <select id="firstPickSelect" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-400">
+                        <option value="blue">Blue Team (You)</option>
+                        <option value="red">Red Team (Opponent)</option>
+                    </select>
+                </div>
+                
+                <button onclick="createRoom()" class="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-bold hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-plus mr-2"></i> Create Room
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Room Modal -->
+    <div id="joinRoomModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass rounded-3xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Join Room</h3>
+                <button onclick="closeJoinRoomModal()" class="w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">Room Code (6 digits)</label>
+                    <input type="text" id="joinRoomCode" maxlength="6" placeholder="000000"
+                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white text-center text-2xl font-mono tracking-widest focus:outline-none focus:border-blue-400 placeholder-white/30">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">Join As</label>
+                    <select id="joinTeamSelect" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-400">
+                        <option value="blue">Blue Team Captain</option>
+                        <option value="red">Red Team Captain</option>
+                        <option value="spectator">Spectator</option>
+                    </select>
+                </div>
+                
+                <button onclick="joinRoom()" class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl font-bold hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-door-open mr-2"></i> Join Room
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center">
+        <div class="liquid-glass rounded-3xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Login / Register</h3>
+                <button onclick="closeLoginModal()" class="w-10 h-10 rounded-xl hover:bg-white/10 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com"
+                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-400 placeholder-white/30">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-white/60 mb-2">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••"
+                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-400 placeholder-white/30">
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="login()" class="flex-1 py-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl font-bold hover:scale-[1.02] transition-transform">
+                        Login
+                    </button>
+                    <button onclick="register()" class="flex-1 py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all">
+                        Register
+                    </button>
+                </div>
+                
+                <div class="relative my-4">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-white/20"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="px-4 bg-transparent text-white/50 text-sm">or</span>
+                    </div>
+                </div>
+                
+                <button onclick="googleLogin()" class="w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fab fa-google text-red-400"></i> Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Display (Top Right) -->
+    <div class="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <div id="userDisplay" class="hidden liquid-glass rounded-xl px-4 py-2 flex items-center gap-2">
+            <i class="fas fa-user-circle text-blue-400"></i>
+            <span id="userName" class="text-sm font-medium"></span>
+            <button onclick="logout()" class="ml-2 text-white/50 hover:text-white">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        <button id="loginBtn" onclick="openLoginModal()" class="liquid-glass rounded-xl px-4 py-2 hover:bg-white/20 transition-all flex items-center gap-2">
+            <i class="fas fa-sign-in-alt"></i>
+            <span class="text-sm font-medium">Login</span>
+        </button>
+    </div>
+
+    <script src="js/pvp-lobby.js"></script>
+</body>
+</html>
