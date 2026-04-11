@@ -935,17 +935,20 @@ class DraftApp {
 
     update() {
         const state = this.draftManager.getState();
-        requestAnimationFrame(() => {
+        
+        // ใช้ requestIdleCallback ถ้ามี เพื่อให้ทำงานเมื่อเบราว์เซอร์ว่าง
+        const scheduleUpdate = window.requestIdleCallback || window.requestAnimationFrame;
+        
+        scheduleUpdate(() => {
+            // อัปเดต Panel เฉพาะเมื่อข้อมูลเปลี่ยนจริง
             this.bluePanel.update(state);
             this.redPanel.update(state);
             this.heroGrid.updateStatus();
-            this.resetTimer();
             
             const phaseText = document.getElementById('phase-text');
             const teamText = document.getElementById('teamText');
             const actionHint = document.getElementById('actionHint');
             
-            // อัปเดตเฉพาะเมื่อข้อความเปลี่ยนเพื่อลดการทำงานของ DOM
             const newPhaseText = this.draftManager.getPhaseText();
             if (phaseText && phaseText.textContent !== newPhaseText) phaseText.textContent = newPhaseText;
             
@@ -965,14 +968,13 @@ class DraftApp {
             const bluePanel = document.getElementById('blue-team-panel');
             const redPanel = document.getElementById('red-team-panel');
             if (bluePanel && redPanel && currentTeam) {
-                bluePanel.classList.toggle('team-active', currentTeam === 'blue');
-                redPanel.classList.toggle('team-active-red', currentTeam === 'red');
+                const isBlueActive = currentTeam === 'blue';
+                const isRedActive = currentTeam === 'red';
+                if (bluePanel.classList.contains('team-active') !== isBlueActive) bluePanel.classList.toggle('team-active', isBlueActive);
+                if (redPanel.classList.contains('team-active-red') !== isRedActive) redPanel.classList.toggle('team-active-red', isRedActive);
             }
             
             if (state.isComplete) this.onDraftComplete();
-            
-            // ไม่เรียก lucide.createIcons() ทุกครั้งที่อัปเดต เพราะส่วนใหญ่เป็นแค่ข้อความ
-            // เรียกเฉพาะเมื่อจำเป็นจริงๆ (เช่น เมื่อมีการ Render HTML ใหม่ที่มีไอคอน)
         });
     }
 
