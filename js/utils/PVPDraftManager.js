@@ -176,11 +176,20 @@ export class PVPDraftManager {
       return { success: false, error: 'ไม่ใช่ตาของคุณ' };
     }
 
+    // Optimistic UI: อัปเดตสถานะในเครื่องทันทีและแจ้ง UI ให้ Render ใหม่
     const result = this.draftManager.selectHero(heroId);
     if (!result.success) return result;
 
-    await this.syncToFirestore();
-    await this.resetTimer();
+    // แจ้ง UI ให้ Render ทันทีโดยไม่ต้องรอ Firebase
+    if (this.onDraftUpdate) {
+      this.onDraftUpdate(this.getState());
+    }
+
+    // ทำงานเบื้องหลัง: ส่งข้อมูลไป Firebase และรีเซ็ต Timer
+    // ไม่ใช้ await เพื่อให้ฟังก์ชันคืนค่ากลับไปที่ UI ทันที
+    this.syncToFirestore().catch(e => console.error('Optimistic sync error:', e));
+    this.resetTimer().catch(e => console.error('Optimistic timer error:', e));
+
     return { success: true };
   }
 

@@ -62,7 +62,45 @@ export class HeroGrid {
         }).join('');
     }
     
-    updateStatus() { this.render(); }
+    updateStatus() {
+        // แทนที่จะ Render ใหม่ทั้งหมด ให้หาเฉพาะ Card ที่สถานะเปลี่ยน
+        const cards = this.container.querySelectorAll('.hero-card');
+        cards.forEach(card => {
+            const heroId = card.dataset.heroId;
+            const state = this.draftManager.getHeroState(heroId);
+            const isGlobal = this.draftManager.isGlobalBanned(heroId);
+            
+            // ตรวจสอบว่าสถานะปัจจุบันตรงกับ UI หรือไม่
+            const isCurrentlyDisabled = card.classList.contains('disabled');
+            const shouldBeDisabled = !!state || isGlobal;
+            
+            if (isCurrentlyDisabled !== shouldBeDisabled) {
+                // ถ้าสถานะเปลี่ยน ให้ Render ใหม่เฉพาะ Card นี้ หรืออัปเดต Class
+                if (state) {
+                    if (state.type === 'ban') {
+                        card.className = `hero-card selected-ban disabled ${isGlobal ? 'global-banned' : ''}`;
+                        // อัปเดต Badge ถ้ายังไม่มี
+                        if (!card.querySelector('.status-badge')) {
+                            card.insertAdjacentHTML('beforeend', '<div class="status-badge status-ban">✕</div>');
+                        }
+                    } else if (state.type === 'pick') {
+                        const teamClass = state.team === 'blue' ? 'selected-pick-blue' : 'selected-pick-red';
+                        card.className = `hero-card ${teamClass} disabled ${isGlobal ? 'global-banned' : ''}`;
+                        if (!card.querySelector('.status-badge')) {
+                            const badgeClass = state.team === 'blue' ? 'status-pick-blue' : 'status-pick-red';
+                            card.insertAdjacentHTML('beforeend', `<div class="status-badge ${badgeClass}">✓</div>`);
+                        }
+                    }
+                } else if (isGlobal) {
+                    card.classList.add('global-banned', 'disabled');
+                } else {
+                    card.className = 'hero-card';
+                    const badge = card.querySelector('.status-badge');
+                    if (badge) badge.remove();
+                }
+            }
+        });
+    }
     setRole(role) { this.currentRole = role; this.render(); }
     setSearch(query) { this.searchQuery = query; this.render(); }
 }
