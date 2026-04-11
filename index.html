@@ -122,10 +122,10 @@
                     <p class="text-gray-500 text-sm mt-1">เลือกจำนวนเกมที่ต้องการดราฟ (Best of)</p>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <button onclick="draftApp.setBO(1)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO1</div><div class="text-sm text-gray-500">1 เกม</div></button>
-                    <button onclick="draftApp.setBO(3)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO3</div><div class="text-sm text-gray-500">2 จาก 3 เกม</div></button>
-                    <button onclick="draftApp.setBO(5)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO5</div><div class="text-sm text-gray-500">3 จาก 5 เกม</div></button>
-                    <button onclick="draftApp.setBO(7)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO7</div><div class="text-sm text-gray-500">4 จาก 7 เกม</div></button>
+                        <button onclick="this.classList.add('ring-4', 'ring-blue-400'); setTimeout(() => draftApp.setBO(1), 10)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO1</div><div class="text-sm text-gray-500">1 เกม</div></button>
+                    <button onclick="this.classList.add('ring-4', 'ring-blue-400'); setTimeout(() => draftApp.setBO(3), 10)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO3</div><div class="text-sm text-gray-500">3 เกม</div></button>
+                    <button onclick="this.classList.add('ring-4', 'ring-blue-400'); setTimeout(() => draftApp.setBO(5), 10)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO5</div><div class="text-sm text-gray-500">5 เกม</div></button>
+                    <button onclick="this.classList.add('ring-4', 'ring-blue-400'); setTimeout(() => draftApp.setBO(7), 10)" class="p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-center"><div class="text-3xl font-bold text-gray-700">BO7</div><div class="text-sm text-gray-500">7 เกม</div></button>/div></button>
                 </div>
                 <div class="bg-blue-50 rounded-xl p-4 mb-6">
                     <div class="flex items-start gap-3">
