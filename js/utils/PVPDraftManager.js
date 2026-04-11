@@ -66,6 +66,8 @@ export class PVPDraftManager {
     const roomId = pvpManager.currentRoom?.id;
     if (!roomId) return;
 
+    let lastStep = -1;
+
     this.unsubscribeDraft = firebaseService.db
       .collection('pvp_rooms')
       .doc(roomId)
@@ -73,6 +75,14 @@ export class PVPDraftManager {
         if (doc.exists) {
           const room = doc.data();
           if (room.draft) {
+            const currentStep = room.draft.currentStep || 0;
+            
+            // ถ้า Step เปลี่ยน ให้รีเซ็ต Timer ในเครื่องทันที
+            if (currentStep !== lastStep) {
+              lastStep = currentStep;
+              this.startTimer(); // เริ่มนับใหม่จากค่าใน Firebase หรือค่าเริ่มต้น
+            }
+
             this.syncFromRoom({ ...room, id: doc.id });
             if (this.onDraftUpdate) this.onDraftUpdate(this.getState());
           }
@@ -115,6 +125,9 @@ export class PVPDraftManager {
     const room = pvpManager.currentRoom;
     if (!room) return;
 
+    // เฉพาะคนที่มีตาเดินเท่านั้นที่เป็นคนอัปเดตเวลาจบใน Firebase
+    if (!pvpManager.isMyTurn()) return;
+
     const timePerTurn = room.settings?.timePerTurn || 60;
     const endTime = Date.now() + (timePerTurn * 1000);
 
@@ -124,6 +137,7 @@ export class PVPDraftManager {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       this.remainingTime = timePerTurn;
+      if (this.onTimerUpdate) this.onTimerUpdate(this.remainingTime);
     } catch (e) {
       console.error('Reset timer error:', e);
     }
