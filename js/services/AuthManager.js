@@ -20,18 +20,34 @@ export class AuthManager {
     updateUI(user, userData) {
         const loginBanner = document.getElementById('loginBanner');
         const sidebarUserInfo = document.getElementById('sidebarUserInfo');
-        if (user) {
-            if (loginBanner) loginBanner.style.display = 'none';
-            if (sidebarUserInfo) {
-                const name = userData?.username || user.displayName || 'User';
-                const photo = userData?.photoURL || user.photoURL;
-                sidebarUserInfo.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden">${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : `<span class="text-white font-bold text-sm">${name.charAt(0).toUpperCase()}</span>`}</div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${name}</p><p class="text-xs text-green-600 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span>ออนไลน์</p></div><button onclick="authManager.logout()" class="p-2 rounded-lg hover:bg-gray-200" title="ออกจากระบบ"><i data-lucide="log-out" class="w-4 h-4 text-gray-600"></i></button>`;
-                if (window.lucide) lucide.createIcons();
+        
+        // ใช้ requestAnimationFrame เพื่อให้ UI อัปเดตในเฟรมถัดไป ไม่ขัดจังหวะ Main Thread
+        requestAnimationFrame(() => {
+            if (user) {
+                if (loginBanner) loginBanner.style.display = 'none';
+                if (sidebarUserInfo) {
+                    const name = userData?.username || user.displayName || 'User';
+                    const photo = userData?.photoURL || user.photoURL;
+                    
+                    // ตรวจสอบก่อนว่าเนื้อหาเปลี่ยนจริงหรือไม่ เพื่อลดการเขียน DOM
+                    const newHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center overflow-hidden">${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : `<span class="text-white font-bold text-sm">${name.charAt(0).toUpperCase()}</span>`}</div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">${name}</p><p class="text-xs text-green-600 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span>ออนไลน์</p></div><button onclick="authManager.logout()" class="p-2 rounded-lg hover:bg-gray-200" title="ออกจากระบบ"><i data-lucide="log-out" class="w-4 h-4 text-gray-600"></i></button>`;
+                    
+                    if (sidebarUserInfo.innerHTML !== newHTML) {
+                        sidebarUserInfo.innerHTML = newHTML;
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
+            } else {
+                if (loginBanner) loginBanner.style.display = 'block';
+                if (sidebarUserInfo) {
+                    const guestHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-gray-400 to-gray-500 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-white"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p><p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p></div>`;
+                    if (sidebarUserInfo.innerHTML !== guestHTML) {
+                        sidebarUserInfo.innerHTML = guestHTML;
+                        if (window.lucide) lucide.createIcons();
+                    }
+                }
             }
-        } else {
-            if (loginBanner) loginBanner.style.display = 'block';
-            if (sidebarUserInfo) { sidebarUserInfo.innerHTML = `<div class="w-10 h-10 rounded-full bg-gradient-to-r from-gray-400 to-gray-500 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-white"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-800 truncate">ผู้เยี่ยมชม</p><p class="text-xs text-gray-500">กรุณาเข้าสู่ระบบ</p></div>`; if (window.lucide) lucide.createIcons(); }
-        }
+        });
     }
     showLoginModal() { document.getElementById('loginModal')?.classList.remove('hidden'); document.getElementById('registerModal')?.classList.add('hidden'); }
     closeLoginModal() { document.getElementById('loginModal')?.classList.add('hidden'); }

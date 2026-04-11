@@ -944,13 +944,23 @@ class DraftApp {
             const phaseText = document.getElementById('phase-text');
             const teamText = document.getElementById('teamText');
             const actionHint = document.getElementById('actionHint');
-            if (phaseText) phaseText.textContent = this.draftManager.getPhaseText();
-            if (teamText) teamText.textContent = this.draftManager.getTeamText();
-            if (actionHint) actionHint.textContent = this.draftManager.getActionHint();
+            
+            // อัปเดตเฉพาะเมื่อข้อความเปลี่ยนเพื่อลดการทำงานของ DOM
+            const newPhaseText = this.draftManager.getPhaseText();
+            if (phaseText && phaseText.textContent !== newPhaseText) phaseText.textContent = newPhaseText;
+            
+            const newTeamText = this.draftManager.getTeamText();
+            if (teamText && teamText.textContent !== newTeamText) teamText.textContent = newTeamText;
+            
+            const newActionHint = this.draftManager.getActionHint();
+            if (actionHint && actionHint.textContent !== newActionHint) actionHint.textContent = newActionHint;
             
             const currentTeam = this.draftManager.getCurrentTeam();
             const indicator = document.getElementById('currentTeamIndicator');
-            if (indicator && currentTeam) indicator.className = `flex items-center gap-3 font-bold text-lg ${currentTeam === 'blue' ? 'text-blue-600' : 'text-red-600'}`;
+            if (indicator && currentTeam) {
+                const newIndicatorClass = `flex items-center gap-3 font-bold text-lg ${currentTeam === 'blue' ? 'text-blue-600' : 'text-red-600'}`;
+                if (indicator.className !== newIndicatorClass) indicator.className = newIndicatorClass;
+            }
             
             const bluePanel = document.getElementById('blue-team-panel');
             const redPanel = document.getElementById('red-team-panel');
@@ -960,7 +970,9 @@ class DraftApp {
             }
             
             if (state.isComplete) this.onDraftComplete();
-            if (window.lucide) lucide.createIcons();
+            
+            // ไม่เรียก lucide.createIcons() ทุกครั้งที่อัปเดต เพราะส่วนใหญ่เป็นแค่ข้อความ
+            // เรียกเฉพาะเมื่อจำเป็นจริงๆ (เช่น เมื่อมีการ Render HTML ใหม่ที่มีไอคอน)
         });
     }
 
