@@ -169,3 +169,6 @@ function searchHeroes(query) {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { heroes: heroesData, roleColors, roleLabels, getHeroById, getHeroesByRole, searchHeroes };
 }
+
+export const heroes = heroesData;
+export { roleColors, roleLabels, getHeroById, getHeroesByRole, searchHeroes };
