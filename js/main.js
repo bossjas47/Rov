@@ -752,17 +752,12 @@ class DraftApp {
     }
 
     init() {
-        // ใช้ requestIdleCallback เพื่อเลื่อนการทำงานที่หนักออกไป ไม่ให้ขวางการโหลดหน้าแรก
-        const scheduleInit = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-        
-        scheduleInit(() => {
-            this.renderRoleFilters();
-            this.setupEventListeners();
-            this.update();
-            // ไม่แสดง BO Modal อัตโนมัติ ต้อง login ก่อน
-            window.draftApp = this;
-            window.app = this;
-        });
+        // Extreme Performance: โหลดทุกอย่างทันทีแบบ Synchronous เพื่อให้พร้อมใช้งานเร็วที่สุด
+        this.renderRoleFilters();
+        this.setupEventListeners();
+        this.update();
+        window.draftApp = this;
+        window.app = this;
     }
 
     renderRoleFilters() {
@@ -811,36 +806,32 @@ class DraftApp {
     }
 
     setBO(bo) {
-        // Optimistic UI: ปิด Modal ทันทีที่คลิกเพื่อให้ผู้ใช้รู้สึกว่าระบบตอบสนองแล้ว
+        // Extreme Performance: ปิด Modal และประมวลผลทันทีโดยไม่มี Delay
         this.closeBOModal();
         
-        // บังคับ login ก่อนเริ่มดราฟ
         if (!authManager.isLoggedIn()) {
             this.toast.show('กรุณาเข้าสู่ระบบก่อนเริ่มดราฟ', 'warning');
             authManager.showLoginModal();
             return;
         }
         
-        // ใช้ setTimeout เพื่อแยกการประมวลผลหนักๆ ออกจาก UI Thread
-        setTimeout(() => {
-            this.draftManager.initMatch(bo);
-            this.boSelected = true;
-            
-            const boDisplay = document.getElementById('boDisplay');
-            const boText = document.getElementById('boText');
-            const gameCounter = document.getElementById('gameCounter');
-            const totalGames = document.getElementById('totalGames');
-            
-            if (boDisplay) boDisplay.classList.remove('hidden');
-            if (boText) boText.textContent = `BO${bo}`;
-            if (gameCounter) gameCounter.classList.remove('hidden');
-            if (totalGames) totalGames.textContent = bo;
-            
-            this.updateGameCounter();
-            this.startTimer();
-            this.toast.show(`เริ่มดราฟแบบ BO${bo}`, 'success');
-            this.update();
-        }, 50);
+        this.draftManager.initMatch(bo);
+        this.boSelected = true;
+        
+        const boDisplay = document.getElementById('boDisplay');
+        const boText = document.getElementById('boText');
+        const gameCounter = document.getElementById('gameCounter');
+        const totalGames = document.getElementById('totalGames');
+        
+        if (boDisplay) boDisplay.classList.remove('hidden');
+        if (boText) boText.textContent = `BO${bo}`;
+        if (gameCounter) gameCounter.classList.remove('hidden');
+        if (totalGames) totalGames.textContent = bo;
+        
+        this.updateGameCounter();
+        this.startTimer();
+        this.toast.show(`เริ่มดราฟแบบ BO${bo}`, 'success');
+        this.update();
     }
 
     showBOModal() {
