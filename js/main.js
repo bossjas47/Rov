@@ -917,6 +917,26 @@ class DraftApp {
         }
         this.hideConfirmButtons();
         this.update();
+        
+        // ปรับปรุง: บันทึกข้อมูลลง Firebase เฉพาะเมื่อจบดราฟ (ครบ 5 ตัวทั้งสองฝั่ง)
+        if (this.draftManager.isDraftReadyToSave()) {
+            this.toast.show('กำลังบันทึกข้อมูลดราฟ...', 'info');
+            this.saveDraftBatch();
+        }
+    }
+    
+    async saveDraftBatch() {
+        if (!authManager.isLoggedIn()) return;
+        
+        const draftData = this.draftManager.getDraftData();
+        const result = await firebaseService.saveDraft(draftData);
+        
+        if (result.success) {
+            this.toast.show('บันทึกข้อมูลดราฟเรียบร้อยแล้ว', 'success');
+        } else {
+            console.error('Batch save error:', result.error);
+            this.toast.show('ไม่สามารถบันทึกข้อมูลได้: ' + result.error, 'error');
+        }
     }
 
     // ยกเลิกการเลือก

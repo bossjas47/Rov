@@ -94,10 +94,24 @@ export class DraftManager {
         this.state.currentStep++;
         if (this.state.currentStep >= DRAFT_SEQUENCE.length) {
             this.state.isComplete = true;
-            this.games.push({ gameNumber: this.currentGame, blue: { ...this.state.blue }, red: { ...this.state.red } });
+            // เก็บข้อมูลเกมที่จบลง
+            const gameData = { 
+                gameNumber: this.currentGame, 
+                blue: { ...this.state.blue }, 
+                red: { ...this.state.red } 
+            };
+            this.games.push(gameData);
+            
+            // เพิ่มฮีโร่ที่ถูกเลือกเข้า Global Ban สำหรับเกมถัดไป
             this.state.blue.picks.forEach(id => this.globalBannedHeroes.add(id.toString()));
             this.state.red.picks.forEach(id => this.globalBannedHeroes.add(id.toString()));
+            
             this.toast?.show(`ดราฟเกมที่ ${this.currentGame} เสร็จสิ้น!`, 'success');
+            
+            // แจ้งเตือนว่าพร้อมบันทึก (ถ้าเป็นเกมสุดท้ายของแมตช์)
+            if (this.isMatchComplete()) {
+                this.toast?.show('ดราฟครบทุกเกมแล้ว ระบบกำลังเตรียมบันทึกข้อมูล...', 'info');
+            }
         }
         this.onUpdate();
     }
@@ -112,7 +126,15 @@ export class DraftManager {
         return false;
     }
     
-    isMatchComplete() { return this.currentGame >= this.bo && this.state.isComplete; }
+    isMatchComplete() { 
+        // ตรวจสอบว่าดราฟครบทุกเกมตามจำนวน BO หรือยัง
+        return this.currentGame >= this.bo && this.state.isComplete; 
+    }
+    
+    isDraftReadyToSave() {
+        // ตรวจสอบว่าทั้งสองฝั่งเลือกครบ 5 ตัวในเกมปัจจุบันหรือไม่
+        return this.state.blue.picks.length === 5 && this.state.red.picks.length === 5;
+    }
     
     removeHero(team, type, index) {
         const list = this.state[team][type === 'ban' ? 'bans' : 'picks'];
