@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ถึงแบม — ราชโองการสูงสุด</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=Sarabun:wght@300;400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #f5e6c8;
+  --ink: #2c1a0e;
+  --ink-faded: #5c3d1e;
+  --crimson: #8b1a1a;
+  --gold: #c9922b;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+@keyframes flicker {
+  0%,100%{opacity:1} 40%{opacity:.85} 70%{opacity:.92}
+}
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)}
+}
+@keyframes beat {
+  0%,100%{transform:scale(1)} 30%{transform:scale(1.18)} 60%{transform:scale(1.06)}
+}
+@keyframes shimmer {
+  0%{background-position:-200% center} 100%{background-position:200% center}
+}
+@keyframes popIn {
+  0%{opacity:0;transform:scale(.7)} 70%{transform:scale(1.06)} 100%{opacity:1;transform:scale(1)}
+}
+@keyframes fall {
+  to{transform:translateY(105vh) rotate(360deg);opacity:0}
+}
+
+body {
+  min-height:100vh;
+  background:#1a0e05;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:36px 16px 60px;
+  font-family:'Sarabun',sans-serif;
+  overflow-x:hidden;
+}
+
+/* Candles */
+.candles { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.candle { position:absolute; bottom:0; display:flex; flex-direction:column; align-items:center; }
+.flame {
+  width:10px; height:20px;
+  background:radial-gradient(ellipse at 50% 85%,#fff8 20%,#ffd700 55%,#ff7700 85%,transparent);
+  border-radius:50% 50% 40% 40%;
+  animation:flicker 2.5s ease-in-out infinite;
+  will-change:opacity;
+}
+.glow {
+  position:absolute; width:50px; height:50px;
+  background:radial-gradient(circle,rgba(255,200,70,.2) 0%,transparent 70%);
+  border-radius:50%; top:-18px; left:-20px;
+  animation:flicker 2.5s ease-in-out infinite;
+}
+.candle-body { width:14px; height:70px; background:linear-gradient(90deg,#f0d8a0,#e8c870 50%,#d4a840); border-radius:2px 2px 0 0; }
+.c1{left:4%;} .c2{right:4%;}
+.c2 .flame,.c2 .glow{animation-delay:.9s}
+
+/* Scroll */
+.scroll { position:relative; z-index:10; max-width:660px; width:100%; animation:fadeUp 1.2s ease-out forwards; }
+
+.cap {
+  height:44px;
+  background:linear-gradient(to bottom,#7a5810,#c9922b,#e8b840,#c9922b,#7a5810);
+  border-radius:6px 6px 0 0;
+  display:flex; align-items:center; justify-content:center;
+  color:#2c1a0e; font-family:'Cinzel',serif; font-size:13px; letter-spacing:10px; opacity:.8;
+}
+.cap-bottom {
+  height:44px;
+  background:linear-gradient(to top,#7a5810,#c9922b,#e8b840,#c9922b,#7a5810);
+  border-radius:0 0 6px 6px;
+  display:flex; align-items:center; justify-content:center;
+  color:#2c1a0e; font-family:'Cinzel',serif; font-size:13px; letter-spacing:10px; opacity:.8;
+}
+
+.body {
+  background:#f5e6c8;
+  background-image:linear-gradient(180deg,#faf0d8 0%,#f5e6c8 40%,#f0dca0 100%);
+  padding:48px 56px;
+  box-shadow:4px 4px 30px rgba(0,0,0,.6),inset 0 0 50px rgba(139,105,20,.06);
+  border:1px solid rgba(201,146,43,.3);
+  position:relative;
+}
+.body::before {
+  content:''; position:absolute; inset:14px;
+  border:1px solid rgba(201,146,43,.3);
+  pointer-events:none;
+}
+
+.corner { position:absolute; font-size:20px; color:var(--gold); opacity:.6; }
+.tl{top:16px;left:16px;} .tr{top:16px;right:16px;transform:scaleX(-1);}
+.bl{bottom:16px;left:16px;transform:scaleY(-1);} .br{bottom:16px;right:16px;transform:scale(-1);}
+
+.hr { display:flex; align-items:center; gap:10px; margin:22px 0; }
+.hr-line { flex:1; height:1px; background:linear-gradient(to right,transparent,#c9922b,transparent); opacity:.5; }
+.hr span { color:var(--crimson); font-size:13px; opacity:.7; }
+
+/* Header */
+.seal {
+  width:70px; height:70px;
+  background:radial-gradient(circle at 35% 35%,#f0d060,#c9922b,#7a5810);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px;
+  margin:0 auto 14px;
+  box-shadow:0 4px 18px rgba(0,0,0,.35);
+  animation:beat 2.8s ease-in-out infinite;
+  will-change:transform;
+}
+.eyebrow { font-family:'Cinzel',serif; font-size:10px; letter-spacing:.4em; color:var(--ink-faded); text-align:center; text-transform:uppercase; margin-bottom:12px; }
+.title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(18px,4vw,26px);
+  text-align:center;
+  background:linear-gradient(135deg,#8b1a1a 0%,#c0392b 40%,#c9922b 70%,#8b1a1a 100%);
+  background-size:300% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 5s linear infinite;
+  margin-bottom:6px;
+}
+.sub { font-family:'IM Fell English',serif; font-style:italic; font-size:14px; color:var(--ink-faded); text-align:center; }
+
+/* Text */
+.letter { font-family:'IM Fell English',serif; font-size:15.5px; color:var(--ink); line-height:1.95; text-align:justify; text-indent:1.8em; animation:fadeUp 1.4s ease-out .4s backwards; }
+.thai { font-family:'Sarabun',sans-serif; font-weight:300; font-size:15px; color:var(--ink-faded); line-height:2; text-align:center; animation:fadeUp 1.4s ease-out .6s backwards; }
+.drop { float:left; font-family:'Cinzel Decorative',serif; font-size:52px; line-height:.8; padding-right:8px; padding-top:6px; background:linear-gradient(135deg,#8b1a1a,#c9922b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+.poem { font-family:'IM Fell English',serif; font-style:italic; font-size:14.5px; color:var(--ink-faded); text-align:center; line-height:2.1; padding:16px 24px; border-left:2px solid rgba(201,146,43,.35); border-right:2px solid rgba(201,146,43,.35); }
+.boss { font-family:'Cinzel',serif; font-size:17px; color:var(--crimson); text-align:center; letter-spacing:.05em; margin:4px 0; }
+
+/* Button */
+.btn-wrap { display:flex; justify-content:center; margin-top:28px; }
+.btn {
+  font-family:'Cinzel Decorative',serif; font-size:13px;
+  color:#f5e6c8;
+  background:linear-gradient(135deg,#6b0f0f,#8b1a1a,#a02020,#8b1a1a,#6b0f0f);
+  background-size:200% auto;
+  border:none; padding:15px 36px; border-radius:2px; cursor:pointer;
+  letter-spacing:.12em;
+  box-shadow:0 4px 18px rgba(139,26,26,.5),0 0 0 1px rgba(201,146,43,.4),0 0 0 3px rgba(139,26,26,.2);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(139,26,26,.65),0 0 0 1px rgba(201,146,43,.6); }
+.btn:active { transform:translateY(0); }
+
+/* Modal */
+.overlay {
+  position:fixed; inset:0; background:rgba(8,4,0,.82);
+  display:flex; align-items:center; justify-content:center;
+  z-index:100; opacity:0; pointer-events:none;
+  transition:opacity .35s ease; padding:20px;
+}
+.overlay.on { opacity:1; pointer-events:all; }
+.modal {
+  max-width:480px; width:100%;
+  background:linear-gradient(135deg,#fdf6e3,#f5e6c8,#f0d9a0);
+  padding:44px 44px 34px; border-radius:3px; position:relative;
+  box-shadow:0 0 0 1px rgba(201,146,43,.5),0 0 0 4px rgba(139,26,26,.15),0 20px 60px rgba(0,0,0,.65);
+  text-align:center;
+  transform:scale(.8) translateY(20px);
+  transition:transform .4s cubic-bezier(.175,.885,.32,1.275);
+}
+.overlay.on .modal { transform:scale(1) translateY(0); }
+
+.mc { position:absolute; font-size:18px; color:var(--gold); opacity:.6; }
+.mc-tl{top:12px;left:12px;} .mc-tr{top:12px;right:12px;transform:scaleX(-1);}
+.mc-bl{bottom:12px;left:12px;transform:scaleY(-1);} .mc-br{bottom:12px;right:12px;transform:scale(-1);}
+
+.m-heart { font-size:56px; display:block; margin-bottom:12px; animation:beat 1.4s ease-in-out infinite; }
+.m-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(14px,4vw,20px);
+  background:linear-gradient(135deg,#8b1a1a,#c9922b,#8b1a1a);
+  background-size:200% auto;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:shimmer 3s linear infinite;
+  line-height:1.5; margin-bottom:6px;
+}
+.m-th { font-family:'Sarabun',sans-serif; font-size:clamp(22px,5.5vw,34px); font-weight:400; color:var(--crimson); display:block; margin:8px 0 4px; animation:popIn .6s ease-out .1s backwards; }
+.m-boss { font-family:'Cinzel',serif; font-size:clamp(11px,2.5vw,15px); color:var(--gold); margin-top:6px; letter-spacing:.06em; animation:popIn .6s ease-out .25s backwards; }
+.m-sub { font-family:'IM Fell English',serif; font-style:italic; font-size:13.5px; color:var(--ink-faded); line-height:1.8; margin-top:14px; }
+.m-close { margin-top:24px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:.18em; color:var(--ink-faded); background:none; border:1px solid rgba(201,146,43,.4); padding:9px 22px; cursor:pointer; text-transform:uppercase; border-radius:2px; transition:all .25s; }
+.m-close:hover { background:rgba(201,146,43,.12); border-color:rgba(201,146,43,.7); color:var(--ink); }
+
+.p { position:fixed; pointer-events:none; z-index:200; animation:fall linear forwards; }
+
+@media(max-width:560px){
+  .body{ padding:36px 22px; }
+  .poem{ padding:14px 10px; }
+  .modal{ padding:32px 20px 26px; }
+}
+</style>
+</head>
+<body>
+
+<div class="candles">
+  <div class="candle c1">
+    <div style="position:relative"><div class="glow"></div><div class="flame"></div></div>
+    <div class="candle-body"></div>
+  </div>
+  <div class="candle c2">
+    <div style="position:relative"><div class="glow"></div><div class="flame"></div></div>
+    <div class="candle-body" style="height:55px"></div>
+  </div>
+</div>
+
+<div class="scroll">
+  <div class="cap">✦ ✦ ✦</div>
+
+  <div class="body">
+    <span class="corner tl">❧</span><span class="corner tr">❧</span>
+    <span class="corner bl">❧</span><span class="corner br">❧</span>
+
+    <p class="eyebrow">— ราชโองการอันศักดิ์สิทธิ์ · Anno Domini —</p>
+    <div class="seal">♥</div>
+    <h1 class="title">To Bam the Supreme</h1>
+    <p class="sub">A Proclamation Most Urgent & Slightly Embarrassing</p>
+
+    <div class="hr"><div class="hr-line"></div><span>✦ ❦ ✦</span><div class="hr-line"></div></div>
+
+    <p class="letter">
+      <span class="drop">H</span>
+      earken well, O Bam, for the Royal Scribes hath laboured through many a sleepless night — consuming copious amounts of parchment and quill — simply to declare unto thee what hath been known since the dawn of this humble kingdom: that thou art, without shadow of doubt, the greatest nuisance and the grandest joy this realm hath ever had the misfortune of encountering.
+    </p>
+
+    <br>
+
+    <p class="thai">
+      ข้าพระบาทขอกราบประกาศต่อสี่ทิศ ทั้งฟ้าดิน สายน้ำ และสายลม<br>
+      ว่าแบมนั้น ทำให้ข้าหัวร้อน ขนลุก และยิ้มโง่ๆ ได้พร้อมกันทุกที<br>
+      <em style="font-size:13px;opacity:.7">— ซึ่งข้าคิดว่านั่นแหละคือนิยามความรักในยุคกลาง —</em>
+    </p>
+
+    <div class="hr"><div class="hr-line"></div><span>✦ ✦ ✦</span><div class="hr-line"></div></div>
+
+    <div class="poem">
+      Thou art the reason my armour doth rust —<br>
+      for I stand too long gazing upon thy face.<br>
+      Thou hast stolen my horse, my sword, and my dignity,<br>
+      <em>and yet I find myself granting thee even more.</em>
+      <br><br>
+      ขอมอบหัวใจ ขนมปัง และม้าศึกตัวสุดท้าย<br>
+      <em>ให้แก่แบม — เจ้าแห่งความวุ่นวายในชีวิตข้า</em>
+    </div>
+
+    <div class="hr"><div class="hr-line"></div><span>✦ ❦ ✦</span><div class="hr-line"></div></div>
+
+    <p class="boss">✦ เหนือฟ้าใต้หล้า บอสประเสริฐที่สุด ✦</p>
+
+    <br>
+
+    <p class="thai" style="font-size:14px;opacity:.75;">
+      กดผนึกประทับด้านล่าง แล้วจงทราบไว้เถิดว่า...<br>
+      ข้าได้คิดมาแล้วสามวันกว่าจะกล้ากด
+    </p>
+
+    <div class="btn-wrap">
+      <button class="btn" onclick="open_modal(event)">♥ &nbsp; Break the Royal Seal &nbsp; ♥</button>
+    </div>
+
+    <div class="hr" style="margin-top:28px">
+      <div class="hr-line"></div>
+      <span style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:var(--ink-faded)">Sealed with Love & Mild Panic</span>
+      <div class="hr-line"></div>
+    </div>
+  </div>
+
+  <div class="cap-bottom">✦ ✦ ✦</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="bg_close(event)">
+  <div class="modal" id="modal">
+    <span class="mc mc-tl">❧</span><span class="mc mc-tr">❧</span>
+    <span class="mc mc-bl">❧</span><span class="mc mc-br">❧</span>
+
+    <span class="m-heart">♥</span>
+
+    <div class="m-title">
+      I Love Bam Most in This World
+      <span class="m-th">รักแบมที่สุดในโลก</span>
+    </div>
+
+    <p class="m-boss">✦ เหนือฟ้าใต้หล้า บอสประเสริฐที่สุด ✦</p>
+
+    <p class="m-sub">
+      More than all the gold in the kingdom treasury.<br>
+      More than the knight loves his horse.<br>
+      <em>(และมากกว่าข้ารักขนมปังยีสต์ในห้องเสบียงแน่นอน)</em>
+    </p>
+
+    <br>
+    <button class="m-close" onclick="close_modal()">✦ ปิดราชโองการ ✦</button>
+  </div>
+</div>
+
+<script>
+var S=['♥','❦','✦','♡','❧','✿'];
+var C=['#c0392b','#c9922b','#f0c060','#8b1a1a'];
+
+function open_modal(){
+  document.getElementById('overlay').classList.add('on');
+  shoot(14);
+}
+function close_modal(){
+  document.getElementById('overlay').classList.remove('on');
+}
+function bg_close(e){
+  if(e.target===document.getElementById('overlay')) close_modal();
+}
+function shoot(n){
+  for(var i=0;i<n;i++){
+    (function(d){
+      setTimeout(function(){
+        var el=document.createElement('div');
+        el.className='p';
+        el.textContent=S[0|Math.random()*S.length];
+        el.style.cssText='left:'+(5+Math.random()*90)+'vw;top:-20px;font-size:'+(11+Math.random()*14)+'px;color:'+C[0|Math.random()*C.length]+';animation-duration:'+(2.5+Math.random()*2)+'s;opacity:'+(0.5+Math.random()*0.5);
+        document.body.appendChild(el);
+        setTimeout(function(){el.remove();},5000);
+      },d);
+    })(i*80);
+  }
+}
+</script>
+</body>
+</html>
